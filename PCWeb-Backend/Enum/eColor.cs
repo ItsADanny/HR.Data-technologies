@@ -1,0 +1,23 @@
+public enum eColor
+{
+    Black,
+    White,
+    Red,
+    Green,
+    Blue,
+    Yellow,
+    Orange,
+    Purple,
+    Pink,
+    Brown,
+    Gray,
+    Cyan,
+    Magenta,
+    Lime,
+    Teal,
+    Navy,
+    Maroon,
+    Olive,
+    Silver,
+    Gold
+}

@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "14PII2Twqrs=",
+  "success": true,
+  "projectFilePath": "/Users/dannydesnoo/Documents/GitHub/HR.Data-technologies/PCWeb-Backend/PCWeb-Backend.csproj",
+  "expectedPackageFiles": [
+    "/Users/dannydesnoo/.nuget/packages/microsoft.aspnetcore.openapi/10.0.0/microsoft.aspnetcore.openapi.10.0.0.nupkg.sha512",
+    "/Users/dannydesnoo/.nuget/packages/microsoft.openapi/2.0.0/microsoft.openapi.2.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
