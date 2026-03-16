@@ -1,41 +1,49 @@
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+//Loading database connection variables into a DBConfig object at program launch
+DBConfig? dbConfig = builder.Configuration.GetSection("Database").Get<DBConfig>();
+//If database connection variables can't be loaded exit program with error
+if (dbConfig is null) throw new NullReferenceException("Can't load user-secrets into DBConfig");
+//Check if the HOST and PORT for the DBConfig are filled
+if (dbConfig.HST is null || dbConfig.PRT is null) throw new NullReferenceException("Can't load user-secrets into DBConfig");
+//Set the DBConfig into the DBHelper
+DBHandler.DBConfig = dbConfig;
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    //This will generate a OpenAPI yaml document 
+    //when the application is run in DEV mode
+    app.MapOpenApi("/openapi/{documentName}.yaml");
+    
+    app.UseSwagger();
+    app.UseSwaggerUI(options => // UseSwaggerUI is called only in Development.
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+        options.RoutePrefix = string.Empty;
+    });
 }
+
+//Test endpoint to ping
+app.MapPost("ping", () =>
+{
+    return "Pong";
+})
+.WithName("Ping");
 
 app.UseHttpsRedirection();
-
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
-
+// app.MapSwagger().RequireAuthorization();
+app.MapSwagger();
+app.MapControllers();
 app.Run();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+
+Console.WriteLine($"Server started, Listening to port: {port}");
+Log.WriteLine($"Server started, Listening to port: {port}");
