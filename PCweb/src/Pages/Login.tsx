@@ -11,7 +11,7 @@ export default function Login() {
     //
     // -------------------------------------------------------------
 
-    const handleSubmit = (e) => {
+    const handleSubmit = (e: { preventDefault: () => void; }) => {
         e.preventDefault();
         // Here handle logic for backend 
     };
@@ -20,7 +20,7 @@ export default function Login() {
     <div className="Login">
         <h1>Login Page</h1>
         <p>Please enter your credentials to log in.</p>
-        {/* Add your login form here */}
+        {/* login form */}
         <form onSubmit={handleSubmit}>
             <label> Email </label>
             <br />
