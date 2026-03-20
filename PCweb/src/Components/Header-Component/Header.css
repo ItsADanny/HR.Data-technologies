@@ -1,5 +1,57 @@
-.headerbox {
-    background-color: #6c38d5;
-    color: rgb(231, 32, 32);
-    padding: 20px;
+html,
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.header-container {
+    background: linear-gradient(90deg, #6c38d5 0%, #2563eb 100%);
+    color: #f9fafb;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.logo {
+    margin: 0;
+    font-size: 24px;
+    font-weight: bold;
+    letter-spacing: 0.3px;
+}
+
+.search-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    max-width: 600px;
+}
+
+.searchfield {
+    flex: 1;
+    border: 1px solid #374151;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 14px;
+}
+
+.user-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.login-link {
+    color: #f9fafb;
+    text-decoration: none;
+    font-size: 20px;
+    transition: color 0.2s ease;
+}
+
+.cart-icon {
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
 }
