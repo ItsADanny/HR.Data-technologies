@@ -20,7 +20,16 @@ export default function Navbar() {
                     </button>
 
                     <ul className='category-menu'>
-                        <li><a href='/'>PC Components</a></li>
+                        <li className='has-submenu'>
+                            <a href='/'>PC Components</a>
+                            <ul className='subcategory-menu'>
+                                <li><a href='/'>CPUs</a></li>
+                                <li><a href='/'>GPUs</a></li>
+                                <li><a href='/'>RAM</a></li>
+                                <li><a href='/'>Motherboards</a></li>
+                                <li><a href='/'>Power Supplies</a></li>
+                            </ul>
+                        </li>
                         <li><a href='/'>Gaming PCs</a></li>
                         <li><a href='/'>Laptops</a></li>
                         <li><a href='/'>Monitors</a></li>

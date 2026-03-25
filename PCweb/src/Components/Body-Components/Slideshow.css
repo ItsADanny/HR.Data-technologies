@@ -1,0 +1,118 @@
+.slideshow-container {
+    position: relative;
+    width: min(1100px, 92vw);
+    margin: 20px auto;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 16px 40px rgba(13, 38, 76, 0.22);
+}
+
+.slideshow-track {
+    display: flex;
+    transition: transform 450ms ease;
+}
+
+.slide {
+    min-width: 100%;
+    min-height: 360px;
+    display: flex;
+    align-items: center;
+    padding: 40px;
+    box-sizing: border-box;
+}
+
+.slide-content {
+    max-width: 520px;
+    color: #f8fbff;
+}
+
+.slide-content h2 {
+    margin: 0 0 12px;
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
+    line-height: 1.2;
+}
+
+.slide-content p {
+    margin: 0 0 24px;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.slideshow-link {
+    display: inline-block;
+    padding: 10px 16px;
+    background: #f8fbff;
+    color: #0b2a4e;
+    text-decoration: none;
+    border-radius: 999px;
+    font-weight: 700;
+}
+
+.slide-theme-1 {
+    background: linear-gradient(120deg, #0f4ca8, #2a7de0);
+}
+
+.slide-theme-2 {
+    background: linear-gradient(120deg, #0f6a6f, #1aa6a6);
+}
+
+.slide-theme-3 {
+    background: linear-gradient(120deg, #663f00, #d48300);
+}
+
+.slide-control {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 42px;
+    height: 42px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.88);
+    color: #0f172a;
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.slide-prev {
+    left: 12px;
+}
+
+.slide-next {
+    right: 12px;
+}
+
+.slide-dots {
+    position: absolute;
+    left: 50%;
+    bottom: 14px;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+}
+
+.slide-dot {
+    width: 10px;
+    height: 10px;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.45);
+}
+
+.slide-dot.active {
+    background: #ffffff;
+}
+
+@media (max-width: 768px) {
+    .slide {
+        min-height: 300px;
+        padding: 26px;
+    }
+
+    .slide-control {
+        width: 36px;
+        height: 36px;
+    }
+}
