@@ -17,7 +17,7 @@ export default function Header() {
                     />
                 </div>
                 <div className='user-container'>
-                    <a className='login-link' href="...">Login</a>
+                    <a className='login-link' href="Login">Login</a>
                     <img className='cart-icon' src={cartIcon} alt="Cart" />
                 </div>
             </div>
