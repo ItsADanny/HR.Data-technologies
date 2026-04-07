@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
+import "./Register.css";
 
 export default function Register() {
     const [email, setEmail] = React.useState('');
@@ -17,7 +18,7 @@ export default function Register() {
     };
 
     return (
-    <div className="Register">
+    <div className="form-container">
         <h1>Register Page</h1>
         <p>Please fill in the form to create an account.</p>
         {/* registration form  */}
