@@ -9,8 +9,8 @@ body {
     display: flex;
     align-items: center;
     gap: 24px;
-    width: 100%;
     position: relative;
+    padding: 0 max(20px, calc((100% - min(1600px, 92vw)) / 2));
 }
 
 .navbar-container > a {
