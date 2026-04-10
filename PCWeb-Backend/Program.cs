@@ -46,4 +46,8 @@ app.Run();
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 
 Console.WriteLine($"Server started, Listening to port: {port}");
-Log.WriteLine($"Server started, Listening to port: {port}");
+//Log.WriteLine($"Server started, Listening to port: {port}");
+
+// Application records
+public record registerDto(string firstName, string lastName, string email, string password);
+public record loginDto(string email, string password);
