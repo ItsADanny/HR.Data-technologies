@@ -18,7 +18,7 @@ export default function Register() {
         e.preventDefault();
         // Here handle logic for backend 
         try {
-            const response = await fetch("http://localhost:8080/api/users/register", {
+            const response = await fetch("http://localhost:5221/api/users/register", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

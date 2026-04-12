@@ -16,6 +16,13 @@ DBHandler.DBConfig = dbConfig;
 
 var app = builder.Build();
 
+app.UseCors(builder =>
+{
+    builder.AllowAnyOrigin()
+           .AllowAnyMethod()
+           .AllowAnyHeader();
+});
+
 if (app.Environment.IsDevelopment())
 {
     //This will generate a OpenAPI yaml document 
@@ -37,7 +44,7 @@ app.MapPost("ping", () =>
 })
 .WithName("Ping");
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 // app.MapSwagger().RequireAuthorization();
 app.MapSwagger();
 app.MapControllers();
