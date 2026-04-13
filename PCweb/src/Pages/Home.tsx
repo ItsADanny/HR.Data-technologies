@@ -14,6 +14,7 @@ function Home() {
       <Slideshow />
       <Category />
       <h1>Welcome to the Home Page!</h1>
+      <a href="/products">View Products</a>
       <p>This is the main landing page of our application.</p>
     </div>
   );

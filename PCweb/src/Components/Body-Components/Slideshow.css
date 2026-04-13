@@ -1,118 +1,155 @@
 .slideshow-container {
-    position: relative;
-    width: min(1600px, 92vw);
-    margin: 20px auto;
-    border-radius: 18px;
-    overflow: hidden;
-    box-shadow: 0 16px 40px rgba(13, 38, 76, 0.22);
+	position: relative;
+	width: min(1600px, 92vw);
+	margin: 20px auto;
+	overflow: hidden;
+	border-radius: 18px;
+	box-shadow: 0 16px 40px rgba(13, 38, 76, 0.22);
+}
+
+.slideshow-container.compact {
+	width: 100%;
+	margin: 0;
+	border: 1px solid #d9d9d9;
+	border-radius: 6px;
+	box-shadow: none;
 }
 
 .slideshow-track {
-    display: flex;
-    transition: transform 450ms ease;
+	display: flex;
+	transition: transform 0.45s ease;
 }
 
 .slide {
-    min-width: 100%;
-    min-height: 360px;
-    display: flex;
-    align-items: center;
-    padding: 40px;
-    box-sizing: border-box;
+	box-sizing: border-box;
+	display: flex;
+	align-items: center;
+	min-width: 100%;
+	min-height: 360px;
+	padding: 40px;
+}
+
+.slideshow-container.compact .slide {
+	min-height: 220px;
+	padding: 14px;
+}
+
+.slide-image-only {
+	padding: 0;
+	align-items: stretch;
+	background: #fff;
+}
+
+.slide-image {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+	object-position: center;
 }
 
 .slide-content {
-    max-width: 520px;
-    color: #f8fbff;
+	max-width: 520px;
+	color: #f8fbff;
 }
 
 .slide-content h2 {
-    margin: 0 0 12px;
-    font-size: clamp(1.6rem, 3vw, 2.4rem);
-    line-height: 1.2;
+	margin: 0 0 12px;
+	font-size: clamp(1.6rem, 3vw, 2.4rem);
+	line-height: 1.2;
 }
 
 .slide-content p {
-    margin: 0 0 24px;
-    font-size: 1rem;
-    line-height: 1.5;
+	margin: 0 0 24px;
+	font-size: 1rem;
+	line-height: 1.5;
 }
 
 .slideshow-link {
-    display: inline-block;
-    padding: 10px 16px;
-    background: #f8fbff;
-    color: #0b2a4e;
-    text-decoration: none;
-    border-radius: 999px;
-    font-weight: 700;
+	display: inline-block;
+	padding: 10px 16px;
+	background: #f8fbff;
+	color: #0b2a4e;
+	text-decoration: none;
+	border-radius: 999px;
+	font-weight: 700;
+}
+
+.slideshow-container.compact .slide-content h2 {
+	font-size: 1.1rem;
+}
+
+.slideshow-container.compact .slide-content p {
+	margin-bottom: 10px;
+	font-size: 0.88rem;
+}
+
+.slideshow-container.compact .slideshow-link {
+	padding: 6px 10px;
+	font-size: 0.8rem;
 }
 
 .slide-theme-1 {
-    background: linear-gradient(120deg, #0f4ca8, #2a7de0);
+	background: linear-gradient(120deg, #0f4ca8, #2a7de0);
 }
 
 .slide-theme-2 {
-    background: linear-gradient(120deg, #0f6a6f, #1aa6a6);
+	background: linear-gradient(120deg, #0f6a6f, #1aa6a6);
 }
 
 .slide-theme-3 {
-    background: linear-gradient(120deg, #663f00, #d48300);
+	background: linear-gradient(120deg, #663f00, #d48300);
 }
 
 .slide-control {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 42px;
-    height: 42px;
-    border: none;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.88);
-    color: #0f172a;
-    cursor: pointer;
-    font-size: 20px;
-    font-weight: 700;
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 42px;
+	height: 42px;
+	border: 0;
+	border-radius: 50%;
+	background: rgba(255, 255, 255, 0.88);
+	color: #0f172a;
+	cursor: pointer;
+	font-size: 20px;
+	font-weight: 700;
 }
 
-.slide-prev {
-    left: 12px;
+.slideshow-container.compact .slide-control {
+	width: 30px;
+	height: 30px;
+	font-size: 14px;
 }
 
-.slide-next {
-    right: 12px;
-}
+.slide-prev { left: 12px; }
+.slide-next { right: 12px; }
 
 .slide-dots {
-    position: absolute;
-    left: 50%;
-    bottom: 14px;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 8px;
+	position: absolute;
+	left: 50%;
+	bottom: 14px;
+	transform: translateX(-50%);
+	display: flex;
+	gap: 8px;
 }
+
+.slideshow-container.compact .slide-dots { bottom: 8px; }
 
 .slide-dot {
-    width: 10px;
-    height: 10px;
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
-    background: rgba(255, 255, 255, 0.45);
+	width: 10px;
+	height: 10px;
+	border: 0;
+	border-radius: 50%;
+	cursor: pointer;
+	background: rgba(255, 255, 255, 0.45);
 }
 
-.slide-dot.active {
-    background: #ffffff;
-}
+.slideshow-container.compact .slide-dot { width: 8px; height: 8px; }
+.slide-dot.active { background: #fff; }
 
 @media (max-width: 768px) {
-    .slide {
-        min-height: 300px;
-        padding: 26px;
-    }
-
-    .slide-control {
-        width: 36px;
-        height: 36px;
-    }
+	.slide { min-height: 300px; padding: 26px; }
+	.slide-control { width: 36px; height: 36px; }
+	.slideshow-container.compact .slide { min-height: 190px; padding: 10px; }
 }

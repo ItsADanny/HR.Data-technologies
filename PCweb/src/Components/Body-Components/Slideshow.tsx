@@ -1,6 +1,16 @@
 import { useEffect, useState } from "react";
 import "./Slideshow.css";
 
+type ImageSlide = {
+    src: string;
+    alt: string;
+};
+
+interface SlideshowProps {
+    compact?: boolean;
+    imageSlides?: ImageSlide[];
+}
+
 const slides = [
     {
         id: 1,
@@ -25,41 +35,49 @@ const slides = [
     },
 ];
 
-export default function Slideshow() {
+export default function Slideshow({ compact = false, imageSlides = [] }: SlideshowProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
+    const hasImageSlides = imageSlides.length > 0;
+    const totalSlides = hasImageSlides ? imageSlides.length : slides.length;
 
     const nextSlide = () => {
-        setCurrentIndex((prev) => (prev + 1) % slides.length);
+        setCurrentIndex((prev) => (prev + 1) % totalSlides);
     };
 
     const prevSlide = () => {
-        setCurrentIndex((prev) => (prev - 1 + slides.length) % slides.length);
+        setCurrentIndex((prev) => (prev - 1 + totalSlides) % totalSlides);
     };
 
     useEffect(() => {
         const intervalId = window.setInterval(() => {
-            setCurrentIndex((prev) => (prev + 1) % slides.length);
+            setCurrentIndex((prev) => (prev + 1) % totalSlides);
         }, 5000);
 
         return () => {
             window.clearInterval(intervalId);
         };
-    }, []);
+    }, [totalSlides]);
 
     return (
-        <section className="slideshow-container" aria-label="Featured products">
+        <section className={`slideshow-container${compact ? ' compact' : ''}`} aria-label="Featured products">
             <div className="slideshow-track" style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
-                {slides.map((slide) => (
-                    <article key={slide.id} className={`slide ${slide.theme}`}>
-                        <div className="slide-content">
-                            <h2>{slide.title}</h2>
-                            <p>{slide.description}</p>
-                            <a className="slideshow-link" href="/">
-                                {slide.cta}
-                            </a>
-                        </div>
-                    </article>
-                ))}
+                {hasImageSlides
+                    ? imageSlides.map((slide, index) => (
+                        <article key={`${slide.alt}-${index}`} className="slide slide-image-only">
+                            <img src={slide.src} alt={slide.alt} className="slide-image" />
+                        </article>
+                    ))
+                    : slides.map((slide) => (
+                        <article key={slide.id} className={`slide ${slide.theme}`}>
+                            <div className="slide-content">
+                                <h2>{slide.title}</h2>
+                                <p>{slide.description}</p>
+                                <a className="slideshow-link" href="/">
+                                    {slide.cta}
+                                </a>
+                            </div>
+                        </article>
+                    ))}
             </div>
 
             <button className="slide-control slide-prev" onClick={prevSlide} aria-label="Previous slide">
@@ -70,12 +88,12 @@ export default function Slideshow() {
             </button>
 
             <div className="slide-dots" aria-label="Slide indicators">
-                {slides.map((slide, index) => (
+                {(hasImageSlides ? imageSlides : slides).map((slide, index) => (
                     <button
-                        key={slide.id}
+                        key={`dot-${index}`}
                         className={`slide-dot ${index === currentIndex ? "active" : ""}`}
                         onClick={() => setCurrentIndex(index)}
-                        aria-label={`Go to slide ${slide.id}`}
+                        aria-label={`Go to slide ${index + 1}`}
                     />
                 ))}
             </div>
