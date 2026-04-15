@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 public class User : iData
 {
     public int ID { get; private set; }
-    public UserRole Role { get; set; }
+    public UserRole? Role { get; set; }
     public string? ShippingAddress { get; set; }
     public string? BillingAddress { get; set; }
     public string FirstName { get; set; }
@@ -53,7 +53,10 @@ public class User : iData
         string escapedLastName = LastName.Replace("'", "''");
         string escapedEmail = Email.Replace("'", "''");
         string escapedPassword = Password.Replace("'", "''"); 
-        return $"INSERT INTO Users (FirstName, LastName, Email, Password, CreateDateTime) VALUES ('{escapedFirstName}', '{escapedLastName}', '{escapedEmail}', '{escapedPassword}', '{CreateDateTime}');";
+        string formattedDate = CreateDateTime.ToString("yyyy-MM-dd HH:mm:ss");
+
+        int roleID = 1; // Default role ID for new users, this should be set according to your roles in the database
+        return $"INSERT INTO Users (FirstName, LastName, Email, Password, CreateDateTime, RoleID) VALUES ('{escapedFirstName}', '{escapedLastName}', '{escapedEmail}', '{escapedPassword}', '{formattedDate}', {roleID});";
     }
 
     public string ReadSQL()

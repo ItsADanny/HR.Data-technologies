@@ -18,14 +18,21 @@ export default function Register() {
         e.preventDefault();
         // Here handle logic for backend 
         try {
-            const response = await fetch("http://localhost:5221/api/users/register", {
+            const response = await fetch("http://localhost:5221/api/User/register", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({ firstName, lastName, email, password }),
             });
-            const data = await response.json();
+
+            let data;
+            try {
+                data = await response.json();
+            }   catch {
+                const text = await response.text();
+                throw new Error(text || "Invalid server response");
+            }
 
             if (!response.ok) {
                 throw new Error(data.message || "Registration failed");

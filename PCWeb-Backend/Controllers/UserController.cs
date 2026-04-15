@@ -17,7 +17,7 @@ public class UserController : ControllerBase
         var result = DBHandler.Create(newUser);
 
         //Return good or bad response 
-        if (result == null) return BadRequest($"User registration failed :). input: {request.firstName} {request.lastName} {request.email} {request.password} {newUser.CreateDateTime}");  
-        return Ok("User registered successfully.");
+        if (result == null) return BadRequest(new { message = "User registration failed." }); 
+        return Ok(new { message = "User registered successfully." });
     }
 }
