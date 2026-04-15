@@ -19,9 +19,8 @@ public class User : iData
 
     int iData.ID { get => ID; set => ID = value; }
 
-    public User(int id, string firstName, string lastName, string email, string password)
+    public User(string firstName, string lastName, string email, string password)
     {
-        ID = id;
         FirstName = firstName;
         LastName = lastName;
         Email = email;
@@ -53,7 +52,7 @@ public class User : iData
         string escapedFirstName = FirstName.Replace("'", "''");
         string escapedLastName = LastName.Replace("'", "''");
         string escapedEmail = Email.Replace("'", "''");
-        string escapedPassword = Password.Replace("'", "''");
+        string escapedPassword = Password.Replace("'", "''"); 
         return $"INSERT INTO Users (FirstName, LastName, Email, Password, CreateDateTime) VALUES ('{escapedFirstName}', '{escapedLastName}', '{escapedEmail}', '{escapedPassword}', '{CreateDateTime}');";
     }
 

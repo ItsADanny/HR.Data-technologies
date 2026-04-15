@@ -25,6 +25,9 @@ public static class DBHandler
             cmd.CommandText = "SELECT last_insert_id() AS id";
 
             int insertedObjectID = Convert.ToInt32(cmd.ExecuteScalar());
+
+            conn.Close();
+
             if (insertedObjectID == 0) return null;
 
             data.ID = insertedObjectID;

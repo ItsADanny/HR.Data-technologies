@@ -8,7 +8,7 @@ public class UserController : ControllerBase
     public ActionResult<string> Register([FromBody] registerDto request)
     {
         // Create a new User object
-        User newUser = new User(0, request.firstName, request.lastName, request.email, request.password);
+        User newUser = new User(request.firstName, request.lastName, request.email, request.password);
 
         // Set creation date and time
         newUser.CreateDateTime = DateTime.Now;
@@ -17,7 +17,7 @@ public class UserController : ControllerBase
         var result = DBHandler.Create(newUser);
 
         //Return good or bad response 
-        if (result == null) return BadRequest("User registration failed.");  
+        if (result == null) return BadRequest($"User registration failed :). input: {request.firstName} {request.lastName} {request.email} {request.password} {newUser.CreateDateTime}");  
         return Ok("User registered successfully.");
     }
 }
