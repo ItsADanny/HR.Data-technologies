@@ -135,13 +135,6 @@ const filterQueryKeys: Record<string, string> = {
 	Videoresolutie: 'resolution',
 };
 
-const buildProductsLink = (params: Record<string, string>) => {
-	const searchParams = new URLSearchParams(params);
-	const queryString = searchParams.toString();
-
-	return queryString ? `${productsPath}?${queryString}` : productsPath;
-};
-
 export default function ViewProducts() {
 	const [searchParams, setSearchParams] = useSearchParams();
 	const currentSort = searchParams.get('sort') ?? 'popular';
@@ -216,11 +209,10 @@ export default function ViewProducts() {
 						<h2>Brand</h2>
 						<div className='brand-chips'>
 							{brands.map((brand) => (
-								<Link key={brand} to={buildProductsLink({ brand })} className='chip chip-link'>
+								<button key={brand} type='button' onClick={() => handleFilterChange('Brand', brand, true)} className='chip chip-link'>
 									{brand}
-								</Link>
+								</button>
 							))}
-							<Link to={buildProductsLink({ sort: 'brand' })} className='chip chip-link arrow'>›</Link>
 						</div>
 					</div>
 
