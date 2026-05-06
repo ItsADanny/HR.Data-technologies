@@ -1,14 +1,21 @@
 public class Product : iData
 {
     public int ID {get; set;}
-    public int Category_ID { get; set;}
+    public int? CategoryID {get; set;}
     public string Name {get; set;}
-    public string? Manufacturer { get; set;}
-    public string? Description { get; set;}
+    public string Manufacturer {get; set;}
+    public string Description {get; set;}
     public double? Price {get; set;}
-    public int Stock { get; set;}
-    public int? Minimal_stock { get; set;}
-    public bool Discontinued { get; set;}
+    public int Stock {get; set;}
+    public int MinimalStock {get; set;}
+    public bool Discontinued {get; set;}
+    public DateTime CreateDateTime {get; set;}
+    public DateTime? UpdateDateTime {get; set;}
+    public int? CreateUserID {get; set;}
+    public int? UpdateUserID {get; set;}
+
+    
+    // deze zit nog niet in database
     public eColor[]? Colors {get; set;}
 
     public Product(int id, int category_id, string name, string? manufacturer, string? description, double? price, int stock, int? minimal_stock, bool discontinued, eColor[]? colors)

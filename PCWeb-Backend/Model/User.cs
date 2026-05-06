@@ -75,7 +75,22 @@ public class User : iData
 
     public string InsertSQL()
     {
-        return $"INSERT INTO Users (RoleID, PrimaryShippingAddressID, PrimaryBillingAddressID, FirstName, LastName, Email, Password, Phone, Country, CreateUserID) VALUES ({Role_ID}, {Shipping_Address}, {Billing_Address}, '{First_Name}', '{Last_Name}', '{Email}', '', '{Phone}', '{Country}', {CreateUserID})";
+        // SECURITY: Escape single quotes in user input to prevent SQL Injection attacks
+        // Example: If a user enters "O'Brien" as their name and we don't escape it,
+        // the SQL would break: INSERT INTO Users ... VALUES ('O'Brien', ...)
+        // MySQL would think the quote ends the string, breaking the SQL.
+        // By replacing ' with '', we tell MySQL "this is a literal quote, not SQL code"
+        // So "O'Brien" becomes "O''Brien" in the database, which is safe.
+        // This protects against malicious input like: Robert'); DROP TABLE Users; --
+        
+        string escapedFirstName = FirstName.Replace("'", "''");
+        string escapedLastName = LastName.Replace("'", "''");
+        string escapedEmail = Email.Replace("'", "''");
+        string escapedPassword = Password.Replace("'", "''"); 
+        string formattedDate = CreateDateTime.ToString("yyyy-MM-dd HH:mm:ss");
+
+        int roleID = 1; // Default role ID for new users, this should be set according to your roles in the database
+        return $"INSERT INTO Users (FirstName, LastName, Email, Password, CreateDateTime, RoleID) VALUES ('{escapedFirstName}', '{escapedLastName}', '{escapedEmail}', '{escapedPassword}', '{formattedDate}', {roleID});";
     }
 
     public string ReadSQL()

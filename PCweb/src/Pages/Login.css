@@ -1,0 +1,11 @@
+.form-container {
+    max-width: 400px;
+    margin: 80px auto;
+    padding: 30px 40px;
+    background: linear-gradient(135deg, #e2fdff, #bfd7ff);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    border-radius: 16px;
+    animation: slideInFade 0.7s ease forwards;
+    transform: translateY(20px);
+    opacity: 1;
+  }

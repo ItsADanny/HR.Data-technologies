@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import cartIcon from '../../assets/cart-icon-white.png';
 
 export default function Header() {
@@ -7,7 +8,7 @@ export default function Header() {
     return (
         <header>
             <div className='header-container'>
-                <h1 className="logo">My PC Builder</h1>
+                <Link className="logo" to="/">My PC Builder</Link>
                 <div className="search-container">
                     <input className='searchfield'
                         type="text"
@@ -17,8 +18,10 @@ export default function Header() {
                     />
                 </div>
                 <div className='user-container'>
-                    <a className='login-link' href="...">Login</a>
-                    <img className='cart-icon' src={cartIcon} alt="Cart" />
+                    <Link className='login-link' to="/login">Login</Link>
+                    <Link className='cart-link' to="/cart">
+                        <img className='cart-icon' src={cartIcon} alt="Cart" />
+                    </Link>
                 </div>
             </div>
         </header>

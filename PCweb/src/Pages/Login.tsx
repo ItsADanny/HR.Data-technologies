@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
+import "./Login.css";
 
 export default function Login() {
     const [email, setEmail] = React.useState('');
@@ -17,7 +18,7 @@ export default function Login() {
     };
 
     return (
-    <div className="Login">
+    <div className="form-container">
         <h1>Login Page</h1>
         <p>Please enter your credentials to log in.</p>
         {/* login form */}
