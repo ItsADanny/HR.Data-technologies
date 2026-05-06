@@ -18,11 +18,17 @@ public class Product : iData
     // deze zit nog niet in database
     public eColor[]? Colors {get; set;}
 
-    public Product(int id, string name, double? price, eColor[]? colors)
+    public Product(int id, int category_id, string name, string? manufacturer, string? description, double? price, int stock, int? minimal_stock, bool discontinued, eColor[]? colors)
     {
         ID = id;
+        Category_ID = category_id;
         Name = name;
+        Manufacturer = manufacturer;
+        Description = description;
         Price = price;
+        Stock = stock;
+        Minimal_Stock = minimal_stock;
+        Discontinued = discontinued;
         Colors = colors;
     }
 

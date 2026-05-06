@@ -1,16 +1,20 @@
 using MySql.Data.MySqlClient;
+using StackExchange.Redis;
 
 public static class DBHandler
 {
-    public static DBConfig DBConfig {private get; set;}
-    private static string _mConnectionString() => DBConfig.GetConnectionSTR();
+    public static DBConfig DBConfig_MySQL {get; set;}
+    public static DBConfig DBConfig_REDIS {get; set;}
+
+    private static string _myConnectionString() => DBConfig_MySQL.GetConnectionSTR();
+    private static ConfigurationOptions _reConnectionConfig() => DBConfig_REDIS.GetRedisConfig();
 
     public static iData? Create(iData data)
     {
         try
         {
             //Create the connection and the MySQL Command objects
-            MySqlConnection conn = new MySqlConnection(_mConnectionString());
+            MySqlConnection conn = new MySqlConnection(_myConnectionString());
             MySqlCommand cmd = new MySqlCommand();
 
             //Open the connection
@@ -46,15 +50,45 @@ public static class DBHandler
         }
     }
 
+    public static bool Create(UserSession session)
+    {
+        try
+        {
+            ConnectionMultiplexer redis = ConnectionMultiplexer.Connect(_reConnectionConfig());
+            IDatabase db = redis.GetDatabase();
+
+            return db.StringSet(session.SessionToken, session.UserID, session.Expiration - DateTime.Now);
+        }
+        catch (Exception e)
+        {
+            return false;
+        }
+    }
+
     public static bool Update(iData data) => BasicNonQueryExecution(data.UpdateSQL());
 
     public static bool Delete(iData data) => BasicNonQueryExecution(data.DeleteSQL());
+
+    public static bool Delete(UserSession session)
+    {
+        try
+        {
+            ConnectionMultiplexer redis = ConnectionMultiplexer.Connect(_reConnectionConfig());
+            IDatabase db = redis.GetDatabase();
+
+            return db.KeyDelete(session.SessionToken);
+        }
+        catch (Exception e)
+        {
+            return false;
+        }
+    }
 
     private static bool BasicNonQueryExecution(string sqlCommand)
     {
         try
         {
-            MySqlConnection conn = new MySqlConnection(_mConnectionString());
+            MySqlConnection conn = new MySqlConnection(_myConnectionString());
             MySqlCommand cmd = new MySqlCommand();
 
             conn.Open();
@@ -68,5 +102,46 @@ public static class DBHandler
         {
             return false;
         }
+    }
+}
+
+//ItsDanny Note:
+//IMPLEMENTED HERE BECAUSE VSCode WAS BUGGING OUT AND NOT RECOGNIZING THE FILE,
+//SO I MOVED IT HERE TO TEST IF IT WAS A PROBLEM WITH THE FILE OR WITH THE CODE
+public class UserSession : iData
+{
+    public int ID { get; set; }
+    public int UserID { get; set; }
+    public string SessionToken { get; set; }
+    public DateTime Expiration { get; set; }
+
+    public string InsertSQL()
+    {
+        return "NOT IMPLEMENTED BECAUSE THIS OBJECT IS NOT MEANT TO BE INSERTED INTO A SQL DATABASE";
+    }
+
+    public string UpdateSQL()
+    {
+        return "NOT IMPLEMENTED BECAUSE THIS OBJECT IS NOT MEANT TO BE UPDATED IN A SQL DATABASE";
+    }
+
+    public string DeleteSQL()
+    {
+        return "NOT IMPLEMENTED BECAUSE THIS OBJECT IS NOT MEANT TO BE DELETED FROM A SQL DATABASE";
+    }
+
+    public string ReadSQL()
+    {
+        throw new NotImplementedException();
+    }
+
+    public string ReadSQL(int id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public static string ReadAllSQL()
+    {
+        throw new NotImplementedException();
     }
 }
