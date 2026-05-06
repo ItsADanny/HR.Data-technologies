@@ -1,0 +1,2 @@
+public record UserFromPanelDTO(int RoleID, int ShippingAddress, int BillingAddress, string FirstName, string LastName, string Email, string Password, string Phone, string Country, int CreateUserID);
+public record UserDTO(string FirstName, string LastName, string Email, string Password, string Phone, string Country);

@@ -1,3 +1,5 @@
+using StackExchange.Redis;
+
 public class DBConfig
 {
     public string HST { get; set; }
@@ -14,5 +16,21 @@ public class DBConfig
         }
         if (PRT == "" || PRT is null) return $"server={HST};uid={USR};pwd={PSW};database={DBL}";
         return $"server={HST};port={PRT};uid={USR};pwd={PSW};database={DBL}";
+    }
+
+    public ConfigurationOptions GetRedisConfig()
+    {
+        if (HST is null && USR is null && PSW is null && DBL is null)
+        {
+            throw new NullReferenceException("All required database secrets must be filled!");
+        }
+        ConfigurationOptions options = new ConfigurationOptions
+        {
+            EndPoints = { $"{HST}:{PRT}" },
+            User = USR,
+            Password = PSW,
+            DefaultDatabase = int.Parse(DBL)
+        };
+        return options;
     }
 }
