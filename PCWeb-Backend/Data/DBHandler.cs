@@ -18,6 +18,11 @@ public static class DBHandler
             //Set the command connection as the just opened connection and set the command text as our insert for the data
             cmd.Connection = conn;
             cmd.CommandText = data.InsertSQL();
+
+            // logging the SQL command for debugging purposes
+            Console.WriteLine("Executing SQL Command:");
+            Console.WriteLine(cmd.CommandText);
+            
             //Execute the Non Query, so it will insert our object
             cmd.ExecuteNonQuery();
 
@@ -25,6 +30,9 @@ public static class DBHandler
             cmd.CommandText = "SELECT last_insert_id() AS id";
 
             int insertedObjectID = Convert.ToInt32(cmd.ExecuteScalar());
+
+            conn.Close();
+
             if (insertedObjectID == 0) return null;
 
             data.ID = insertedObjectID;
@@ -32,6 +40,8 @@ public static class DBHandler
         }
         catch (Exception e)
         {
+            Console.WriteLine("ERROR:");
+            Console.WriteLine(e.ToString());
             return null;
         }
     }
