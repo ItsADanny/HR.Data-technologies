@@ -18,17 +18,26 @@ public class Product : iData
     // deze zit nog niet in database
     public eColor[]? Colors {get; set;}
 
-    public Product(int id, int category_id, string name, string? manufacturer, string? description, double? price, int stock, int? minimal_stock, bool discontinued, eColor[]? colors)
+    public Product(int id, int category_id, string name, string? manufacturer, string? description, double? price, int stock, int minimal_stock, bool discontinued, eColor[]? colors)
     {
         ID = id;
-        Category_ID = category_id;
+        CategoryID = category_id;
         Name = name;
         Manufacturer = manufacturer;
         Description = description;
         Price = price;
         Stock = stock;
-        Minimal_Stock = minimal_stock;
+        MinimalStock = minimal_stock;
         Discontinued = discontinued;
+        Colors = colors;
+    }
+
+    public Product(int id, int category_id, string name, double? price, eColor[]? colors)
+    {
+        ID = id;
+        CategoryID = category_id;
+        Name = name;
+        Price = price;
         Colors = colors;
     }
 
@@ -60,5 +69,31 @@ public class Product : iData
     public static string ReadAllSQL()
     {
         throw new NotImplementedException();
+    }
+
+    public static string ReadAllWithCategorySQL(int categoryId)
+    {
+        return $@"SELECT
+        c.CategoryName,
+        p.ID    AS ProductID,
+        p.Name  AS Name,
+        p.Price AS Price,
+        cf.Name AS FieldName,
+        COALESCE(
+            pf.StringValue,
+            pf.IntValue,
+            pf.DoubleValue,
+            pf.BooleanValue,
+            pf.DateTimeValue
+        ) AS FieldValue
+
+        FROM Categories c
+        INNER JOIN Products p ON c.ID = p.CategoryID
+        INNER JOIN ProductFields pf ON p.ID = pf.ProductID
+        INNER JOIN CategoryFields cf ON pf.FieldID = cf.ID
+
+        WHERE c.ID = {categoryId}
+        ORDER BY p.ID, cf.Name
+        LIMIT 100";
     }
 }

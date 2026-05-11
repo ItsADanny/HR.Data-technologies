@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 public class User : iData
 {
@@ -83,8 +83,8 @@ public class User : iData
         // So "O'Brien" becomes "O''Brien" in the database, which is safe.
         // This protects against malicious input like: Robert'); DROP TABLE Users; --
         
-        string escapedFirstName = FirstName.Replace("'", "''");
-        string escapedLastName = LastName.Replace("'", "''");
+        string escapedFirstName = First_Name.Replace("'", "''");
+        string escapedLastName = Last_Name.Replace("'", "''");
         string escapedEmail = Email.Replace("'", "''");
         string escapedPassword = Password.Replace("'", "''"); 
         string formattedDate = CreateDateTime.ToString("yyyy-MM-dd HH:mm:ss");

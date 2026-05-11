@@ -9,7 +9,7 @@ public class SoundCard : Product
 
     public SoundCard(int id, string name, double? price, double? channels, int? digitalAudio, int? snr,
                      int? sampleRate, string? chipset, string? connectionInterface)
-    : base(id, name, price, null)
+    : base(id, 13, name, price, null)
     {
         Channels = channels;
         DigitalAudio = digitalAudio;

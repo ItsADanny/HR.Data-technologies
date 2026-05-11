@@ -103,6 +103,41 @@ public static class DBHandler
             return false;
         }
     }
+
+    public static List<ProductWithFieldsDTO>? ReadAllProductsWithCategory(int categoryID)
+    {
+        try
+        {
+            MySqlConnection conn = new MySqlConnection(_myConnectionString());
+            MySqlCommand cmd = new MySqlCommand(Product.ReadAllWithCategorySQL(categoryID), conn);
+
+            conn.Open();
+
+            MySqlDataReader reader = cmd.ExecuteReader();
+            List<ProductWithFieldsDTO> products = new List<ProductWithFieldsDTO>();
+
+            while (reader.Read())
+            {
+                products.Add(new ProductWithFieldsDTO(
+                    reader["CategoryName"].ToString(),
+                    Convert.ToInt32(reader["ProductID"]),
+                    reader["Name"].ToString(),
+                    reader["Price"] is not DBNull ? Convert.ToDouble(reader["Price"]) : null,
+                    reader["FieldName"].ToString(),
+                    reader["FieldValue"].ToString()
+                ));
+            }
+
+            conn.Close();
+            return products;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("ERROR:");
+            Console.WriteLine(e.ToString());
+            return null;
+        }
+    }
 }
 
 //ItsDanny Note:

@@ -9,7 +9,7 @@ public class OpticalDrive : Product
 
     public OpticalDrive(int id, string name, double? price, eColor[]? colors, int? bluerayDrive, int? dvdDrive, int? cdDrive, 
                         string? bluerayDriveWrite, string? dvdDriveWrite, string? cdDriveWrite)
-    : base(id, name, price, colors)
+    : base(id, 10, name, price, colors)
     {
         BlueRayDrive = bluerayDrive;
         DVDDrive = dvdDrive;

@@ -5,7 +5,7 @@ public class CPUCooler : Product
     public int Size {get; set;}
 
     public CPUCooler(int id, string name, double? price, eColor[]? colors, double[]? rpm, double[]? noiseLevel, int size) 
-    : base(id, name, price, colors)
+    : base(id, 5, name, price, colors)
     {
         RPM = rpm;
         NoiseLevel = noiseLevel;

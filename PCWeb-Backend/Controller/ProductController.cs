@@ -7,5 +7,11 @@ namespace PCWeb_Backend.Controller
     [ApiController]
     public class ProductController : ControllerBase
     {
+        [HttpGet("with-category")]
+        public IActionResult GetProductsWithCategory(int categoryId)
+        {
+            var products = DBHandler.ReadAllProductsWithCategory(categoryId);
+            return Ok(products);
+        }
     }
 }

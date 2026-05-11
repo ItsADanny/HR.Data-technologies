@@ -24,6 +24,13 @@ public class Program
 
         var app = builder.Build();
 
+        app.UseCors(builder =>
+        {
+            builder.AllowAnyOrigin()
+                   .AllowAnyMethod()
+                   .AllowAnyHeader();
+        });
+
         if (app.Environment.IsDevelopment())
         {
             //This will generate a OpenAPI yaml document 
@@ -38,37 +45,10 @@ public class Program
             });
         }
 
-app.UseCors(builder =>
-{
-    builder.AllowAnyOrigin()
-           .AllowAnyMethod()
-           .AllowAnyHeader();
-});
-
-if (app.Environment.IsDevelopment())
-{
-    //This will generate a OpenAPI yaml document 
-    //when the application is run in DEV mode
-    app.MapOpenApi("/openapi/{documentName}.yaml");
-    
-    app.UseSwagger();
-    app.UseSwaggerUI(options => // UseSwaggerUI is called only in Development.
-    {
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
-        options.RoutePrefix = string.Empty;
-    });
+        app.MapControllers();
+        app.Run();
+    }
 }
-
-
-// app.UseHttpsRedirection();
-// app.MapSwagger().RequireAuthorization();
-app.MapSwagger();
-app.MapControllers();
-app.Run();
-
-
-Console.WriteLine($"Server started, Listening to port: {port}");
-//Log.WriteLine($"Server started, Listening to port: {port}");
 
 // Application records
 public record registerDto(string firstName, string lastName, string email, string password);

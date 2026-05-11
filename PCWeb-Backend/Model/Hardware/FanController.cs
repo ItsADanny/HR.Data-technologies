@@ -6,7 +6,7 @@ public class FanController : Product
     public double? FormFactor {get; set;}
 
     public FanController(int id, string name, double? price, eColor[]? colors, int channels, double? channelWattage, bool pwm, double? formFactor)
-    : base(id, name, price, colors)
+    : base(id, 6, name, price, colors)
     {
         Channels = channels;
         ChannelWattage = channelWattage;

@@ -11,7 +11,7 @@ public class NetworkCard : Product
     }
 
     public NetworkCard(int id, string name, double? price, eColor[]? colors, string? protocol, string connectorInterface)
-    : base (id, name, price, colors)
+    : base (id, protocol is null ? 17 : 16, name, price, colors)
     {
         Protocol = protocol;
         ConnectorInterface = connectorInterface;

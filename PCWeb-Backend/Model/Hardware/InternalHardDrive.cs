@@ -14,7 +14,7 @@ public class InternalHardDrive : Product
     
     public InternalHardDrive(int id, string name, double? price, int capacity, string type, int? cache,
                              string? formFactor, string? connectionInterface)
-    : base(id, name, price, null)
+    : base(id, 7, name, price, null)
     {
         Capacity = capacity;
         Type = type;

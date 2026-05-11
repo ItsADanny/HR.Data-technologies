@@ -22,7 +22,7 @@ public class Memory : Product
 
     public Memory(int id, string name, double? price, eColor[]? colors, int ddrFormat, int speed, int moduleAmount, int gbAmount, 
                   double? firstWordLatency, int? casLatency)
-    : base(id, name, price, colors)
+    : base(id, 8, name, price, colors)
     {
         DDRFormat = ddrFormat;
         Speed = speed;
