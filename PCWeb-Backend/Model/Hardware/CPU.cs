@@ -9,7 +9,7 @@ public class CPU : Product
 
     public CPU(int id, string name, double? price, int coreCount, double coreClock, 
                double boostClock, string microArch, int tdp, string graphics) 
-    : base(id, name, price, null)
+    : base(id, 4, name, price, null)
     {
         CoreCount = coreCount;
         CoreClock = coreClock;

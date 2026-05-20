@@ -6,7 +6,7 @@ public class CaseFan : Product
     public bool PWM {get; set;}
 
     public CaseFan(int id, string name, double? price, eColor[]? colors, double[]? rpm, double[]? airflow, double[]? noiseLevel, bool pwm) 
-    : base(id, name, price, colors)
+    : base(id, 3, name, price, colors)
     {
         RPM = rpm;
         AirFlow = airflow;

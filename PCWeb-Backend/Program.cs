@@ -24,25 +24,11 @@ public class Program
 
         var app = builder.Build();
 
-        if (app.Environment.IsDevelopment())
-        {
-            //This will generate a OpenAPI yaml document 
-            //when the application is run in DEV mode
-            app.MapOpenApi("/openapi/{documentName}.yaml");
-            
-            app.UseSwagger();
-            app.UseSwaggerUI(options => // UseSwaggerUI is called only in Development.
-            {
-                options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
-                options.RoutePrefix = string.Empty;
-            });
-        }
-
         app.UseCors(builder =>
         {
             builder.AllowAnyOrigin()
-                .AllowAnyMethod()
-                .AllowAnyHeader();
+                   .AllowAnyMethod()
+                   .AllowAnyHeader();
         });
 
         if (app.Environment.IsDevelopment())
@@ -59,16 +45,8 @@ public class Program
             });
         }
 
-
-        // app.UseHttpsRedirection();
-        // app.MapSwagger().RequireAuthorization();
-        app.MapSwagger();
         app.MapControllers();
         app.Run();
-
-        var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-        Console.WriteLine($"Server started, Listening to port: {port}");
-        //Log.WriteLine($"Server started, Listening to port: {port}");
     }
 }
 

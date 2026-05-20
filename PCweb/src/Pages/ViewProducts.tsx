@@ -1,9 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import Header from '../Components/Header-Component/Header';
 import Navbar from '../Components/Header-Component/Navbar';
 import hero from '../assets/hero.png';
+import { useProductsData } from '../hooks/useProductsData';
 import './ViewProducts.css';
+
+interface ProductField {
+	categoryName: string;
+	productID: number;
+	name: string;
+	price: number;
+	fieldName: string;
+	fieldValue: string;
+}
 
 interface FilterOption {
 	name: string;
@@ -16,12 +26,10 @@ interface FilterSection {
 
 interface ProductCard {
 	id: number;
-	brand: string;
+	categoryName: string;
 	name: string;
-	subname: string;
-	price: string;
-	oldPrice?: string;
-	discount?: string;
+	price: number;
+	fields: Record<string, string>;
 	image: string;
 }
 
@@ -63,69 +71,6 @@ const filterSections: FilterSection[] = [
 
 const brands = ['GoPro', 'DJI', 'Insta360', 'Denver', 'WOLFANG', 'Akaso', 'Strex', 'Salora', 'Vynox'];
 
-const productCards: ProductCard[] = [
-	{
-		id: 1,
-		brand: 'JSKOL',
-		name: 'Action Camera HD - Pocket Vintage Camera - Gratis SD kaart',
-		subname: 'HD Ready video • WiFi • 270° draaibare lens',
-		price: '99,99',
-		image: hero,
-	},
-    {
-        id: 2,
-        brand: 'GoPro',
-        name: 'GoPro HERO11 Black',
-        subname: '5.3K video • HyperSmooth 5.0 • 27MP foto’s',
-        price: '499,99',
-        oldPrice: '549,99',
-        discount: '9%',
-        image: hero,
-    },
-    {
-        id: 3,
-        brand: 'Strex',
-        name: 'Strex Action Camera 5K 50MP - Inclusief Accessoires',
-        subname: '4K video • 50 Megapixel • 170° beeldhoek',
-        price: '72,15',
-        oldPrice: '79,95',
-        discount: '10%',
-        image: hero,
-    },
-    {
-        id: 4,
-        brand: 'DJI',
-        name: 'DJI Osmo Action 3',
-        subname: '4K video • RockSteady 3.0 • 16MP foto’s',
-        price: '329,99',
-        oldPrice: '379,99',
-        discount: '13%',
-        image: hero,
-    },
-    {
-        id: 5,
-        brand: 'GoPro',
-        name: 'GoPro HERO11 Black',
-        subname: '5.3K video • HyperSmooth 5.0 • 27MP foto’s',
-        price: '499,99',
-        oldPrice: '549,99',
-        discount: '9%',
-        image: hero,
-    },
-    {
-        id: 6,
-        brand: 'Insta360',
-        name: 'Insta360 ONE X2',
-        subname: '4K video • 20MP foto’s • 360° beeld',
-        price: '499,99',
-        oldPrice: '549,99',
-        discount: '9%',
-        image: hero,
-    }
-];
-
-
-
 const productsPath = '/viewproducts';
 
 const filterQueryKeys: Record<string, string> = {
@@ -137,7 +82,10 @@ const filterQueryKeys: Record<string, string> = {
 
 export default function ViewProducts() {
 	const [searchParams, setSearchParams] = useSearchParams();
-	const currentSort = searchParams.get('sort') ?? 'popular';
+	const categoryId = searchParams.get('categoryId') || '15';
+	const currentSort = searchParams.get('sort') || 'popular';
+	const [page, setPage] = useState(1);
+	const { products, loading, categoryName, error } = useProductsData(categoryId, page);
 
 	const handleFilterChange = (sectionName: string, optionName: string, checked: boolean) => {
 		const filterKey = filterQueryKeys[sectionName];
@@ -163,6 +111,13 @@ export default function ViewProducts() {
 		nextParams.set('sort', sortValue);
 		setSearchParams(nextParams);
 	};
+
+	const handleNextPage = () => setPage(page + 1);
+	const handlePrevPage = () => setPage(page > 1 ? page - 1 : 1);
+
+	if (loading) {
+		return <div style={{ padding: '20px' }}>Loading products...</div>;
+	}
 
 	return (
 		<>
@@ -197,11 +152,9 @@ export default function ViewProducts() {
 
 				<section className='results-panel'>
 					<header className='results-header'>
-						<h1>Action camera&apos;s</h1>
+						<h1>{categoryName}</h1>
 						<p>
-							Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla sit amet ex eget lectus laoreet mollis. 
-                            Cras molestie tincidunt nibh, ullamcorper interdum diam molestie quis. 
-                            Integer et urna nisl. Curabitur bibendum luctus ligula eu rhoncus.
+							Browse our collection of {categoryName.toLowerCase()} components. Find the perfect hardware for your needs.
 						</p>
 					</header>
 
@@ -217,7 +170,7 @@ export default function ViewProducts() {
 					</div>
 
 					<div className='toolbar'>
-						<p>680 results</p>
+					<p>{products.length} results</p>
 						<div className='toolbar-actions'>
 							<label htmlFor='sort'>Sortering</label>
 							<select id='sort' value={currentSort} onChange={(event) => handleSortChange(event.target.value)}>
@@ -233,23 +186,21 @@ export default function ViewProducts() {
 					</div>
 
 					<div className='product-grid'>
-						{productCards.map((product) => (
-							<article key={product.id} className='product-card'>
-                                <Link to="/products">
-                                	<img src={product.image} alt={product.name} />
-								</Link>
+						{products.map((product) => (
+						<article key={product.id} className='product-card'>
+                            <Link to={`/products?categoryId=${categoryId}`}>
+                            	<img src={hero} alt={product.name} />
+							</Link>
 
-								<p className='brand'>{product.brand}</p>
-								<h3>{product.name}</h3>
-								<p className='subname'>{product.subname}</p>
+							<p className='brand'>{product.categoryName}</p>
+							<h3>{product.name}</h3>
+							<p className='subname'>{Object.values(product.fields).slice(0, 2).join(' • ')}</p>
 
 
-								<div className='price-row'>
-									<p className='price'>{product.price}</p>
-									{product.discount && <span className='discount'>discount {product.discount}</span>}
-								</div>
+							<div className='price-row'>
+								<p className='price'>${product.price.toFixed(2)}</p>
+							</div>
 
-								{product.oldPrice && <p className='old-price'>Most {product.oldPrice}</p>}
 								<p className='delivery'>Order by 16:00, delivered tomorrow</p>
                                 <Link to="/cart" type='button' className='add-to-cart-btn' >
 									Add to cart
@@ -257,6 +208,12 @@ export default function ViewProducts() {
 
 							</article>
 						))}
+					</div>
+
+					<div className='pagination'>
+						<button onClick={handlePrevPage} disabled={page === 1}>Previous</button>
+						<span>Page {page}</span>
+						<button onClick={handleNextPage}>Next</button>
 					</div>
 				</section>
 			</main>

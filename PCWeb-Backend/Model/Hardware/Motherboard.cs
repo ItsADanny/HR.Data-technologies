@@ -6,7 +6,7 @@ public class Motherboard : Product
     public int? MemorySlots { get; set; }
 
     public Motherboard(int id, string name, double? price, eColor[]? colors, string socket, string formFactor, int? maxMemory, int? memorySlots) 
-    : base(id, name, price, colors)
+    : base(id, 9, name, price, colors)
     {
         Socket = socket;
         FormFactor = formFactor;

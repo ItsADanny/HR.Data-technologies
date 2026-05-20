@@ -6,7 +6,7 @@ public class PowerSupply : Product
     public string? Modular {get; set;}
 
     public PowerSupply(int id, string name, double? price, eColor[]? colors, string? type, string? efficiency, int wattage, string? modular)
-    : base(id, name, price, colors)
+    : base(id, 12, name, price, colors)
     {
         Type = type;
         Efficiency = efficiency;

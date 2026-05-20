@@ -7,7 +7,7 @@ public class VideoCard : Product
     public int? Length {get; set;}
 
     public VideoCard(int id, string name, double? price, eColor[]? colors, string chipset, int? memory, int? coreClock, int? boostClock, int? length)
-    : base(id, name, price, colors)
+    : base(id, 15, name, price, colors)
     {
         Chipset = chipset;
         Memory = memory;

@@ -4,7 +4,7 @@ public class CaseAccessory : Product
     public double? FormFactor {get; set;}
 
     public CaseAccessory(int id, string name, double? price, string type, double? formFactor)
-    : base(id, name, price, null)
+    : base(id, 2, name, price, null)
     {
         Type = type;
         FormFactor = formFactor;

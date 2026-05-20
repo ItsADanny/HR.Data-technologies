@@ -1,17 +1,17 @@
-﻿using System;
+using System;
 
 public class Address
 {
-	public int Address {  get; set; }
+	public int AddressId { get; set; }
 	public string Country { get; set; }
 	public string City { get; set; }
 	public string Street { get; set; }
 	public string House_Number { get; set; }
 	public string Postcode { get; set; }
 
-	public Address(int address, string country, string city, string street, string house_number, string postcode)
+	public Address(int addressId, string country, string city, string street, string house_number, string postcode)
 	{
-		Address = address;
+		AddressId = addressId;
 		Country = country;
 		City = city;
 		Street = street;

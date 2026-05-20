@@ -8,3 +8,4 @@ PCWeb-Backend/obj/PCWeb-Backend.csproj.nuget.g.props
 PCWeb-Backend/obj/PCWeb-Backend.csproj.nuget.g.targets
 PCWeb-Backend/obj/project.nuget.cache
 PCWeb-Backend/obj/project.assets.json
+PCWeb-Backend/appsettings.Development.json

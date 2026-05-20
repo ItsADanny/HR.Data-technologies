@@ -7,7 +7,7 @@ public class Case : Product
     public int Internal35Bays {get; set;}
 
     public Case(int id, string name, double? price, eColor[]? colors, string type, int? psu, string sidePanel, double externalVolume, int internal35bays) 
-    : base(id, name, price, colors)
+    : base(id, 1, name, price, colors)
     {
         Type = type;
         PSU = psu;
