@@ -11,13 +11,13 @@ namespace PCWeb_Backend.Controller
         // GET
         // ====================================================================================
         [HttpGet("/userid/{id:int}")]
-        public ActionResult<User> GetByUserID(int id)
+        public ActionResult<Account> GetByUserID(int id)
         {
             return Ok();
         }
 
         [HttpGet("/sessiontoken/{token:alpha}")]
-        public ActionResult<User> GetByUserSession(string token)
+        public ActionResult<Account> GetByUserSession(string token)
         {
             return Ok();
         }
@@ -26,7 +26,7 @@ namespace PCWeb_Backend.Controller
         // POST
         // ====================================================================================
         [HttpPost("")]
-        public ActionResult<User> CreateUserSession(UserSession session)
+        public ActionResult<Account> CreateUserSession(UserSession session)
         {
             return Ok();
         }

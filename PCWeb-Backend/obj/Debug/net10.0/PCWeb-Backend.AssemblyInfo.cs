@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PCWeb-Backend")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c6ee2146f8da0989487c6b473e6541e4b18c3b51")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8cd67b3fd03afd65422eac3c93a52a43d952f2ed")]
 [assembly: System.Reflection.AssemblyProductAttribute("PCWeb-Backend")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PCWeb-Backend")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -65,6 +65,24 @@ public static class DBHandler
         }
     }
 
+    public static UserSession? GetSessionByToken(string sessionToken)
+    {
+        try
+        {
+            ConnectionMultiplexer redis = ConnectionMultiplexer.Connect(_reConnectionConfig());
+            IDatabase db = redis.GetDatabase();
+
+            string? userID = db.StringGet(sessionToken);
+            if (userID == null) return null;
+
+            return new UserSession(int.Parse(userID)) { SessionToken = sessionToken };
+        }
+        catch (Exception e)
+        {
+            return null;
+        }
+    }
+
     public static bool Update(iData data) => BasicNonQueryExecution(data.UpdateSQL());
 
     public static bool Delete(iData data) => BasicNonQueryExecution(data.DeleteSQL());
@@ -111,6 +129,13 @@ public static class DBHandler
 //SO I MOVED IT HERE TO TEST IF IT WAS A PROBLEM WITH THE FILE OR WITH THE CODE
 public class UserSession : iData
 {
+    public UserSession(int userID)
+    {
+        UserID = userID;
+        SessionToken = Guid.NewGuid().ToString();
+        Expiration = DateTime.Now.AddHours(6);
+    }
+
     public int ID { get; set; }
     public int UserID { get; set; }
     public string SessionToken { get; set; }
