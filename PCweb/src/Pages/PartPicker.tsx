@@ -31,7 +31,8 @@ export default function PartPicker() {
                         <tr key={component.name}>
                             <td>{component.name}</td>
                             <td>
-                                <Link to={`/products?categoryId=${component.categoryId}`}>
+                                {/* http://localhost:5173/viewproducts?categoryId=1 */}
+                                <Link to={`/viewproducts?categoryId=${component.categoryId}`}>
                                     {component.label}
                                 </Link>
                             </td>
