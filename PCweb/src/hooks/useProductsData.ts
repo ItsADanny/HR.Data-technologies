@@ -17,7 +17,7 @@ export interface ProductItem {
 	fields: Record<string, string>;
 }
 
-export const useProductsData = (categoryId?: string) => {
+export const useProductsData = (categoryId?: string , page: number = 1) => {
 	const [products, setProducts] = useState<ProductItem[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [categoryName, setCategoryName] = useState('Products');
@@ -27,8 +27,8 @@ export const useProductsData = (categoryId?: string) => {
 		const fetchProducts = async () => {
 			try {
 				setLoading(true);
-				const id = categoryId || '15';
-				const response = await fetch(`/api/product/with-category?categoryId=${id}`);
+				const id = categoryId;
+const response = await fetch(`/api/product/with-category?categoryId=${id}&page=${page}`);
 				const data: ProductField[] = await response.json();
 
 				// Group by productID
@@ -63,7 +63,7 @@ export const useProductsData = (categoryId?: string) => {
 		};
 
 		fetchProducts();
-	}, [categoryId]);
+	}, [categoryId, page]);
 
 	return { products, loading, categoryName, error };
 };

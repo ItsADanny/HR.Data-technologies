@@ -83,8 +83,9 @@ const filterQueryKeys: Record<string, string> = {
 export default function ViewProducts() {
 	const [searchParams, setSearchParams] = useSearchParams();
 	const categoryId = searchParams.get('categoryId') || '15';
-	const { products, loading, categoryName } = useProductsData(categoryId);
-	const currentSort = searchParams.get('sort') ?? 'popular';
+	const currentSort = searchParams.get('sort') || 'popular';
+	const [page, setPage] = useState(1);
+	const { products, loading, categoryName, error } = useProductsData(categoryId, page);
 
 	const handleFilterChange = (sectionName: string, optionName: string, checked: boolean) => {
 		const filterKey = filterQueryKeys[sectionName];
@@ -110,6 +111,9 @@ export default function ViewProducts() {
 		nextParams.set('sort', sortValue);
 		setSearchParams(nextParams);
 	};
+
+	const handleNextPage = () => setPage(page + 1);
+	const handlePrevPage = () => setPage(page > 1 ? page - 1 : 1);
 
 	if (loading) {
 		return <div style={{ padding: '20px' }}>Loading products...</div>;
@@ -204,6 +208,12 @@ export default function ViewProducts() {
 
 							</article>
 						))}
+					</div>
+
+					<div className='pagination'>
+						<button onClick={handlePrevPage} disabled={page === 1}>Previous</button>
+						<span>Page {page}</span>
+						<button onClick={handleNextPage}>Next</button>
 					</div>
 				</section>
 			</main>

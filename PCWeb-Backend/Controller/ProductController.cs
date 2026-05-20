@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using MySql.Data.MySqlClient;
 
 namespace PCWeb_Backend.Controller
 {
@@ -8,9 +9,10 @@ namespace PCWeb_Backend.Controller
     public class ProductController : ControllerBase
     {
         [HttpGet("with-category")]
-        public IActionResult GetProductsWithCategory(int categoryId)
+        public IActionResult GetProductsWithCategory(int categoryId, int page = 1, int pageSize = 100)
         {
-            var products = DBHandler.ReadAllProductsWithCategory(categoryId);
+            int offset = (page - 1) * pageSize;
+            var products = Product.ReadAllProductsWithCategory(categoryId, pageSize, offset);
             return Ok(products);
         }
     }

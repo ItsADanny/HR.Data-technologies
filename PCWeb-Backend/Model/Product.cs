@@ -1,3 +1,5 @@
+using MySql.Data.MySqlClient;
+
 public class Product : iData
 {
     public int ID {get; set;}
@@ -41,6 +43,41 @@ public class Product : iData
         Colors = colors;
     }
 
+    private List<ProductWithFieldsDTO>? ReadAllProductsWithCategory(int categoryID)
+    {
+        try
+        {
+            MySqlConnection conn = new MySqlConnection(DBHandler.DBConfig_MySQL.GetConnectionSTR());
+            MySqlCommand cmd = new MySqlCommand(Product.ReadAllWithCategorySQL(categoryID), conn);
+
+            conn.Open();
+
+            MySqlDataReader reader = cmd.ExecuteReader();
+            List<ProductWithFieldsDTO> products = new List<ProductWithFieldsDTO>();
+
+            while (reader.Read())
+            {
+                products.Add(new ProductWithFieldsDTO(
+                    reader["CategoryName"].ToString(),
+                    Convert.ToInt32(reader["ProductID"]),
+                    reader["Name"].ToString(),
+                    reader["Price"] is not DBNull ? Convert.ToDouble(reader["Price"]) : null,
+                    reader["FieldName"].ToString(),
+                    reader["FieldValue"].ToString()
+                ));
+            }
+
+            conn.Close();
+            return products;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("ERROR:");
+            Console.WriteLine(e.ToString());
+            return null;
+        }
+    }
+
     public virtual string InsertSQL()
     {
         throw new NotImplementedException();
@@ -71,7 +108,7 @@ public class Product : iData
         throw new NotImplementedException();
     }
 
-    public static string ReadAllWithCategorySQL(int categoryId)
+    public static string ReadAllWithCategorySQL(int categoryId, int pageSize = 100, int offset = 0)
     {
         return $@"SELECT
         c.CategoryName,
@@ -92,8 +129,47 @@ public class Product : iData
         INNER JOIN ProductFields pf ON p.ID = pf.ProductID
         INNER JOIN CategoryFields cf ON pf.FieldID = cf.ID
 
-        WHERE c.ID = {categoryId}
-        ORDER BY p.ID, cf.Name
-        LIMIT 100";
+        WHERE c.ID = {categoryId} AND p.ID IN (
+            SELECT ID FROM Products
+            WHERE CategoryID = {categoryId}
+            ORDER BY ID
+            LIMIT {pageSize} OFFSET {offset}
+        )
+        ORDER BY p.ID, cf.Name";
+    }
+
+    public static List<ProductWithFieldsDTO>? ReadAllProductsWithCategory(int categoryID, int pageSize = 100, int offset = 0)
+    {
+        try
+        {
+            MySqlConnection conn = new MySqlConnection(DBHandler.DBConfig_MySQL.GetConnectionSTR());
+            MySqlCommand cmd = new MySqlCommand(Product.ReadAllWithCategorySQL(categoryID, pageSize, offset), conn);
+
+            conn.Open();
+
+            MySqlDataReader reader = cmd.ExecuteReader();
+            List<ProductWithFieldsDTO> products = new List<ProductWithFieldsDTO>();
+
+            while (reader.Read())
+            {
+                products.Add(new ProductWithFieldsDTO(
+                    reader["CategoryName"].ToString(),
+                    Convert.ToInt32(reader["ProductID"]),
+                    reader["Name"].ToString(),
+                    reader["Price"] is not DBNull ? Convert.ToDouble(reader["Price"]) : null,
+                    reader["FieldName"].ToString(),
+                    reader["FieldValue"].ToString()
+                ));
+            }
+
+            conn.Close();
+            return products;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("ERROR:");
+            Console.WriteLine(e.ToString());
+            return null;
+        }
     }
 }
