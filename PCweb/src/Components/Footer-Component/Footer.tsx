@@ -11,6 +11,7 @@ function Footer() {
                 <div>
                     <h3 className="footer-heading">Shop</h3>
                     <ul className="footer-links">
+                        <Link to="/partpicker">Part Picker</Link><br />
                         <Link to="/products">Products</Link><br />
                         <Link to="/categories">CPU</Link><br />
                         <Link to="/categories">GPU</Link><br />
