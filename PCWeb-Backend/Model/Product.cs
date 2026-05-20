@@ -47,32 +47,34 @@ public class Product : iData
     {
         try
         {
-            MySqlConnection conn = new MySqlConnection(DBHandler.DBConfig_MySQL.GetConnectionSTR());
-            MySqlCommand cmd = new MySqlCommand(Product.ReadAllWithCategorySQL(categoryID), conn);
-
-            conn.Open();
-
-            MySqlDataReader reader = cmd.ExecuteReader();
-            List<ProductWithFieldsDTO> products = new List<ProductWithFieldsDTO>();
-
-            while (reader.Read())
+            using (MySqlConnection conn = new MySqlConnection(DBHandler.DBConfig_MySQL.GetConnectionSTR()))
+            using (MySqlCommand cmd = new MySqlCommand(Product.ReadAllWithCategorySQL(categoryID), conn))
             {
-                products.Add(new ProductWithFieldsDTO(
-                    reader["CategoryName"].ToString(),
-                    Convert.ToInt32(reader["ProductID"]),
-                    reader["Name"].ToString(),
-                    reader["Price"] is not DBNull ? Convert.ToDouble(reader["Price"]) : null,
-                    reader["FieldName"].ToString(),
-                    reader["FieldValue"].ToString()
-                ));
-            }
+                conn.Open();
 
-            conn.Close();
-            return products;
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    List<ProductWithFieldsDTO> products = new List<ProductWithFieldsDTO>();
+
+                    while (reader.Read())
+                    {
+                        products.Add(new ProductWithFieldsDTO(
+                            reader["CategoryName"]?.ToString() ?? string.Empty,
+                            Convert.ToInt32(reader["ProductID"]),
+                            reader["Name"]?.ToString() ?? string.Empty,
+                            reader["Price"] is not DBNull ? Convert.ToDouble(reader["Price"]) : null,
+                            reader["FieldName"]?.ToString() ?? string.Empty,
+                            reader["FieldValue"]?.ToString() ?? string.Empty
+                        ));
+                    }
+
+                    return products;
+                }
+            }
         }
         catch (Exception e)
         {
-            Console.WriteLine("ERROR:");
+            Console.WriteLine("ERROR in ReadAllProductsWithCategory:");
             Console.WriteLine(e.ToString());
             return null;
         }
@@ -126,15 +128,15 @@ public class Product : iData
 
         FROM Categories c
         INNER JOIN Products p ON c.ID = p.CategoryID
-        INNER JOIN ProductFields pf ON p.ID = pf.ProductID
-        INNER JOIN CategoryFields cf ON pf.FieldID = cf.ID
-
         WHERE c.ID = {categoryId} AND p.ID IN (
             SELECT ID FROM Products
             WHERE CategoryID = {categoryId}
             ORDER BY ID
             LIMIT {pageSize} OFFSET {offset}
-        )
+        ) p ON c.ID = p.CategoryID
+        INNER JOIN ProductFields pf ON p.ID = pf.ProductID
+        INNER JOIN CategoryFields cf ON pf.FieldID = cf.ID
+
         ORDER BY p.ID, cf.Name";
     }
 
@@ -142,32 +144,34 @@ public class Product : iData
     {
         try
         {
-            MySqlConnection conn = new MySqlConnection(DBHandler.DBConfig_MySQL.GetConnectionSTR());
-            MySqlCommand cmd = new MySqlCommand(Product.ReadAllWithCategorySQL(categoryID, pageSize, offset), conn);
-
-            conn.Open();
-
-            MySqlDataReader reader = cmd.ExecuteReader();
-            List<ProductWithFieldsDTO> products = new List<ProductWithFieldsDTO>();
-
-            while (reader.Read())
+            using (MySqlConnection conn = new MySqlConnection(DBHandler.DBConfig_MySQL.GetConnectionSTR()))
+            using (MySqlCommand cmd = new MySqlCommand(Product.ReadAllWithCategorySQL(categoryID, pageSize, offset), conn))
             {
-                products.Add(new ProductWithFieldsDTO(
-                    reader["CategoryName"].ToString(),
-                    Convert.ToInt32(reader["ProductID"]),
-                    reader["Name"].ToString(),
-                    reader["Price"] is not DBNull ? Convert.ToDouble(reader["Price"]) : null,
-                    reader["FieldName"].ToString(),
-                    reader["FieldValue"].ToString()
-                ));
-            }
+                conn.Open();
 
-            conn.Close();
-            return products;
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    List<ProductWithFieldsDTO> products = new List<ProductWithFieldsDTO>();
+
+                    while (reader.Read())
+                    {
+                        products.Add(new ProductWithFieldsDTO(
+                            reader["CategoryName"]?.ToString() ?? string.Empty,
+                            Convert.ToInt32(reader["ProductID"]),
+                            reader["Name"]?.ToString() ?? string.Empty,
+                            reader["Price"] is not DBNull ? Convert.ToDouble(reader["Price"]) : null,
+                            reader["FieldName"]?.ToString() ?? string.Empty,
+                            reader["FieldValue"]?.ToString() ?? string.Empty
+                        ));
+                    }
+
+                    return products;
+                }
+            }
         }
         catch (Exception e)
         {
-            Console.WriteLine("ERROR:");
+            Console.WriteLine("ERROR in ReadAllProductsWithCategory:");
             Console.WriteLine(e.ToString());
             return null;
         }
