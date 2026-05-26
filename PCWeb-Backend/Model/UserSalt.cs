@@ -112,10 +112,13 @@ public class UserSalt : iData
             if (CreateDateTime_STR is not null && CreateDateTime_STR != "") CreateDateTime = GeneralMethods.ParseDBDateTime(CreateDateTime_STR);
             if (UpdateDateTime_STR is not null && UpdateDateTime_STR != "") UpdateDateTime = GeneralMethods.ParseDBDateTime(UpdateDateTime_STR);
 
+            string? salt = reader["Salt"].ToString();
+            if (salt is null) salt = "";
+
             UserSalt returnValue = new(
                 Convert.ToInt32(reader["ID"].ToString()), 
                 Convert.ToInt32(reader["UserID"].ToString()), 
-                reader["Salt"].ToString(), CreateDateTime,
+                salt, CreateDateTime,
                 UpdateDateTime);
             conn.Close();
 

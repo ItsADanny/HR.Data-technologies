@@ -11,25 +11,25 @@ namespace PCWeb_Backend.Controller
         // GET
         // ====================================================================================
         [HttpGet("/userid/{id:int}")]
-        public ActionResult<User> GetByUserID(int id)
+        public ActionResult<Account> GetByUserID(int id)
         {
             return Ok();
         }
 
         [HttpGet("/roleid/{id:int}")]
-        public ActionResult<User> GetByRoleID(int id)
+        public ActionResult<Account> GetByRoleID(int id)
         {
             return Ok();
         }
 
         [HttpGet("/email/{email:alpha}")]
-        public ActionResult<User> GetByEmail(string email)
+        public ActionResult<Account> GetByEmail(string email)
         {
             return Ok();
         }
 
         [HttpGet("/phone/{phone:alpha}")]
-        public ActionResult<User> GetByPhone(string phone)
+        public ActionResult<Account> GetByPhone(string phone)
         {
             return Ok();
         }
@@ -38,26 +38,70 @@ namespace PCWeb_Backend.Controller
         // POST
         // ====================================================================================
         [HttpPost("")]
-        public ActionResult<User> CreateUser(UserDTO user)
+        public ActionResult<Account> CreateUser(UserDTO user)
         {
-            // Create a new User object
-            User newUser = new User(user.FirstName, user.LastName, user.Email, user.Password, user.Phone, user.Country);
+            // Create a new Account object
+            Account newUser = new Account(user.FirstName, user.LastName, user.Email, "", user.Phone, user.Country);
 
             // Save to database
             var result = DBHandler.Create(newUser);
 
             //Return good or bad response 
             if (result == null) return BadRequest(new { message = "User registration failed." }); 
+            
+            //Set the password now that the user is created and we have the ID for the salt
+            string[] hashedPassword = Auth.Hash(user.Password);
+
+            newUser = (Account) result;
+            newUser.Password = hashedPassword[0];
+            DBHandler.Update(newUser);
+            DBHandler.Create(new UserSalt(result.ID, hashedPassword[1]));
+            
             return Ok(new { message = "User registered successfully." });
+        }
+
+        [HttpPost("/login")]
+        public ActionResult<Account> LoginUser(UserLoginDTO user)
+        {
+            //Check if user exists
+            Account? existingUser = Account.GetByEmail(user.Email);
+            if (existingUser == null) return BadRequest(new { message = "Invalid email or password." });
+
+            //Get the salt for the user
+            UserSalt? salt = UserSalt.GetSalt(existingUser.ID);
+            if (salt == null) return BadRequest(new { message = "Invalid email or password." });
+
+            //Hash the provided password with the salt and compare to the stored hash
+            string[] hashedPassword = Auth.Hash(user.Password, salt.Salt);
+
+            if (hashedPassword[0] != existingUser.Password) return BadRequest(new { message = "Invalid email or password." });
+
+            //If valid, create a session and return success
+            UserSession newSession = new UserSession(existingUser.ID);
+            DBHandler.Create(newSession);
+            return Ok(new { message = "Login successful.", sessionToken = newSession.SessionToken });
         }
 
         // ====================================================================================
         // PUT
         // ====================================================================================
         [HttpPut("/userid/{id:int}")]
-        public ActionResult<User> UpdateUserByUserID(int id, User user)
+        public ActionResult<Account> UpdateUserByUserID(int id, Account user)
         {
             return Ok();
+        }
+
+        [HttpPut("/logout")]
+        public ActionResult LogoutUser(string sessionToken)
+        {
+            //Check if session exists
+            UserSession? existingSession = DBHandler.GetSessionByToken(sessionToken);
+            if (existingSession == null) return BadRequest(new { message = "Invalid session token." });
+
+            //Delete the session to log the user out
+            bool result = DBHandler.Delete(existingSession);
+            if (!result) return BadRequest(new { message = "Logout failed." });
+            return Ok(new { message = "Logout successful." });
         }
 
         // ====================================================================================

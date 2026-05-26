@@ -65,6 +65,24 @@ public static class DBHandler
         }
     }
 
+    public static UserSession? GetSessionByToken(string sessionToken)
+    {
+        try
+        {
+            ConnectionMultiplexer redis = ConnectionMultiplexer.Connect(_reConnectionConfig());
+            IDatabase db = redis.GetDatabase();
+
+            string? userID = db.StringGet(sessionToken);
+            if (userID == null) return null;
+
+            return new UserSession(int.Parse(userID)) { SessionToken = sessionToken };
+        }
+        catch (Exception e)
+        {
+            return null;
+        }
+    }
+
     public static bool Update(iData data) => BasicNonQueryExecution(data.UpdateSQL());
 
     public static bool Delete(iData data) => BasicNonQueryExecution(data.DeleteSQL());
@@ -104,40 +122,6 @@ public static class DBHandler
         }
     }
 
-    public static List<ProductWithFieldsDTO>? ReadAllProductsWithCategory(int categoryID)
-    {
-        try
-        {
-            MySqlConnection conn = new MySqlConnection(_myConnectionString());
-            MySqlCommand cmd = new MySqlCommand(Product.ReadAllWithCategorySQL(categoryID), conn);
-
-            conn.Open();
-
-            MySqlDataReader reader = cmd.ExecuteReader();
-            List<ProductWithFieldsDTO> products = new List<ProductWithFieldsDTO>();
-
-            while (reader.Read())
-            {
-                products.Add(new ProductWithFieldsDTO(
-                    reader["CategoryName"].ToString(),
-                    Convert.ToInt32(reader["ProductID"]),
-                    reader["Name"].ToString(),
-                    reader["Price"] is not DBNull ? Convert.ToDouble(reader["Price"]) : null,
-                    reader["FieldName"].ToString(),
-                    reader["FieldValue"].ToString()
-                ));
-            }
-
-            conn.Close();
-            return products;
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine("ERROR:");
-            Console.WriteLine(e.ToString());
-            return null;
-        }
-    }
 }
 
 //ItsDanny Note:
@@ -145,6 +129,13 @@ public static class DBHandler
 //SO I MOVED IT HERE TO TEST IF IT WAS A PROBLEM WITH THE FILE OR WITH THE CODE
 public class UserSession : iData
 {
+    public UserSession(int userID)
+    {
+        UserID = userID;
+        SessionToken = Guid.NewGuid().ToString();
+        Expiration = DateTime.Now.AddHours(6);
+    }
+
     public int ID { get; set; }
     public int UserID { get; set; }
     public string SessionToken { get; set; }
