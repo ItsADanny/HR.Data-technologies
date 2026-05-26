@@ -113,30 +113,28 @@ public class Product : iData
     public static string ReadAllWithCategorySQL(int categoryId, int pageSize = 100, int offset = 0)
     {
         return $@"SELECT
-        c.CategoryName,
-        p.ID    AS ProductID,
-        p.Name  AS Name,
-        p.Price AS Price,
-        cf.Name AS FieldName,
-        COALESCE(
-            pf.StringValue,
-            pf.IntValue,
-            pf.DoubleValue,
-            pf.BooleanValue,
-            pf.DateTimeValue
-        ) AS FieldValue
-
+            c.CategoryName,
+            p.ID AS ProductID,
+            p.Name AS Name,
+            p.Price AS Price,
+            cf.Name AS FieldName,
+            COALESCE(
+                pf.StringValue,
+                pf.IntValue,
+                pf.DoubleValue,
+                pf.BooleanValue,
+                pf.DateTimeValue
+            ) AS FieldValue
         FROM Categories c
-        INNER JOIN Products p ON c.ID = p.CategoryID
-        WHERE c.ID = {categoryId} AND p.ID IN (
-            SELECT ID FROM Products
+        INNER JOIN (
+            SELECT ID, CategoryID, Name, Price
+            FROM Products
             WHERE CategoryID = {categoryId}
             ORDER BY ID
             LIMIT {pageSize} OFFSET {offset}
         ) p ON c.ID = p.CategoryID
         INNER JOIN ProductFields pf ON p.ID = pf.ProductID
         INNER JOIN CategoryFields cf ON pf.FieldID = cf.ID
-
         ORDER BY p.ID, cf.Name";
     }
 

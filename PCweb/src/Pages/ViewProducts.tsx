@@ -188,7 +188,7 @@ export default function ViewProducts() {
 					<div className='product-grid'>
 						{products.map((product) => (
 						<article key={product.id} className='product-card'>
-                            <Link to={`/products?categoryId=${categoryId}`}>
+                            <Link to={`/products/${product.id}`} state={{ product }}>
                             	<img src={hero} alt={product.name} />
 							</Link>
 

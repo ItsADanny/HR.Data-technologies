@@ -7,8 +7,8 @@ public class UserController : ControllerBase
     [HttpPost("register")]
     public ActionResult<string> Register([FromBody] registerDto request)
     {
-        // Create a new User object
-        User newUser = new User(request.firstName, request.lastName, request.email, request.password, "", "");
+        // Create a new Account object
+        Account newUser = new Account(request.firstName, request.lastName, request.email, request.password, "", "");
 
         // Set creation date and time
         newUser.CreateDateTime = DateTime.Now;
