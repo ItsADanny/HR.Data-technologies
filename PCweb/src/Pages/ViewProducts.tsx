@@ -83,8 +83,10 @@ const filterQueryKeys: Record<string, string> = {
 export default function ViewProducts() {
 	const [searchParams, setSearchParams] = useSearchParams();
 	const categoryId = searchParams.get('categoryId') || '15';
-	const currentSort = searchParams.get('sort') || 'popular';
+	const currentSort = searchParams.get('sort') || 'A-Z';
 	const [page, setPage] = useState(1);
+	const [minPrice, setMinPrice] = useState(searchParams.get('minPrice') ? Number(searchParams.get('minPrice')) : 0);
+	const [maxPrice, setMaxPrice] = useState(searchParams.get('maxPrice') ? Number(searchParams.get('maxPrice')) : 10000);
 	const { products, loading, categoryName, error } = useProductsData(categoryId, page);
 
 	const handleFilterChange = (sectionName: string, optionName: string, checked: boolean) => {
@@ -112,8 +114,49 @@ export default function ViewProducts() {
 		setSearchParams(nextParams);
 	};
 
+	const handlePriceChange = (type: 'min' | 'max', value: string) => {
+		const nextParams = new URLSearchParams(searchParams);
+		const numValue = value === '' ? 0 : Number(value);
+
+		if (type === 'min') {
+			setMinPrice(numValue);
+			if (numValue > 0) {
+				nextParams.set('minPrice', String(numValue));
+			} else {
+				nextParams.delete('minPrice');
+			}
+		} else {
+			setMaxPrice(numValue);
+			if (numValue < 5000) {
+				nextParams.set('maxPrice', String(numValue));
+			} else {
+				nextParams.delete('maxPrice');
+			}
+		}
+
+		setSearchParams(nextParams);
+	};
+
 	const handleNextPage = () => setPage(page + 1);
 	const handlePrevPage = () => setPage(page > 1 ? page - 1 : 1);
+
+	// Sort products based on currentSort
+	const min = minPrice || 0;
+	const max = maxPrice || 10000;
+	const filteredByPrice = products.filter(product => product.price >= min && product.price <= max);
+
+	const sortedProducts = [...filteredByPrice].sort((a, b) => {
+		switch (currentSort) {
+			case 'A-Z':
+				return a.name.localeCompare(b.name);
+			case 'price-low-high':
+				return a.price - b.price;
+			case 'price-high-low':
+				return b.price - a.price;
+			default:
+				return 0;
+		}
+	});
 
 	if (loading) {
 		return <div style={{ padding: '20px' }}>Loading products...</div>;
@@ -126,6 +169,38 @@ export default function ViewProducts() {
 
 			<main className='view-products-page'>
 				<aside className='filters-panel'>
+					<section className='filter-block'>
+						<div className='filter-name-row'>
+							<h3>Price</h3>
+						</div>
+						<div style={{ padding: '10px 0' }}>
+							<div style={{ marginBottom: '8px' }}>
+								<input
+									type='range'
+									min='0'
+									max='5000'
+									step='10'
+									value={minPrice}
+									onChange={(e) => handlePriceChange('min', e.target.value)}
+									style={{ width: '100%' }}
+								/>
+								<div style={{ fontSize: '0.85rem', marginTop: '4px' }}>Min: ${minPrice}</div>
+							</div>
+							<div>
+								<input
+									type='range'
+									min='0'
+									max='5000'
+									step='10'
+									value={maxPrice}
+									onChange={(e) => handlePriceChange('max', e.target.value)}
+									style={{ width: '100%' }}
+								/>
+								<div style={{ fontSize: '0.85rem', marginTop: '4px' }}>Max: ${maxPrice}</div>
+							</div>
+						</div>
+					</section>
+
 					{filterSections.map((section) => (
 						<section key={section.name} className='filter-block'>
 							<div className='filter-name-row'>
@@ -170,14 +245,13 @@ export default function ViewProducts() {
 					</div>
 
 					<div className='toolbar'>
-					<p>{products.length} results</p>
+				<p>{sortedProducts.length} results</p>
 						<div className='toolbar-actions'>
 							<label htmlFor='sort'>Sortering</label>
 							<select id='sort' value={currentSort} onChange={(event) => handleSortChange(event.target.value)}>
-								<option value='popular'>Popular</option>
+								<option value='A-Z'>A-Z</option>
 								<option value='price-low-high'>Price low-high</option>
 								<option value='price-high-low'>Price high-low</option>
-								<option value='best-reviewed'>Best reviewed</option>
 							</select>
 							<button type='button' className='layout-btn' aria-label='Wijzig weergave'>
 								☰
@@ -186,7 +260,7 @@ export default function ViewProducts() {
 					</div>
 
 					<div className='product-grid'>
-						{products.map((product) => (
+					{sortedProducts.map((product) => (
 						<article key={product.id} className='product-card'>
                             <Link to={`/products/${product.id}`} state={{ product }}>
                             	<img src={hero} alt={product.name} />
