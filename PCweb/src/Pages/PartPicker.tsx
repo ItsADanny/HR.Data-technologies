@@ -1,5 +1,7 @@
 
 import { Link } from 'react-router-dom';
+import Header from '../Components/Header-Component/Header';
+import Footer from '../Components/Footer-Component/Footer';
 
 export default function PartPicker() {
     const components = [
@@ -15,6 +17,7 @@ export default function PartPicker() {
 
     return (
         <div>
+            <Header />
             <h1>Choose your parts!</h1>
             <table border={1}>
                 <thead>
@@ -44,7 +47,7 @@ export default function PartPicker() {
                 </tbody>
             </table>
 
-            <Link to="/">Back to Home</Link>
+            <Footer />
         </div>
     );
 }
