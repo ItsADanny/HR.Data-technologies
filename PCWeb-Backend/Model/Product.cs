@@ -227,7 +227,7 @@ public class Product
             SELECT ID, CategoryID, Name, Price
             FROM Products
             WHERE CategoryID = {categoryId}
-            AND Manufacturer = {brand}
+            AND Manufacturer = '{brand}'
             ORDER BY ID
             LIMIT {pageSize} OFFSET {offset}
         ) p ON c.ID = p.CategoryID

@@ -30,7 +30,7 @@ namespace PCWeb_Backend.Controller
             return Ok(products);
         }
 
-        [HttpGet("with-category/{categoryId:int}/with-brand/{brand:alpha}")]
+        [HttpGet("with-category/{categoryId:int}/with-brand/{brand}")]
         public IActionResult GetProductsWithCategory(int categoryId, string brand, int page = 1, int pageSize = 100)
         {
             if (categoryId <= 0)
