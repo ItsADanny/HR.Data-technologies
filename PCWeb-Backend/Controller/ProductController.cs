@@ -73,6 +73,39 @@ namespace PCWeb_Backend.Controller
             return Ok(products);
         }
 
+        [HttpGet("search/{query:alpha}")]
+        public IActionResult SearchProducts(string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+                return BadRequest("Query cannot be empty");
+
+            var products = Product.SearchProducts(query);
+
+            if (products == null)
+                return NotFound("Products not found");
+
+            return Ok(products);
+        }
+
+        [HttpGet("search/{query:alpha}/{page:int}/{pageSize:int}")]
+        public IActionResult SearchProducts(string query, int page = 1, int pageSize = 100)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+                return BadRequest("Query cannot be empty");
+            if (page < 1)
+                return BadRequest("Page must be greater than 0");
+            if (pageSize <= 0)
+                return BadRequest("PageSize must be a positive integer");
+            
+            int offset = (page - 1) * pageSize;
+            var products = Product.SearchProducts(query, pageSize, offset);
+
+            if (products == null)
+                return NotFound("Products not found");
+
+            return Ok(products);
+        }
+
         // ====================================================================================
         // POST
         // ====================================================================================
@@ -82,12 +115,12 @@ namespace PCWeb_Backend.Controller
         //     if (product == null)
         //         return BadRequest("Invalid product data");
 
-        //     Product? createdProduct = Product.CreateProduct(categoryId, product);
+        //     List<ProductWithFieldsDTO>? createdProduct = Product.CreateProduct(categoryId, product);
 
         //     if (createdProduct == null)
         //         return StatusCode(500, "Error creating product");
 
-        //     return CreatedAtAction(nameof(GetProduct), new { id = createdProduct.Id }, createdProduct);
+        //     return CreatedAtAction(nameof(GetProduct), new { id = createdProduct.First().Id }, createdProduct);
         // }
 
         // ====================================================================================
@@ -98,14 +131,14 @@ namespace PCWeb_Backend.Controller
         // {
         //     if (product == null) return BadRequest("Invalid product data");
 
-        //     Product? existingProduct = Product.ReadProductByID(id);
+        //     List<ProductWithFieldsDTO>? existingProduct = Product.ReadProductByID(id);
         //     if (existingProduct == null) return NotFound("Product not found");
 
         //     bool updatedProduct = Product.UpdateProduct(id, product);
         //     if (!updatedProduct) return StatusCode(500, "Error updating product");
 
         //     return Ok(updatedProduct);
-        // }  
+        // }
 
         // ====================================================================================
         // DELETE
@@ -113,7 +146,7 @@ namespace PCWeb_Backend.Controller
         // [HttpDelete("{id:int}")]
         // public IActionResult DeleteProduct(int id)
         // {
-        //     Product? existingProduct = Product.ReadProductByID(id);
+        //     List<ProductWithFieldsDTO>? existingProduct = Product.ReadProductByID(id);
         //     if (existingProduct == null) return NotFound("Product not found");
 
         //     bool result = Product.DeleteProduct(id);
