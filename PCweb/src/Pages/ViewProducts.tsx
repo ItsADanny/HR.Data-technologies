@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import Header from '../Components/Header-Component/Header';
 import Navbar from '../Components/Header-Component/Navbar';
@@ -6,23 +6,21 @@ import hero from '../assets/hero.png';
 import { useProductsData } from '../hooks/useProductsData';
 import './ViewProducts.css';
 
-interface ProductField {
-	categoryName: string;
-	productID: number;
-	name: string;
-	price: number;
-	fieldName: string;
-	fieldValue: string;
-}
+// Import the function separately
+const GetBrandsInSameCategory = async (categoryId: string) => {
+	try {
+		const response = await fetch(`/api/product/GetAllBrandsThatInSameCategory/${categoryId}`);
+		if (!response.ok) {
+			throw new Error(`HTTP error! status: ${response.status}`);
+		}
+		const brands: string[] = await response.json();
+		return brands;
+	} catch (err) {
+		console.error('Error fetching brands:', err);
+		throw err instanceof Error ? err : new Error('Failed to fetch brands');
+	}		
+};
 
-interface FilterOption {
-	name: string;
-}
-
-interface FilterSection {
-	name: string;
-	options: FilterOption[];
-}
 
 interface ProductCard {
 	id: number;
@@ -33,75 +31,41 @@ interface ProductCard {
 	image: string;
 }
 
-const filterSections: FilterSection[] = [
-	{
-		name: 'Brand',
-		options: [
-			{ name: 'GoPro'},
-			{ name: 'DJI'},
-			{ name: 'Insta360'}
-		]
-	},
-	{
-		name: 'Resistentie',
-		options: [
-            { name: 'waterproof'},
-			{ name: 'Water resistant'},
-			{ name: 'Schok resistent'},
-        ]
-	},
-	{
-		name: 'Serie',
-		options: [
-			{ name: 'GoPro HERO'},
-			{ name: 'Insta360 GO'},
-			{ name: 'DJI Osmo'}
-		]
-	},
-	{
-		name: 'Videoresolutie',
-		options: [
-			{ name: 'Full HD'},
-			{ name: '4K'},
-			{ name: 'HD Ready'}
-		]
-	}
-];
-
-
-const brands = ['GoPro', 'DJI', 'Insta360', 'Denver', 'WOLFANG', 'Akaso', 'Strex', 'Salora', 'Vynox'];
-
-const productsPath = '/viewproducts';
-
-const filterQueryKeys: Record<string, string> = {
-	Brand: 'brand',
-	Resistentie: 'resistance',
-	Serie: 'series',
-	Videoresolutie: 'resolution',
-};
-
 export default function ViewProducts() {
 	const [searchParams, setSearchParams] = useSearchParams();
 	const categoryId = searchParams.get('categoryId') || '15';
 	const currentSort = searchParams.get('sort') || 'A-Z';
+	const selectedBrand = searchParams.get('brand');
 	const [page, setPage] = useState(1);
 	const [minPrice, setMinPrice] = useState(searchParams.get('minPrice') ? Number(searchParams.get('minPrice')) : 0);
 	const [maxPrice, setMaxPrice] = useState(searchParams.get('maxPrice') ? Number(searchParams.get('maxPrice')) : 10000);
-	const { products, loading, categoryName, error } = useProductsData(categoryId, page);
+	const [brands, setBrands] = useState<string[]>([]);
+	const { products, loading, categoryName, error } = useProductsData(categoryId, selectedBrand || undefined, page);
 
-	const handleFilterChange = (sectionName: string, optionName: string, checked: boolean) => {
-		const filterKey = filterQueryKeys[sectionName];
+	// Fetch brands when categoryId changes
+	useEffect(() => {
+		const fetchBrands = async () => {
+			if (categoryId) {
+				try {
+					const brandList = await GetBrandsInSameCategory(categoryId);
+					if (brandList && Array.isArray(brandList)) {
+						setBrands(brandList);
+					}
+				} catch (err) {
+					console.error('Error fetching brands:', err);
+				}
+			}
+		};
+		fetchBrands();
+	}, [categoryId]);
 
-		if (!filterKey) {
-			return;
-		}
-
+	const handleFilterChange = (brand: string, checked: boolean) => {
 		const nextParams = new URLSearchParams(searchParams);
 
 		if (checked) {
-			nextParams.set(filterKey, optionName);
+			nextParams.set('brand', brand);
 		} else {
-			nextParams.delete(filterKey);
+			nextParams.delete('brand');
 		}
 
 		setSearchParams(nextParams);
@@ -201,28 +165,26 @@ export default function ViewProducts() {
 						</div>
 					</section>
 
-					{filterSections.map((section) => (
-						<section key={section.name} className='filter-block'>
-							<div className='filter-name-row'>
-								<h3>{section.name}</h3>
-							</div>
+					<section className='filter-block'>
+						<div className='filter-name-row'>
+							<h3>Brand</h3>
+						</div>
 
-							<ul>
-								{section.options.map((option) => (
-									<li key={option.name}>
-										<div className='filter-option-row'>
-											<input
-												type='checkbox'
-												checked={searchParams.get(filterQueryKeys[section.name]) === option.name}
-												onChange={(event) => handleFilterChange(section.name, option.name, event.target.checked)}
-											/>
-											<span>{option.name}</span>
-										</div>
-									</li>
-								))}
-							</ul>
-						</section>
-					))}
+						<ul>
+							{brands.map((brand) => (
+								<li key={brand}>
+									<div className='filter-option-row'>
+										<input
+											type='checkbox'
+											checked={selectedBrand === brand}
+											onChange={(event) => handleFilterChange(brand, event.target.checked)}
+										/>
+										<span>{brand}</span>
+									</div>
+								</li>
+							))}
+						</ul>
+					</section>
 				</aside>
 
 				<section className='results-panel'>
@@ -237,7 +199,7 @@ export default function ViewProducts() {
 						<h2>Brand</h2>
 						<div className='brand-chips'>
 							{brands.map((brand) => (
-								<button key={brand} type='button' onClick={() => handleFilterChange('Brand', brand, true)} className='chip chip-link'>
+								<button key={brand} type='button' onClick={() => handleFilterChange(brand, selectedBrand !== brand)} className='chip chip-link'>
 									{brand}
 								</button>
 							))}

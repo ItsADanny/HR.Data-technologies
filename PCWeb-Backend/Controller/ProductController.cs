@@ -48,6 +48,20 @@ namespace PCWeb_Backend.Controller
             return Ok(products);
         }
 
+        [HttpGet("GetAllBrandsThatInSameCategory/{categoryId:int}")]
+        public IActionResult GetAllBrand(int categoryId)
+        {
+            if (categoryId <= 0)
+                return BadRequest("Invalid category ID");
+
+            var brand = Product.ReadAllBrandsInSameCategory(categoryId);
+
+            if (brand == null)
+                return NotFound("Brand not found for the given category ID");
+
+            return Ok(brand);
+        }
+
         [HttpGet("{id}")]
         public IActionResult GetProduct(int id)
         {
