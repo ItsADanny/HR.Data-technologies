@@ -29,12 +29,12 @@ public class Motherboard : Product
         throw new NotImplementedException();
     }
 
-    public override string ReadSQL()
+    public new string ReadSQL()
     {
         throw new NotImplementedException();
     }
 
-    public override string ReadSQL(int id)
+    public new string ReadSQL(int id)
     {
         throw new NotImplementedException();
     }

@@ -1,6 +1,7 @@
 using MySql.Data.MySqlClient;
 
-public class Product : iData
+// public class Product : iData
+public class Product
 {
     public int ID {get; set;}
     public int? CategoryID {get; set;}
@@ -95,14 +96,82 @@ public class Product : iData
         throw new NotImplementedException();
     }
 
-    public virtual string ReadSQL()
+    public static string ReadSQL()
     {
-        throw new NotImplementedException();
+        return $@"SELECT
+            c.CategoryName,
+            p.ID AS ProductID,
+            p.Name AS Name,
+            p.Price AS Price,
+            cf.Name AS FieldName,
+            COALESCE(
+                pf.StringValue,
+                pf.IntValue,
+                pf.DoubleValue,
+                pf.BooleanValue,
+                pf.DateTimeValue
+            ) AS FieldValue
+        FROM Categories c
+        INNER JOIN (
+            SELECT ID, CategoryID, Name, Price
+            FROM Products
+        ) p ON c.ID = p.CategoryID
+        INNER JOIN ProductFields pf ON p.ID = pf.ProductID
+        INNER JOIN CategoryFields cf ON pf.FieldID = cf.ID
+        ORDER BY p.ID, cf.Name";
     }
 
-    public virtual string ReadSQL(int id)
+    public static string ReadSQL(int pageSize = 100, int offset = 0)
     {
-        throw new NotImplementedException();
+        return $@"SELECT
+            c.CategoryName,
+            p.ID AS ProductID,
+            p.Name AS Name,
+            p.Price AS Price,
+            cf.Name AS FieldName,
+            COALESCE(
+                pf.StringValue,
+                pf.IntValue,
+                pf.DoubleValue,
+                pf.BooleanValue,
+                pf.DateTimeValue
+            ) AS FieldValue
+        FROM Categories c
+        INNER JOIN (
+            SELECT ID, CategoryID, Name, Price
+            FROM Products
+            ORDER BY ID
+            LIMIT {pageSize} OFFSET {offset}
+        ) p ON c.ID = p.CategoryID
+        INNER JOIN ProductFields pf ON p.ID = pf.ProductID
+        INNER JOIN CategoryFields cf ON pf.FieldID = cf.ID
+        ORDER BY p.ID, cf.Name";
+    }
+
+    public static string ReadSQL(int id)
+    {
+        return $@"SELECT
+            c.CategoryName,
+            p.ID AS ProductID,
+            p.Name AS Name,
+            p.Price AS Price,
+            cf.Name AS FieldName,
+            COALESCE(
+                pf.StringValue,
+                pf.IntValue,
+                pf.DoubleValue,
+                pf.BooleanValue,
+                pf.DateTimeValue
+            ) AS FieldValue
+        FROM Categories c
+        INNER JOIN (
+            SELECT ID, CategoryID, Name, Price
+            FROM Products
+            WHERE ID = {id}
+        ) p ON c.ID = p.CategoryID
+        INNER JOIN ProductFields pf ON p.ID = pf.ProductID
+        INNER JOIN CategoryFields cf ON pf.FieldID = cf.ID
+        ORDER BY p.ID, cf.Name";
     }
 
     public static string ReadAllSQL()
@@ -138,12 +207,96 @@ public class Product : iData
         ORDER BY p.ID, cf.Name";
     }
 
+    public static string ReadAllWithCategoryWithBrandSQL(int categoryId, string brand, int pageSize = 100, int offset = 0)
+    {
+        return $@"SELECT
+            c.CategoryName,
+            p.ID AS ProductID,
+            p.Name AS Name,
+            p.Price AS Price,
+            cf.Name AS FieldName,
+            COALESCE(
+                pf.StringValue,
+                pf.IntValue,
+                pf.DoubleValue,
+                pf.BooleanValue,
+                pf.DateTimeValue
+            ) AS FieldValue
+        FROM Categories c
+        INNER JOIN (
+            SELECT ID, CategoryID, Name, Price
+            FROM Products
+            WHERE CategoryID = {categoryId}
+            AND Manufacturer = '{brand}'
+            ORDER BY ID
+            LIMIT {pageSize} OFFSET {offset}
+        ) p ON c.ID = p.CategoryID
+        INNER JOIN ProductFields pf ON p.ID = pf.ProductID
+        INNER JOIN CategoryFields cf ON pf.FieldID = cf.ID
+        ORDER BY p.ID, cf.Name";
+    }
+
+    public static string SearchSQL(string query)
+    {
+        return $@"SELECT
+            c.CategoryName,
+            p.ID AS ProductID,
+            p.Name AS Name,
+            p.Price AS Price,
+            cf.Name AS FieldName,
+            COALESCE(
+                pf.StringValue,
+                pf.IntValue,
+                pf.DoubleValue,
+                pf.BooleanValue,
+                pf.DateTimeValue
+            ) AS FieldValue
+        FROM Categories c
+        INNER JOIN (
+            SELECT ID, CategoryID, Name, Price
+            FROM Products
+            WHERE Name LIKE %{query}%
+            ORDER BY ID
+        ) p ON c.ID = p.CategoryID
+        INNER JOIN ProductFields pf ON p.ID = pf.ProductID
+        INNER JOIN CategoryFields cf ON pf.FieldID = cf.ID
+        ORDER BY p.ID, cf.Name";
+    }
+
+    public static string SearchSQL(string query, int pageSize = 100, int offset = 0)
+    {
+        return $@"SELECT
+            c.CategoryName,
+            p.ID AS ProductID,
+            p.Name AS Name,
+            p.Price AS Price,
+            cf.Name AS FieldName,
+            COALESCE(
+                pf.StringValue,
+                pf.IntValue,
+                pf.DoubleValue,
+                pf.BooleanValue,
+                pf.DateTimeValue
+            ) AS FieldValue
+        FROM Categories c
+        INNER JOIN (
+            SELECT ID, CategoryID, Name, Price
+            FROM Products
+            WHERE Name LIKE %{query}%
+            ORDER BY ID
+            LIMIT {pageSize} OFFSET {offset}
+        ) p ON c.ID = p.CategoryID
+        INNER JOIN ProductFields pf ON p.ID = pf.ProductID
+        INNER JOIN CategoryFields cf ON pf.FieldID = cf.ID
+        ORDER BY p.ID, cf.Name";
+    }
+
     public static List<ProductWithFieldsDTO>? ReadAllProductsWithCategory(int categoryID, int pageSize = 100, int offset = 0)
     {
         try
         {
             using (MySqlConnection conn = new MySqlConnection(DBHandler.DBConfig_MySQL.GetConnectionSTR()))
-            using (MySqlCommand cmd = new MySqlCommand(Product.ReadAllWithCategorySQL(categoryID, pageSize, offset), conn))
+            using (MySqlCommand cmd = new MySqlCommand(ReadAllWithCategorySQL(categoryID, pageSize, offset), conn))
             {
                 conn.Open();
 
@@ -170,6 +323,257 @@ public class Product : iData
         catch (Exception e)
         {
             Console.WriteLine("ERROR in ReadAllProductsWithCategory:");
+            Console.WriteLine(e.ToString());
+            return null;
+        }
+    }
+
+    public static List<ProductWithFieldsDTO>? ReadAllProductsWithCategoryWithBrand(int categoryID, string brand, int pageSize = 100, int offset = 0)
+    {
+        try
+        {
+            using (MySqlConnection conn = new MySqlConnection(DBHandler.DBConfig_MySQL.GetConnectionSTR()))
+            using (MySqlCommand cmd = new MySqlCommand(ReadAllWithCategoryWithBrandSQL(categoryID, brand, pageSize, offset), conn))
+            {
+                conn.Open();
+
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    List<ProductWithFieldsDTO> products = new List<ProductWithFieldsDTO>();
+
+                    while (reader.Read())
+                    {
+                        products.Add(new ProductWithFieldsDTO(
+                            reader["CategoryName"]?.ToString() ?? string.Empty,
+                            Convert.ToInt32(reader["ProductID"]),
+                            reader["Name"]?.ToString() ?? string.Empty,
+                            reader["Price"] is not DBNull ? Convert.ToDouble(reader["Price"]) : null,
+                            reader["FieldName"]?.ToString() ?? string.Empty,
+                            reader["FieldValue"]?.ToString() ?? string.Empty
+                        ));
+                    }
+
+                    return products;
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("ERROR in ReadAllProductsWithCategoryWithBrand:");
+            Console.WriteLine(e.ToString());
+            return null;
+        }
+    }
+
+    public static List<ProductWithFieldsDTO>? ReadProductByID(int id)
+    {
+        try
+        {
+            using (MySqlConnection conn = new MySqlConnection(DBHandler.DBConfig_MySQL.GetConnectionSTR()))
+            using (MySqlCommand cmd = new MySqlCommand(ReadSQL(id), conn))
+            {
+                conn.Open();
+
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    List<ProductWithFieldsDTO> products = new List<ProductWithFieldsDTO>();
+
+                    while (reader.Read())
+                    {
+                        products.Add(new ProductWithFieldsDTO(
+                            reader["CategoryName"]?.ToString() ?? string.Empty,
+                            Convert.ToInt32(reader["ProductID"]),
+                            reader["Name"]?.ToString() ?? string.Empty,
+                            reader["Price"] is not DBNull ? Convert.ToDouble(reader["Price"]) : null,
+                            reader["FieldName"]?.ToString() ?? string.Empty,
+                            reader["FieldValue"]?.ToString() ?? string.Empty
+                        ));
+                    }
+
+                    return products;
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("ERROR in ReadProductByID:");
+            Console.WriteLine(e.ToString());
+            return null;
+        }
+    }
+
+    public static List<ProductWithFieldsDTO>? ReadProducts()
+    {
+        try
+        {
+            using (MySqlConnection conn = new MySqlConnection(DBHandler.DBConfig_MySQL.GetConnectionSTR()))
+            using (MySqlCommand cmd = new MySqlCommand(ReadSQL(), conn))
+            {
+                conn.Open();
+
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    List<ProductWithFieldsDTO> products = new List<ProductWithFieldsDTO>();
+
+                    while (reader.Read())
+                    {
+                        products.Add(new ProductWithFieldsDTO(
+                            reader["CategoryName"]?.ToString() ?? string.Empty,
+                            Convert.ToInt32(reader["ProductID"]),
+                            reader["Name"]?.ToString() ?? string.Empty,
+                            reader["Price"] is not DBNull ? Convert.ToDouble(reader["Price"]) : null,
+                            reader["FieldName"]?.ToString() ?? string.Empty,
+                            reader["FieldValue"]?.ToString() ?? string.Empty
+                        ));
+                    }
+
+                    return products;
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("ERROR in ReadProductByID:");
+            Console.WriteLine(e.ToString());
+            return null;
+        }
+    }
+
+    public static List<ProductWithFieldsDTO>? ReadProducts(int pageSize = 100, int offset = 0)
+    {
+        try
+        {
+            using (MySqlConnection conn = new MySqlConnection(DBHandler.DBConfig_MySQL.GetConnectionSTR()))
+            using (MySqlCommand cmd = new MySqlCommand(ReadSQL(pageSize, offset), conn))
+            {
+                conn.Open();
+
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    List<ProductWithFieldsDTO> products = new List<ProductWithFieldsDTO>();
+
+                    while (reader.Read())
+                    {
+                        products.Add(new ProductWithFieldsDTO(
+                            reader["CategoryName"]?.ToString() ?? string.Empty,
+                            Convert.ToInt32(reader["ProductID"]),
+                            reader["Name"]?.ToString() ?? string.Empty,
+                            reader["Price"] is not DBNull ? Convert.ToDouble(reader["Price"]) : null,
+                            reader["FieldName"]?.ToString() ?? string.Empty,
+                            reader["FieldValue"]?.ToString() ?? string.Empty
+                        ));
+                    }
+
+                    return products;
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("ERROR in ReadProductByID:");
+            Console.WriteLine(e.ToString());
+            return null;
+        }
+    }
+
+    public static List<ProductWithFieldsDTO>? SearchProducts(string query)
+    {
+        try
+        {
+            using (MySqlConnection conn = new MySqlConnection(DBHandler.DBConfig_MySQL.GetConnectionSTR()))
+            using (MySqlCommand cmd = new MySqlCommand(SearchSQL(query), conn))
+            {
+                conn.Open();
+
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    List<ProductWithFieldsDTO> products = new List<ProductWithFieldsDTO>();
+
+                    while (reader.Read())
+                    {
+                        products.Add(new ProductWithFieldsDTO(
+                            reader["CategoryName"]?.ToString() ?? string.Empty,
+                            Convert.ToInt32(reader["ProductID"]),
+                            reader["Name"]?.ToString() ?? string.Empty,
+                            reader["Price"] is not DBNull ? Convert.ToDouble(reader["Price"]) : null,
+                            reader["FieldName"]?.ToString() ?? string.Empty,
+                            reader["FieldValue"]?.ToString() ?? string.Empty
+                        ));
+                    }
+
+                    return products;
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("ERROR in SearchProducts:");
+            Console.WriteLine(e.ToString());
+            return null;
+        }
+    }
+
+    public static List<ProductWithFieldsDTO>? SearchProducts(string query, int pageSize = 100, int offset = 0)
+    {
+        try
+        {
+            using (MySqlConnection conn = new MySqlConnection(DBHandler.DBConfig_MySQL.GetConnectionSTR()))
+            using (MySqlCommand cmd = new MySqlCommand(SearchSQL(query, pageSize, offset), conn))
+            {
+                conn.Open();
+
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    List<ProductWithFieldsDTO> products = new List<ProductWithFieldsDTO>();
+
+                    while (reader.Read())
+                    {
+                        products.Add(new ProductWithFieldsDTO(
+                            reader["CategoryName"]?.ToString() ?? string.Empty,
+                            Convert.ToInt32(reader["ProductID"]),
+                            reader["Name"]?.ToString() ?? string.Empty,
+                            reader["Price"] is not DBNull ? Convert.ToDouble(reader["Price"]) : null,
+                            reader["FieldName"]?.ToString() ?? string.Empty,
+                            reader["FieldValue"]?.ToString() ?? string.Empty
+                        ));
+                    }
+
+                    return products;
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("ERROR in SearchProducts:");
+            Console.WriteLine(e.ToString());
+            return null;
+        }
+    }
+            public static List<string>? ReadAllBrandsInSameCategory(int categoryID)
+    {
+        try
+        {
+            using (MySqlConnection conn = new MySqlConnection(DBHandler.DBConfig_MySQL.GetConnectionSTR()))
+            using (MySqlCommand cmd = new MySqlCommand($@"SELECT DISTINCT Manufacturer FROM Products WHERE CategoryID = {categoryID} AND Manufacturer IS NOT NULL", conn))
+            {
+                conn.Open();
+
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    List<string> brands = new List<string>();
+
+                    while (reader.Read())
+                    {
+                        brands.Add(reader["Manufacturer"]?.ToString() ?? string.Empty);
+                    }
+
+                    return brands;
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("ERROR in ReadAllBrandsInSameCategory:");
             Console.WriteLine(e.ToString());
             return null;
         }

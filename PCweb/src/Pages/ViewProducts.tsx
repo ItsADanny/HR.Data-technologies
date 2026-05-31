@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import Header from '../Components/Header-Component/Header';
 import Navbar from '../Components/Header-Component/Navbar';
@@ -6,23 +6,21 @@ import hero from '../assets/hero.png';
 import { useProductsData } from '../hooks/useProductsData';
 import './ViewProducts.css';
 
-interface ProductField {
-	categoryName: string;
-	productID: number;
-	name: string;
-	price: number;
-	fieldName: string;
-	fieldValue: string;
-}
+// Import the function separately
+const GetBrandsInSameCategory = async (categoryId: string) => {
+	try {
+		const response = await fetch(`/api/product/GetAllBrandsThatInSameCategory/${categoryId}`);
+		if (!response.ok) {
+			throw new Error(`HTTP error! status: ${response.status}`);
+		}
+		const brands: string[] = await response.json();
+		return brands;
+	} catch (err) {
+		console.error('Error fetching brands:', err);
+		throw err instanceof Error ? err : new Error('Failed to fetch brands');
+	}		
+};
 
-interface FilterOption {
-	name: string;
-}
-
-interface FilterSection {
-	name: string;
-	options: FilterOption[];
-}
 
 interface ProductCard {
 	id: number;
@@ -33,73 +31,41 @@ interface ProductCard {
 	image: string;
 }
 
-const filterSections: FilterSection[] = [
-	{
-		name: 'Brand',
-		options: [
-			{ name: 'GoPro'},
-			{ name: 'DJI'},
-			{ name: 'Insta360'}
-		]
-	},
-	{
-		name: 'Resistentie',
-		options: [
-            { name: 'waterproof'},
-			{ name: 'Water resistant'},
-			{ name: 'Schok resistent'},
-        ]
-	},
-	{
-		name: 'Serie',
-		options: [
-			{ name: 'GoPro HERO'},
-			{ name: 'Insta360 GO'},
-			{ name: 'DJI Osmo'}
-		]
-	},
-	{
-		name: 'Videoresolutie',
-		options: [
-			{ name: 'Full HD'},
-			{ name: '4K'},
-			{ name: 'HD Ready'}
-		]
-	}
-];
-
-
-const brands = ['GoPro', 'DJI', 'Insta360', 'Denver', 'WOLFANG', 'Akaso', 'Strex', 'Salora', 'Vynox'];
-
-const productsPath = '/viewproducts';
-
-const filterQueryKeys: Record<string, string> = {
-	Brand: 'brand',
-	Resistentie: 'resistance',
-	Serie: 'series',
-	Videoresolutie: 'resolution',
-};
-
 export default function ViewProducts() {
 	const [searchParams, setSearchParams] = useSearchParams();
 	const categoryId = searchParams.get('categoryId') || '15';
-	const currentSort = searchParams.get('sort') || 'popular';
+	const currentSort = searchParams.get('sort') || 'A-Z';
+	const selectedBrand = searchParams.get('brand');
 	const [page, setPage] = useState(1);
-	const { products, loading, categoryName, error } = useProductsData(categoryId, page);
+	const [minPrice, setMinPrice] = useState(searchParams.get('minPrice') ? Number(searchParams.get('minPrice')) : 0);
+	const [maxPrice, setMaxPrice] = useState(searchParams.get('maxPrice') ? Number(searchParams.get('maxPrice')) : 10000);
+	const [brands, setBrands] = useState<string[]>([]);
+	const { products, loading, categoryName, error } = useProductsData(categoryId, selectedBrand || undefined, page);
 
-	const handleFilterChange = (sectionName: string, optionName: string, checked: boolean) => {
-		const filterKey = filterQueryKeys[sectionName];
+	// Fetch brands when categoryId changes
+	useEffect(() => {
+		const fetchBrands = async () => {
+			if (categoryId) {
+				try {
+					const brandList = await GetBrandsInSameCategory(categoryId);
+					if (brandList && Array.isArray(brandList)) {
+						setBrands(brandList);
+					}
+				} catch (err) {
+					console.error('Error fetching brands:', err);
+				}
+			}
+		};
+		fetchBrands();
+	}, [categoryId]);
 
-		if (!filterKey) {
-			return;
-		}
-
+	const handleFilterChange = (brand: string, checked: boolean) => {
 		const nextParams = new URLSearchParams(searchParams);
 
 		if (checked) {
-			nextParams.set(filterKey, optionName);
+			nextParams.set('brand', brand);
 		} else {
-			nextParams.delete(filterKey);
+			nextParams.delete('brand');
 		}
 
 		setSearchParams(nextParams);
@@ -112,8 +78,49 @@ export default function ViewProducts() {
 		setSearchParams(nextParams);
 	};
 
+	const handlePriceChange = (type: 'min' | 'max', value: string) => {
+		const nextParams = new URLSearchParams(searchParams);
+		const numValue = value === '' ? 0 : Number(value);
+
+		if (type === 'min') {
+			setMinPrice(numValue);
+			if (numValue > 0) {
+				nextParams.set('minPrice', String(numValue));
+			} else {
+				nextParams.delete('minPrice');
+			}
+		} else {
+			setMaxPrice(numValue);
+			if (numValue < 5000) {
+				nextParams.set('maxPrice', String(numValue));
+			} else {
+				nextParams.delete('maxPrice');
+			}
+		}
+
+		setSearchParams(nextParams);
+	};
+
 	const handleNextPage = () => setPage(page + 1);
 	const handlePrevPage = () => setPage(page > 1 ? page - 1 : 1);
+
+	// Sort products based on currentSort
+	const min = minPrice || 0;
+	const max = maxPrice || 10000;
+	const filteredByPrice = products.filter(product => product.price >= min && product.price <= max);
+
+	const sortedProducts = [...filteredByPrice].sort((a, b) => {
+		switch (currentSort) {
+			case 'A-Z':
+				return a.name.localeCompare(b.name);
+			case 'price-low-high':
+				return a.price - b.price;
+			case 'price-high-low':
+				return b.price - a.price;
+			default:
+				return 0;
+		}
+	});
 
 	if (loading) {
 		return <div style={{ padding: '20px' }}>Loading products...</div>;
@@ -126,28 +133,58 @@ export default function ViewProducts() {
 
 			<main className='view-products-page'>
 				<aside className='filters-panel'>
-					{filterSections.map((section) => (
-						<section key={section.name} className='filter-block'>
-							<div className='filter-name-row'>
-								<h3>{section.name}</h3>
+					<section className='filter-block'>
+						<div className='filter-name-row'>
+							<h3>Price</h3>
+						</div>
+						<div style={{ padding: '10px 0' }}>
+							<div style={{ marginBottom: '8px' }}>
+								<input
+									type='range'
+									min='0'
+									max='5000'
+									step='10'
+									value={minPrice}
+									onChange={(e) => handlePriceChange('min', e.target.value)}
+									style={{ width: '100%' }}
+								/>
+								<div style={{ fontSize: '0.85rem', marginTop: '4px' }}>Min: ${minPrice}</div>
 							</div>
+							<div>
+								<input
+									type='range'
+									min='0'
+									max='5000'
+									step='10'
+									value={maxPrice}
+									onChange={(e) => handlePriceChange('max', e.target.value)}
+									style={{ width: '100%' }}
+								/>
+								<div style={{ fontSize: '0.85rem', marginTop: '4px' }}>Max: ${maxPrice}</div>
+							</div>
+						</div>
+					</section>
 
-							<ul>
-								{section.options.map((option) => (
-									<li key={option.name}>
-										<div className='filter-option-row'>
-											<input
-												type='checkbox'
-												checked={searchParams.get(filterQueryKeys[section.name]) === option.name}
-												onChange={(event) => handleFilterChange(section.name, option.name, event.target.checked)}
-											/>
-											<span>{option.name}</span>
-										</div>
-									</li>
-								))}
-							</ul>
-						</section>
-					))}
+					<section className='filter-block'>
+						<div className='filter-name-row'>
+							<h3>Brand</h3>
+						</div>
+
+						<ul>
+							{brands.map((brand) => (
+								<li key={brand}>
+									<div className='filter-option-row'>
+										<input
+											type='checkbox'
+											checked={selectedBrand === brand}
+											onChange={(event) => handleFilterChange(brand, event.target.checked)}
+										/>
+										<span>{brand}</span>
+									</div>
+								</li>
+							))}
+						</ul>
+					</section>
 				</aside>
 
 				<section className='results-panel'>
@@ -162,7 +199,7 @@ export default function ViewProducts() {
 						<h2>Brand</h2>
 						<div className='brand-chips'>
 							{brands.map((brand) => (
-								<button key={brand} type='button' onClick={() => handleFilterChange('Brand', brand, true)} className='chip chip-link'>
+								<button key={brand} type='button' onClick={() => handleFilterChange(brand, selectedBrand !== brand)} className='chip chip-link'>
 									{brand}
 								</button>
 							))}
@@ -170,14 +207,13 @@ export default function ViewProducts() {
 					</div>
 
 					<div className='toolbar'>
-					<p>{products.length} results</p>
+				<p>{sortedProducts.length} results</p>
 						<div className='toolbar-actions'>
 							<label htmlFor='sort'>Sortering</label>
 							<select id='sort' value={currentSort} onChange={(event) => handleSortChange(event.target.value)}>
-								<option value='popular'>Popular</option>
+								<option value='A-Z'>A-Z</option>
 								<option value='price-low-high'>Price low-high</option>
 								<option value='price-high-low'>Price high-low</option>
-								<option value='best-reviewed'>Best reviewed</option>
 							</select>
 							<button type='button' className='layout-btn' aria-label='Wijzig weergave'>
 								☰
@@ -186,7 +222,7 @@ export default function ViewProducts() {
 					</div>
 
 					<div className='product-grid'>
-						{products.map((product) => (
+					{sortedProducts.map((product) => (
 						<article key={product.id} className='product-card'>
                             <Link to={`/products/${product.id}`} state={{ product }}>
                             	<img src={hero} alt={product.name} />

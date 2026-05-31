@@ -17,7 +17,7 @@ export interface ProductItem {
 	fields: Record<string, string>;
 }
 
-export const useProductsData = (categoryId?: string , page: number = 1) => {
+export const useProductsData = (categoryId?: string, brand?: string, page: number = 1) => {
 	const [products, setProducts] = useState<ProductItem[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [categoryName, setCategoryName] = useState('Products');
@@ -27,8 +27,13 @@ export const useProductsData = (categoryId?: string , page: number = 1) => {
 		const fetchProducts = async () => {
 			try {
 				setLoading(true);
-				const id = categoryId;
-const response = await fetch(`/api/product/with-category?categoryId=${id}&page=${page}`);
+				
+				// Use brand endpoint if brand is selected, otherwise use category endpoint
+				const url = brand 
+					? `/api/product/with-category/${categoryId}/with-brand/${brand}?page=${page}`
+					: `/api/product/with-category?categoryId=${categoryId}&page=${page}`;
+				
+				const response = await fetch(url);
 				const data: ProductField[] = await response.json();
 
 				// Group by productID
@@ -63,7 +68,22 @@ const response = await fetch(`/api/product/with-category?categoryId=${id}&page=$
 		};
 
 		fetchProducts();
-	}, [categoryId, page]);
+	}, [categoryId, brand, page]);
 
 	return { products, loading, categoryName, error };
 };
+
+export const GetBrandsInSameCategory = async (categoryId: string) => {
+	try {
+		const response = await fetch(`/api/product/GetAllBrandsThatInSameCategory/${categoryId}`);
+		if (!response.ok) {
+			throw new Error(`HTTP error! status: ${response.status}`);
+		}
+		const brands: string[] = await response.json();
+		return brands;
+	} catch (err) {
+		console.error('Error fetching brands:', err);
+		throw err instanceof Error ? err : new Error('Failed to fetch brands');
+	}		
+};
+
