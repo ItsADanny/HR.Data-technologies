@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import Header from '../Components/Header-Component/Header';
 import Navbar from '../Components/Header-Component/Navbar';
 import hero from '../assets/hero.png';
@@ -36,6 +36,7 @@ export default function ViewProducts() {
 	const categoryId = searchParams.get('categoryId') || '15';
 	const currentSort = searchParams.get('sort') || 'A-Z';
 	const selectedBrand = searchParams.get('brand');
+	const navigate = useNavigate();
 	const [page, setPage] = useState(1);
 	const [minPrice, setMinPrice] = useState(searchParams.get('minPrice') ? Number(searchParams.get('minPrice')) : 0);
 	const [maxPrice, setMaxPrice] = useState(searchParams.get('maxPrice') ? Number(searchParams.get('maxPrice')) : 10000);
@@ -238,6 +239,45 @@ export default function ViewProducts() {
 							</div>
 
 								<p className='delivery'>Order by 16:00, delivered tomorrow</p>
+
+								{/* BUTTON FOR PART PICKER */}
+								{localStorage.getItem('selectingFor') && (
+									<button 
+										onClick={() => {
+											try {
+												const componentName = localStorage.getItem('selectingFor');
+												if (!componentName) {
+													console.error('No component selected for part picker.');
+													return;
+												}
+												const selectedParts = JSON.parse(localStorage.getItem('selectedParts') || '{}');
+												
+												// Save the selected product
+												selectedParts[componentName] = {
+													id: product.id,
+													name: product.name,
+													price: product.price,
+													stock: 10
+												};
+												
+												// Save to localStorage FIRST
+												console.log('Saving to localStorage:', selectedParts);
+												localStorage.setItem('selectedParts', JSON.stringify(selectedParts));
+												localStorage.removeItem('selectingFor');
+												localStorage.removeItem('selectingCategoryId');
+												
+												// Then navigate (this won't reload the page)
+												navigate('/partpicker');
+											} catch (error) {
+												console.error('Error selecting product:', error);
+											}
+										}}
+										style={{ marginRight: '5px', padding: '8px 12px', backgroundColor: '#4CAF50', color: 'white', border: 'none', cursor: 'pointer' }}
+									>
+										Select for PartPicker
+									</button>
+								)}
+
                                 <Link to="/cart" type='button' className='add-to-cart-btn' >
 									Add to cart
 								</Link>
