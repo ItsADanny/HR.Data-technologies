@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import Header from '../Components/Header-Component/Header';
 import Navbar from '../Components/Header-Component/Navbar';
 import hero from '../assets/hero.png';
 import { useProductsData } from '../hooks/useProductsData';
+import { useCartContext } from '../context/CartContext';
 import './ViewProducts.css';
 
 // Import the function separately
@@ -28,11 +29,12 @@ interface ProductCard {
 	name: string;
 	price: number;
 	fields: Record<string, string>;
-	image: string;
 }
 
 export default function ViewProducts() {
 	const [searchParams, setSearchParams] = useSearchParams();
+	const navigate = useNavigate();
+	const { addItem } = useCartContext();
 	const categoryId = searchParams.get('categoryId') || '15';
 	const currentSort = searchParams.get('sort') || 'A-Z';
 	const selectedBrand = searchParams.get('brand');
@@ -103,6 +105,16 @@ export default function ViewProducts() {
 
 	const handleNextPage = () => setPage(page + 1);
 	const handlePrevPage = () => setPage(page > 1 ? page - 1 : 1);
+
+	const handleAddToCart = (product: ProductCard) => {
+		addItem({
+			id: product.id,
+			name: product.name,
+			price: product.price,
+			quantity: 1,
+		});
+		navigate('/cart');
+	};
 
 	// Sort products based on currentSort
 	const min = minPrice || 0;
@@ -238,9 +250,13 @@ export default function ViewProducts() {
 							</div>
 
 								<p className='delivery'>Order by 16:00, delivered tomorrow</p>
-                                <Link to="/cart" type='button' className='add-to-cart-btn' >
+                                <button 
+									type='button' 
+									className='add-to-cart-btn'
+									onClick={() => handleAddToCart(product)}
+								>
 									Add to cart
-								</Link>
+								</button>
 
 							</article>
 						))}
