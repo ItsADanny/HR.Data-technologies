@@ -9,6 +9,7 @@ public class Product
     public string Manufacturer {get; set;}
     public string Description {get; set;}
     public double? Price {get; set;}
+    public List<ProductFields>? Fields {get; set;}
     public int Stock {get; set;}
     public int MinimalStock {get; set;}
     public bool Discontinued {get; set;}
@@ -79,11 +80,6 @@ public class Product
             Console.WriteLine(e.ToString());
             return null;
         }
-    }
-
-    public virtual string InsertSQL()
-    {
-        throw new NotImplementedException();
     }
 
     public virtual string UpdateSQL()
@@ -289,6 +285,29 @@ public class Product
         INNER JOIN ProductFields pf ON p.ID = pf.ProductID
         INNER JOIN CategoryFields cf ON pf.FieldID = cf.ID
         ORDER BY p.ID, cf.Name";
+    }
+
+    public virtual string InsertSQL()
+    {
+        // SECURITY: Escape single quotes in user input to prevent SQL Injection attacks
+        // Similar to User.cs pattern - prevents malicious input like "'); DROP TABLE Products; --"
+        string escapedName = GeneralMethods.SQLInjectionSanitizer(Name);
+        string escapedManufacturer = GeneralMethods.SQLInjectionSanitizer(Manufacturer ?? string.Empty);
+        string escapedDescription = GeneralMethods.SQLInjectionSanitizer(Description ?? string.Empty);
+
+        // Format DateTime to MySQL compatible format
+        string formattedCreateDateTime = CreateDateTime.ToString("yyyy-MM-dd HH:mm:ss");
+
+        // Build the INSERT statement
+        // Using string.Empty for escaped fields that are empty strings, NULL for actual null values
+        string manufacturerValue = string.IsNullOrEmpty(Manufacturer) ? "NULL" : $"'{escapedManufacturer}'";
+        string descriptionValue = string.IsNullOrEmpty(Description) ? "NULL" : $"'{escapedDescription}'";
+        string priceValue = Price.HasValue ? Price.ToString() : "NULL";
+
+        return $@"INSERT INTO Products 
+            (CategoryID, Name, Manufacturer, Description, Price, Stock, MinimalStock, Discontinued, CreateDateTime, CreateUserID) 
+            VALUES 
+            ({CategoryID}, '{escapedName}', {manufacturerValue}, {descriptionValue}, {priceValue}, {Stock}, {MinimalStock}, {(Discontinued ? 1 : 0)}, '{formattedCreateDateTime}', {CreateUserID});";
     }
 
     public static List<ProductWithFieldsDTO>? ReadAllProductsWithCategory(int categoryID, int pageSize = 100, int offset = 0)
@@ -549,11 +568,17 @@ public class Product
             return null;
         }
     }
+<<<<<<< Updated upstream
             public static List<string>? ReadAllBrandsInSameCategory(int categoryID)
+=======
+
+    public static List<ProductWithFieldsDTO>? CreateProduct(int categoryId, Product product)
+>>>>>>> Stashed changes
     {
         try
         {
             using (MySqlConnection conn = new MySqlConnection(DBHandler.DBConfig_MySQL.GetConnectionSTR()))
+<<<<<<< Updated upstream
             using (MySqlCommand cmd = new MySqlCommand($@"SELECT DISTINCT Manufacturer FROM Products WHERE CategoryID = {categoryID} AND Manufacturer IS NOT NULL", conn))
             {
                 conn.Open();
@@ -569,13 +594,182 @@ public class Product
 
                     return brands;
                 }
+=======
+            {
+                conn.Open();
+
+                // ========== STEP 1: INSERT THE PRODUCT ==========
+                using (MySqlCommand cmd = new MySqlCommand(product.InsertSQL(), conn))
+                {
+                    // Log the command for debugging
+                    Console.WriteLine("Executing SQL Command:");
+                    Console.WriteLine(cmd.CommandText);
+                    
+                    // Execute the insert
+                    cmd.ExecuteNonQuery();
+                }
+
+                // ========== STEP 2: GET THE NEWLY INSERTED PRODUCT ID ==========
+                int productID;
+                using (MySqlCommand cmd = new MySqlCommand("SELECT last_insert_id() AS id", conn))
+                {
+                    productID = Convert.ToInt32(cmd.ExecuteScalar());
+                }
+
+                // ========== STEP 3: INSERT ALL PRODUCT FIELDS ==========
+                // Each field in the product's Fields list needs to be inserted separately
+                // The field values are stored in different columns based on the CategoryFields.ValueType
+                if (product.Fields != null && product.Fields.Count > 0)
+                {
+                    foreach (ProductFields field in product.Fields)
+                    {
+                        // Set the product ID for this field (it wasn't set when the Product object was created)
+                        field.ProductID = productID;
+                        field.CreateDateTime = DateTime.Now;
+                        field.CreateUserID = product.CreateUserID;
+
+                        // Escape field ID in case it contains special characters
+                        string escapedFieldID = GeneralMethods.SQLInjectionSanitizer(field.FieldID ?? string.Empty);
+                        
+                        // Format DateTime if present
+                        string dateTimeValue = field.DateTimeValue.HasValue 
+                            ? field.DateTimeValue.Value.ToString("yyyy-MM-dd HH:mm:ss") 
+                            : "NULL";
+                        
+                        // Build the INSERT statement for this field
+                        // Only one of the value columns will have a value; others stay NULL
+                        string fieldInsertSQL = $@"INSERT INTO ProductFields 
+                            (ProductID, FieldID, LinkedProductField, StringValue, IntValue, DoubleValue, DateTimeValue, BooleanValue, IsArray, CreateDateTime, CreateUserID) 
+                            VALUES 
+                            ({productID}, '{escapedFieldID}', {field.LinkedProductField}, {(field.StringValue != null ? $"'{GeneralMethods.SQLInjectionSanitizer(field.StringValue)}'" : "NULL")}, {field.IntValue?.ToString() ?? "NULL"}, {field.DoubleValue?.ToString() ?? "NULL"}, {(field.DateTimeValue.HasValue ? $"'{dateTimeValue}'" : "NULL")}, {(field.BooleanValue.HasValue ? (field.BooleanValue.Value ? "1" : "0") : "NULL")}, {(field.IsArray.HasValue ? (field.IsArray.Value ? "1" : "0") : "NULL")}, '{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}', {field.CreateUserID});";
+
+                        using (MySqlCommand cmd = new MySqlCommand(fieldInsertSQL, conn))
+                        {
+                            // Log the command for debugging
+                            Console.WriteLine("Executing SQL Command:");
+                            Console.WriteLine(cmd.CommandText);
+                            
+                            cmd.ExecuteNonQuery();
+                        }
+                    }
+                }
+
+                // ========== STEP 4: RETRIEVE AND RETURN THE CREATED PRODUCT WITH ALL ITS FIELDS ==========
+                // Use the existing ReadProductByID method to get the full product data with all fields
+                return ReadProductByID(productID);
+>>>>>>> Stashed changes
             }
         }
         catch (Exception e)
         {
+<<<<<<< Updated upstream
             Console.WriteLine("ERROR in ReadAllBrandsInSameCategory:");
+=======
+            Console.WriteLine("ERROR in CreateProduct:");
+>>>>>>> Stashed changes
             Console.WriteLine(e.ToString());
             return null;
         }
     }
+<<<<<<< Updated upstream
 }
+=======
+
+    public static bool UpdateProduct(int id, Product updatedProduct)
+    {
+        try
+        {
+            using (MySqlConnection conn = new MySqlConnection(DBHandler.DBConfig_MySQL.GetConnectionSTR()))
+            using (MySqlCommand cmd = new MySqlCommand(updatedProduct.UpdateSQL(), conn))
+            {
+                conn.Open();
+                int rowsAffected = cmd.ExecuteNonQuery();
+                return rowsAffected > 0; // Return true if a row was updated
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("ERROR in UpdateProduct:");
+            Console.WriteLine(e.ToString());
+            return false;
+        }
+    }
+
+    public static bool UpdateProductFields(int productId, List<ProductFields> updatedFields)
+    {
+        try
+        {
+            using (MySqlConnection conn = new MySqlConnection(DBHandler.DBConfig_MySQL.GetConnectionSTR()))
+            {
+                conn.Open();
+
+                foreach (ProductFields field in updatedFields)
+                {
+                    // Set the product ID for this field (it may not be set when the ProductFields object is created)
+                    field.ProductID = productId;
+                    field.UpdateDateTime = DateTime.Now;
+
+                    // Escape field ID in case it contains special characters
+                    string escapedFieldID = GeneralMethods.SQLInjectionSanitizer(field.FieldID ?? string.Empty);
+
+                    // Format DateTime if present
+                    string dateTimeValue = field.DateTimeValue.HasValue 
+                        ? field.DateTimeValue.Value.ToString("yyyy-MM-dd HH:mm:ss") 
+                        : "NULL";
+
+                    // Build the UPDATE statement for this field
+                    // Only one of the value columns will have a value; others stay NULL
+                    string fieldUpdateSQL = $@"UPDATE ProductFields SET 
+                        LinkedProductField = {field.LinkedProductField},
+                        StringValue = {(field.StringValue != null ? $"'{GeneralMethods.SQLInjectionSanitizer(field.StringValue)}'" : "NULL")},
+                        IntValue = {field.IntValue?.ToString() ?? "NULL"},
+                        DoubleValue = {field.DoubleValue?.ToString() ?? "NULL"},
+                        DateTimeValue = {(field.DateTimeValue.HasValue ? $"'{dateTimeValue}'" : "NULL")},
+                        BooleanValue = {(field.BooleanValue.HasValue ? (field.BooleanValue.Value ? "1" : "0") : "NULL")},
+                        IsArray = {(field.IsArray.HasValue ? (field.IsArray.Value ? "1" : "0") : "NULL")},
+                        UpdateDateTime = '{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}',
+                        UpdateUserID = {field.UpdateUserID}
+                        WHERE ProductID = {productId} AND FieldID = '{escapedFieldID}';";
+
+                    using (MySqlCommand cmd = new MySqlCommand(fieldUpdateSQL, conn))
+                    {
+                        // Log the command for debugging
+                        Console.WriteLine("Executing SQL Command:");
+                        Console.WriteLine(cmd.CommandText);
+                        
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+
+                return true; // Return true if all updates were attempted
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("ERROR in UpdateProductFields:");
+            Console.WriteLine(e.ToString());
+            return false;
+        }
+    }
+
+    public static bool DeleteProduct(int id)
+    {
+        try
+        {
+            using (MySqlConnection conn = new MySqlConnection(DBHandler.DBConfig_MySQL.GetConnectionSTR()))
+            using (MySqlCommand cmd = new MySqlCommand($@"DELETE FROM Products WHERE ID = {id};", conn))
+            {
+                conn.Open();
+                int rowsAffected = cmd.ExecuteNonQuery();
+                return rowsAffected > 0; // Return true if a row was deleted
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("ERROR in DeleteProduct:");
+            Console.WriteLine(e.ToString());
+            return false;
+        }
+    }
+}
+>>>>>>> Stashed changes

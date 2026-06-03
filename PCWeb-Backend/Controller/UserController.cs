@@ -13,25 +13,39 @@ namespace PCWeb_Backend.Controller
         [HttpGet("/userid/{id:int}")]
         public ActionResult<Account> GetByUserID(int id)
         {
-            return Ok();
+            Account? user = Account.GetByID(id);
+            if (user == null) return NotFound(new { message = "User not found." });
+            return Ok(user);
         }
 
         [HttpGet("/roleid/{id:int}")]
         public ActionResult<Account> GetByRoleID(int id)
         {
-            return Ok();
+            Account? user = Account.GetByRoleID(id);
+            if (user == null) return NotFound(new { message = "User not found." });
+            return Ok(user);
         }
 
         [HttpGet("/email/{email:alpha}")]
         public ActionResult<Account> GetByEmail(string email)
         {
-            return Ok();
+            Account? user = Account.GetByEmail(email);
+            if (user == null) return NotFound(new { message = "User not found." });
+            return Ok(user);
         }
 
         [HttpGet("/phone/{phone:alpha}")]
         public ActionResult<Account> GetByPhone(string phone)
         {
-            return Ok();
+            Account? user = Account.GetByPhone(phone);
+            if (user == null) return NotFound(new { message = "User not found." });
+            return Ok(user);
+        }
+
+        [HttpGet("/all")]
+        public ActionResult<List<Account>> GetAllUsers()
+        {
+            return Ok(Account.GetAll());
         }
 
         // ====================================================================================
