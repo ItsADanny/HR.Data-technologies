@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { CartProvider } from './context/CartContext';
 import Home from './Pages/Home';
 import About from './Pages/About';
 import Contact from './Pages/Contact';
@@ -12,20 +13,22 @@ import AdminPage from './Pages/AdminPage';
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/products/:productId" element={<Products />} />
-        <Route path="/viewproducts" element={<ViewProducts />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/partpicker" element={<PartPicker />} />
-        <Route path="/admin" element={<AdminPage />} />
-      </Routes>
-    </BrowserRouter>
+    <CartProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/products/:productId" element={<Products />} />
+          <Route path="/viewproducts" element={<ViewProducts />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/partpicker" element={<PartPicker />} />
+          <Route path="/admin" element={<AdminPage />} />
+        </Routes>
+      </BrowserRouter>
+    </CartProvider>
   );
 }
 

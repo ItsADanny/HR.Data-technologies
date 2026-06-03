@@ -141,49 +141,53 @@ namespace PCWeb_Backend.Controller
         // ====================================================================================
         // POST
         // ====================================================================================
-        // [HttpPost("{categoryId:int}")]
-        // public IActionResult CreateProduct(int categoryId, [FromBody] Product product)
-        // {
-        //     if (product == null)
-        //         return BadRequest("Invalid product data");
+        [HttpPost("{categoryId:int}")]
+        public IActionResult CreateProduct(int categoryId, [FromBody] Product product)
+        {
+            if (product == null)
+                return BadRequest("Invalid product data");
 
-        //     List<ProductWithFieldsDTO>? createdProduct = Product.CreateProduct(categoryId, product);
+            List<ProductWithFieldsDTO>? createdProduct = Product.CreateProduct(categoryId, product);
 
-        //     if (createdProduct == null)
-        //         return StatusCode(500, "Error creating product");
+            if (createdProduct == null)
+                return StatusCode(500, "Error creating product");
 
-        //     return CreatedAtAction(nameof(GetProduct), new { id = createdProduct.First().Id }, createdProduct);
-        // }
+            return CreatedAtAction(nameof(GetProduct), new { id = createdProduct.First().ProductID }, createdProduct);
+        }
 
         // ====================================================================================
         // PUT
         // ====================================================================================
-        // [HttpPut("{id:int}")]
-        // public IActionResult UpdateProduct(int id, [FromBody] Product product)
-        // {
-        //     if (product == null) return BadRequest("Invalid product data");
+        [HttpPut("{id:int}")]
+        public IActionResult UpdateProduct(int id, [FromBody] Product product)
+        {
+            if (product == null) return BadRequest("Invalid product data");
 
-        //     List<ProductWithFieldsDTO>? existingProduct = Product.ReadProductByID(id);
-        //     if (existingProduct == null) return NotFound("Product not found");
+            List<ProductWithFieldsDTO>? existingProduct = Product.ReadProductByID(id);
+            if (existingProduct == null) return NotFound("Product not found");
 
-        //     bool updatedProduct = Product.UpdateProduct(id, product);
-        //     if (!updatedProduct) return StatusCode(500, "Error updating product");
+            bool updatedProduct = Product.UpdateProduct(id, product);
+            if (!updatedProduct) return StatusCode(500, "Error updating product");
 
-        //     return Ok(updatedProduct);
-        // }
+            bool updatedFields = Product.UpdateProductFields(id, product.Fields);
+            if (!updatedFields)
+                return StatusCode(500, "Error updating product fields");
+
+            return Ok(updatedProduct);
+        }
 
         // ====================================================================================
         // DELETE
         // ====================================================================================
-        // [HttpDelete("{id:int}")]
-        // public IActionResult DeleteProduct(int id)
-        // {
-        //     List<ProductWithFieldsDTO>? existingProduct = Product.ReadProductByID(id);
-        //     if (existingProduct == null) return NotFound("Product not found");
+        [HttpDelete("{id:int}")]
+        public IActionResult DeleteProduct(int id)
+        {
+            List<ProductWithFieldsDTO>? existingProduct = Product.ReadProductByID(id);
+            if (existingProduct == null) return NotFound("Product not found");
 
-        //     bool result = Product.DeleteProduct(id);
-        //     if (!result) return StatusCode(500, "Error deleting product");
-        //     return Ok();
-        // }
+            bool result = Product.DeleteProduct(id);
+            if (!result) return StatusCode(500, "Error deleting product");
+            return Ok();
+        }
     }
 }
