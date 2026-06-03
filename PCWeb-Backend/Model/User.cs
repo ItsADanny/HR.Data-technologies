@@ -113,42 +113,74 @@ public class Account : iData
 	{
 		MySqlConnection conn = new MySqlConnection(DBHandler.DBConfig_MySQL.GetConnectionSTR());
 		MySqlCommand cmd = new MySqlCommand();
-
-		conn.Open();
-		cmd.Connection = conn;
-		cmd.CommandText = $"SELECT * FROM Users";
-
-		MySqlDataReader reader = cmd.ExecuteReader();
 		List<Account> returnValue = new List<Account>();
-		while (reader.Read())
+
+		try
 		{
-			DateTime CreateDateTime = DateTime.Now;
-			DateTime? UpdateDateTime = null;
+			conn.Open();
+			cmd.Connection = conn;
+			cmd.CommandText = $"SELECT * FROM Users";
 
-			string? CreateDateTime_STR = reader["CreateDateTime"].ToString();
-			string? UpdateDateTime_STR = reader["UpdateDateTime"].ToString();
+			MySqlDataReader reader = cmd.ExecuteReader();
+			while (reader.Read())
+			{
+				DateTime CreateDateTime = DateTime.Now;
+				DateTime? UpdateDateTime = null;
 
-			if (CreateDateTime_STR is not null && CreateDateTime_STR != "") CreateDateTime = GeneralMethods.ParseDBDateTime(CreateDateTime_STR);
-			if (UpdateDateTime_STR is not null && UpdateDateTime_STR != "") UpdateDateTime = GeneralMethods.ParseDBDateTime(UpdateDateTime_STR);
+				string? CreateDateTime_STR = reader["CreateDateTime"].ToString();
+				string? UpdateDateTime_STR = reader["UpdateDateTime"].ToString();
 
-			returnValue.Add(new(
-				Convert.ToInt32(reader["ID"].ToString()), 
-				Convert.ToInt32(reader["RoleID"].ToString()), 
-				reader["PrimaryShippingAddressID"] as int?, 
-				reader["PrimaryBillingAddressID"] as int?, 
-				reader["FirstName"].ToString(), 
-				reader["LastName"].ToString(), 
-				reader["Email"].ToString(), 
-				reader["Password"].ToString(),
-				reader["Phone"].ToString(), 
-				reader["Country"].ToString(), 
-				CreateDateTime, 
-				UpdateDateTime, 
-				Convert.ToInt32(reader["CreateUserID"].ToString()), 
-				Convert.ToInt32(reader["UpdateUserID"].ToString())));
+				if (CreateDateTime_STR is not null && CreateDateTime_STR != "") 
+				{
+					if (DateTime.TryParse(CreateDateTime_STR, out DateTime parsedCreate))
+						CreateDateTime = parsedCreate;
+				}
+				if (UpdateDateTime_STR is not null && UpdateDateTime_STR != "") 
+				{
+					if (DateTime.TryParse(UpdateDateTime_STR, out DateTime parsedUpdate))
+						UpdateDateTime = parsedUpdate;
+				}
+
+				// ID must always exist and be valid
+				if (!int.TryParse(reader["ID"].ToString(), out int id) || id == 0)
+					throw new Exception("Invalid or missing User ID in database");
+				
+				int roleId = int.TryParse(reader["RoleID"].ToString(), out int parsedRoleId) ? parsedRoleId : 0;
+				int? shippingAddressId = int.TryParse(reader["PrimaryShippingAddressID"].ToString(), out int parsedShipping) ? parsedShipping : (int?)null;
+				int? billingAddressId = int.TryParse(reader["PrimaryBillingAddressID"].ToString(), out int parsedBilling) ? parsedBilling : (int?)null;
+				int createUserID = int.TryParse(reader["CreateUserID"].ToString(), out int parsedCreateUserId) ? parsedCreateUserId : 0;
+				int updateUserID = int.TryParse(reader["UpdateUserID"].ToString(), out int parsedUpdateUserId) ? parsedUpdateUserId : 0;
+
+				returnValue.Add(new(
+					id, 
+					roleId, 
+					shippingAddressId, 
+					billingAddressId, 
+					reader["FirstName"].ToString() ?? "", 
+					reader["LastName"].ToString() ?? "", 
+					reader["Email"].ToString() ?? "", 
+					reader["Password"].ToString() ?? "",
+					reader["Phone"].ToString() ?? "", 
+					reader["Country"].ToString() ?? "", 
+					CreateDateTime, 
+					UpdateDateTime, 
+					createUserID, 
+					updateUserID));
+			}
+		}
+		catch (Exception e)
+		{
+			Console.WriteLine("ERROR in GetAll():");
+			Console.WriteLine(e.ToString());
+		}
+		finally
+		{
+			if (conn.State == System.Data.ConnectionState.Open)
+			{
+				conn.Close();
+			}
 		}
 
-		conn.Close();
 		return returnValue;
 	}
 

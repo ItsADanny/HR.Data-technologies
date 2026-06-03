@@ -42,7 +42,7 @@ namespace PCWeb_Backend.Controller
             return Ok(user);
         }
 
-        [HttpGet("/all")]
+        [HttpGet("all")]
         public ActionResult<List<Account>> GetAllUsers()
         {
             return Ok(Account.GetAll());
