@@ -14,6 +14,7 @@ export default function AdminPage() {
 
     // Get all users from controller
     const [users, setUsers] = useState<User[]>([]);
+    const [userRoles, setUserRoles] = useState<string[]>([]);
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -30,6 +31,23 @@ export default function AdminPage() {
             }
         };
         fetchUsers();
+    }, []);
+
+    useEffect(() => {
+        const fetchUserRoles = async () => {
+            try {
+                const response = await fetch('http://localhost:5221/api/User/roles');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                console.log('Fetched user roles:', data);
+                setUserRoles(data);
+            } catch (err) {
+                console.error('Error fetching user roles:', err);
+            } 
+        };
+        fetchUserRoles();
     }, []);
 
     return (
@@ -62,6 +80,14 @@ export default function AdminPage() {
                     ))}
                 </tbody>
             </table>
+
+
+            <h2>User Roles</h2>
+            <ul>
+                {userRoles.map((role, index) => (
+                    <li key={index}>{role}</li>
+                ))}
+            </ul>
         </div>
     );
 }
