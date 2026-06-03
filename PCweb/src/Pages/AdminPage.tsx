@@ -10,11 +10,28 @@ type User = {
     country: string;
 };
 
+type UserRole = {
+    id: number;
+    name: string;
+    description: string;
+    globalReadWriteUser: number;
+    globalReadWriteAddress: number;
+    globalReadWriteProduct: number;
+    globalReadWriteCategory: number;
+    globalReadWriteRole: number;
+    readWriteUser: number;
+    readWriteAddress: number;
+    createDateTime: string;
+    updateDateTime: string | null;
+    createUserID: number;
+    updateUserID: number | null;
+};
+
 export default function AdminPage() {
 
     // Get all users from controller
     const [users, setUsers] = useState<User[]>([]);
-    const [userRoles, setUserRoles] = useState<string[]>([]);
+    const [userRoles, setUserRoles] = useState<UserRole[]>([]);
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -50,6 +67,8 @@ export default function AdminPage() {
         fetchUserRoles();
     }, []);
 
+
+
     return (
         <div>
             <h1>Admin Page</h1>
@@ -84,10 +103,11 @@ export default function AdminPage() {
 
             <h2>User Roles</h2>
             <ul>
-                {userRoles.map((role, index) => (
-                    <li key={index}>{role}</li>
+                {userRoles.map((role) => (
+                    <li key={role.id}>{role.id}: {role.name} - {role.description}</li>
                 ))}
             </ul>
+
         </div>
     );
 }

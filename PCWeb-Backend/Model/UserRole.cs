@@ -64,7 +64,7 @@ public class UserRole : iData
 
     public static string ReadAllSQL()
     {
-        throw new NotImplementedException();
+        return "SELECT * FROM Roles";
     }
 
     public static UserRole? GetUserRoleByID(int id)
