@@ -38,7 +38,6 @@ export default function ViewProducts() {
 	const categoryId = searchParams.get('categoryId') || '15';
 	const currentSort = searchParams.get('sort') || 'A-Z';
 	const selectedBrand = searchParams.get('brand');
-	const navigate = useNavigate();
 	const [page, setPage] = useState(1);
 	const [minPrice, setMinPrice] = useState(searchParams.get('minPrice') ? Number(searchParams.get('minPrice')) : 0);
 	const [maxPrice, setMaxPrice] = useState(searchParams.get('maxPrice') ? Number(searchParams.get('maxPrice')) : 10000);
@@ -290,8 +289,11 @@ export default function ViewProducts() {
 									</button>
 								)}
 
-                                <Link to="/cart" type='button' className='add-to-cart-btn' >
-									Add to cart
+								<button 
+									type='button' 
+									className='add-to-cart-btn'
+									onClick={() => handleAddToCart(product)}
+								>Add to Cart
 								</button>
 
 							</article>
