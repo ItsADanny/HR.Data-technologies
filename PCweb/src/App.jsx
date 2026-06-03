@@ -8,6 +8,8 @@ import Register from './Pages/Register';
 import Products from './Pages/Products';
 import Cart from './Pages/Cart';
 import ViewProducts from './Pages/ViewProducts';
+import PartPicker from './Pages/PartPicker';
+import AdminPage from './Pages/AdminPage';
 
 function App() {
   return (
@@ -22,6 +24,8 @@ function App() {
           <Route path="/products/:productId" element={<Products />} />
           <Route path="/viewproducts" element={<ViewProducts />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/partpicker" element={<PartPicker />} />
+          <Route path="/admin" element={<AdminPage />} />
         </Routes>
       </BrowserRouter>
     </CartProvider>
