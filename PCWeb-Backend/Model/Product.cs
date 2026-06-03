@@ -568,33 +568,12 @@ public class Product
             return null;
         }
     }
-<<<<<<< Updated upstream
-            public static List<string>? ReadAllBrandsInSameCategory(int categoryID)
-=======
 
     public static List<ProductWithFieldsDTO>? CreateProduct(int categoryId, Product product)
->>>>>>> Stashed changes
     {
         try
         {
             using (MySqlConnection conn = new MySqlConnection(DBHandler.DBConfig_MySQL.GetConnectionSTR()))
-<<<<<<< Updated upstream
-            using (MySqlCommand cmd = new MySqlCommand($@"SELECT DISTINCT Manufacturer FROM Products WHERE CategoryID = {categoryID} AND Manufacturer IS NOT NULL", conn))
-            {
-                conn.Open();
-
-                using (MySqlDataReader reader = cmd.ExecuteReader())
-                {
-                    List<string> brands = new List<string>();
-
-                    while (reader.Read())
-                    {
-                        brands.Add(reader["Manufacturer"]?.ToString() ?? string.Empty);
-                    }
-
-                    return brands;
-                }
-=======
             {
                 conn.Open();
 
@@ -657,23 +636,15 @@ public class Product
                 // ========== STEP 4: RETRIEVE AND RETURN THE CREATED PRODUCT WITH ALL ITS FIELDS ==========
                 // Use the existing ReadProductByID method to get the full product data with all fields
                 return ReadProductByID(productID);
->>>>>>> Stashed changes
             }
         }
         catch (Exception e)
         {
-<<<<<<< Updated upstream
-            Console.WriteLine("ERROR in ReadAllBrandsInSameCategory:");
-=======
             Console.WriteLine("ERROR in CreateProduct:");
->>>>>>> Stashed changes
             Console.WriteLine(e.ToString());
             return null;
         }
     }
-<<<<<<< Updated upstream
-}
-=======
 
     public static bool UpdateProduct(int id, Product updatedProduct)
     {
@@ -771,5 +742,34 @@ public class Product
             return false;
         }
     }
+
+    public static List<string>? ReadAllBrandsInSameCategory(int categoryID)
+    {
+        try
+        {
+            using (MySqlConnection conn = new MySqlConnection(DBHandler.DBConfig_MySQL.GetConnectionSTR()))
+            using (MySqlCommand cmd = new MySqlCommand($@"SELECT DISTINCT Manufacturer FROM Products WHERE CategoryID = {categoryID} AND Manufacturer IS NOT NULL", conn))
+            {
+                conn.Open();
+
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    List<string> brands = new List<string>();
+
+                    while (reader.Read())
+                    {
+                        brands.Add(reader["Manufacturer"]?.ToString() ?? string.Empty);
+                    }
+
+                    return brands;
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("ERROR in ReadAllBrandsInSameCategory:");
+            Console.WriteLine(e.ToString());
+            return null;
+        }
+    }
 }
->>>>>>> Stashed changes
