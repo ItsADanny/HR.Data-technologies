@@ -36,7 +36,7 @@ export default function AdminPage() {
     useEffect(() => {
         const fetchUserRoles = async () => {
             try {
-                const response = await fetch('http://localhost:5221/api/User/roles');
+                const response = await fetch('http://localhost:5221/api/UserRole/all');
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
