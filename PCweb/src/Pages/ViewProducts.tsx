@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import Header from '../Components/Header-Component/Header';
 import Navbar from '../Components/Header-Component/Navbar';
@@ -250,12 +250,50 @@ export default function ViewProducts() {
 							</div>
 
 								<p className='delivery'>Order by 16:00, delivered tomorrow</p>
-                                <button 
+
+								{/* BUTTON FOR PART PICKER */}
+								{localStorage.getItem('selectingFor') && (
+									<button 
+										onClick={() => {
+											try {
+												const componentName = localStorage.getItem('selectingFor');
+												if (!componentName) {
+													console.error('No component selected for part picker.');
+													return;
+												}
+												const selectedParts = JSON.parse(localStorage.getItem('selectedParts') || '{}');
+												
+												// Save the selected product
+												selectedParts[componentName] = {
+													id: product.id,
+													name: product.name,
+													price: product.price,
+													stock: 10
+												};
+												
+												// Save to localStorage FIRST
+												console.log('Saving to localStorage:', selectedParts);
+												localStorage.setItem('selectedParts', JSON.stringify(selectedParts));
+												localStorage.removeItem('selectingFor');
+												localStorage.removeItem('selectingCategoryId');
+												
+												// Then navigate (this won't reload the page)
+												navigate('/partpicker');
+											} catch (error) {
+												console.error('Error selecting product:', error);
+											}
+										}}
+										style={{ marginRight: '5px', padding: '8px 12px', backgroundColor: '#4CAF50', color: 'white', border: 'none', cursor: 'pointer' }}
+									>
+										Select for PartPicker
+									</button>
+								)}
+
+								<button 
 									type='button' 
 									className='add-to-cart-btn'
 									onClick={() => handleAddToCart(product)}
-								>
-									Add to cart
+								>Add to Cart
 								</button>
 
 							</article>

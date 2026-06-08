@@ -34,4 +34,60 @@ public class UserSession : iData
     {
         throw new NotImplementedException();
     }
+
+    public static UserSession? GetUserSessionByToken(string token)
+    {
+        MySqlConnection conn = new MySqlConnection(DBHandler.DBConfig_MySQL.GetConnectionSTR());
+        MySqlCommand cmd = new MySqlCommand();
+
+        conn.Open();
+        string query = $"SELECT * FROM UserSession WHERE SessionToken = \"{token}\"";
+        cmd.Connection = conn;
+        cmd.CommandText = query;
+
+        MySqlDataReader reader = cmd.ExecuteReader();
+        if (reader.Read())
+        {
+            UserSession newUserSession = new()
+            {
+                ID = Convert.ToInt32(reader["ID"].ToString()),
+                UserID = Convert.ToInt32(reader["UserID"].ToString()),
+                SessionToken = reader["SessionToken"].ToString() ?? "",
+                Expiration = GeneralMethods.ParseDBDateTime(reader["Expiration"].ToString() ?? "")
+            };
+
+            conn.Close();
+            return newUserSession;
+        }
+
+        conn.Close();
+        return null;
+    }
+
+    public static List<UserSession> GetAllUserSessions()
+    {
+        List<UserSession> returnValue = new List<UserSession>();
+
+        MySqlConnection conn = new MySqlConnection(DBHandler.DBConfig_MySQL.GetConnectionSTR());
+        MySqlCommand cmd = new MySqlCommand();
+
+        conn.Open();
+        string query = $"SELECT * FROM UserSession";
+        cmd.Connection = conn;
+        cmd.CommandText = query;
+
+        MySqlDataReader reader = cmd.ExecuteReader();
+        while (reader.Read())
+        {
+            UserSession newUserSession = new()
+            {
+                ID = Convert.ToInt32(reader["ID"].ToString()),
+                UserID = Convert.ToInt32(reader["UserID"].ToString()),
+                SessionToken = reader["SessionToken"].ToString() ?? "",
+                Expiration = GeneralMethods.ParseDBDateTime(reader["Expiration"].ToString() ?? "")
+            };
+            returnValue.Add(newUserSession);
+        }     
+        return returnValue;
+    }
 }
