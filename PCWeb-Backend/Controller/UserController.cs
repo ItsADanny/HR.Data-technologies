@@ -66,10 +66,14 @@ namespace PCWeb_Backend.Controller
             //Set the password now that the user is created and we have the ID for the salt
             string[] hashedPassword = Auth.Hash(user.Password);
 
-            newUser = (Account) result;
-            newUser.Password = hashedPassword[0];
-            DBHandler.Update(newUser);
-            DBHandler.Create(new UserSalt(result.ID, hashedPassword[1]));
+            Account? foundUser = Account.GetByEmail(user.Email);
+
+            if (foundUser == null) return BadRequest(new { message = "User registration failed." });
+
+            foundUser.Password = hashedPassword[0];
+            foundUser.UpdateUserID = foundUser.ID; // Set UpdateUserID to the user's own ID for this initial update
+            DBHandler.Update(foundUser);
+            DBHandler.Create(new UserSalt(foundUser.ID, hashedPassword[1]));
             
             return Ok(new { message = "User registered successfully." });
         }
@@ -92,7 +96,8 @@ namespace PCWeb_Backend.Controller
 
             //If valid, create a session and return success
             UserSession newSession = new UserSession(existingUser.ID);
-            DBHandler.Create(newSession);
+            if (!DBHandler.Create(newSession))
+                return BadRequest(new { message = "Login failed." });
             return Ok(new { message = "Login successful.", sessionToken = newSession.SessionToken });
         }
 

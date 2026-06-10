@@ -10,13 +10,13 @@ namespace PCWeb_Backend.Controller
         // ====================================================================================
         // GET
         // ====================================================================================
-        [HttpGet("/userid/{id:int}")]
+        [HttpGet("session/userid/{id:int}")]
         public ActionResult<Account> GetByUserID(int id)
         {
             return Ok();
         }
 
-        [HttpGet("/sessiontoken/{token:alpha}")]
+        [HttpGet("session/sessiontoken/{token:alpha}")]
         public ActionResult<Account> GetByUserSession(string token)
         {
             return Ok();
