@@ -1,3 +1,4 @@
+using MySql.Data.MySqlClient;
 public class Categories : iData
 {
     public int ID { get; set; }
@@ -17,7 +18,7 @@ public class Categories : iData
 
     public static string ReadAllSQL()
     {
-        throw new NotImplementedException();
+        return "SELECT * FROM Categories";
     }
 
     public string DeleteSQL()
@@ -43,5 +44,38 @@ public class Categories : iData
     public string UpdateSQL()
     {
         throw new NotImplementedException();
+    }
+
+    public static List<Categories> ReadAllCategories()
+    {
+        List<Categories> categories = new List<Categories>();
+
+        try
+        {
+            using (MySqlConnection conn = new MySqlConnection(DBHandler.DBConfig_MySQL.GetConnectionSTR()))
+            using (MySqlCommand cmd = new MySqlCommand(ReadAllSQL(), conn))
+            {
+                conn.Open();
+
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        categories.Add(new Categories(
+                            reader.GetInt32("ID"),
+                            reader.GetString("CategoryName"),
+                            reader.GetString("Description")
+                        ));
+                    }
+                    return categories;
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Error reading categories from READALLCATEGORIES: {e.Message}");
+            Console.WriteLine(e.ToString());
+            return null;
+        }
     }
 }

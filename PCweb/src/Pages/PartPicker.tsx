@@ -186,6 +186,22 @@ export default function PartPicker() {
             }
         }
 
+        // Motherboard - Case
+        if (selectedParts['Motherboard'] && selectedParts['Case']) {
+            const res = await fetch(`${apiBase}/motherboard-case`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                productId1: selectedParts['Motherboard'].id,
+                productId2: selectedParts['Case'].id,
+            }),
+            });
+            if (res.ok) {
+            const data = await res.json();
+            if (!data.isCompatible) warnings.push(data);
+            }
+        }
+
         setCompatibilityWarnings(warnings);
         } catch (error) {
         console.error('Error checking compatibility:', error);

@@ -30,17 +30,20 @@ namespace PCWeb_Backend.Controller
                 Component2 = mbFields.FirstOrDefault()?.Name ?? "Motherboard"
             };
 
-            // Extract socket specs
-            var cpuSocket = cpuFields.FirstOrDefault(f => f.FieldName == "socket")?.FieldValue;
+            // Get CPU socket from microarchitecture
+            var microarchitecture = cpuFields.FirstOrDefault(f => f.FieldName == "microarchitecture")?.FieldValue;
+            var cpuSocket = ConvertMicroarchitectureToSocket(microarchitecture ?? string.Empty);
+
             var mbSocket = mbFields.FirstOrDefault(f => f.FieldName == "socket")?.FieldValue;
 
             if (string.IsNullOrEmpty(cpuSocket) || string.IsNullOrEmpty(mbSocket))
             {
-                result.Warnings.Add("Socket information missing from one or both products");
+                result.Warnings.Add("Socket information missing");
                 result.IsCompatible = false;
                 return Ok(result);
             }
 
+            result.Details["CPU Microarchitecture"] = microarchitecture ?? "Unknown";
             result.Details["CPU Socket"] = cpuSocket;
             result.Details["Motherboard Socket"] = mbSocket;
 
@@ -55,6 +58,32 @@ namespace PCWeb_Backend.Controller
             }
 
             return Ok(result);
+        }
+
+        private string ConvertMicroarchitectureToSocket(string microarchitecture)
+        {
+            return microarchitecture.ToLower() switch
+            {
+                // AMD Ryzen (Zen series)
+                "zen" => "AM4",
+                "zen+" => "AM4",
+                "zen 2" => "AM4",
+                "zen 3" => "AM4",
+                "zen 4" => "AM5",
+                "zen 5" => "AM5",
+                
+                // Intel (generation-based)
+                "skylake" => "LGA1151",
+                "kaby lake" => "LGA1151",
+                "coffee lake" => "LGA1151",
+                "comet lake" => "LGA1200",
+                "rocket lake" => "LGA1200",
+                "alder lake" => "LGA1700",
+                "raptor lake" => "LGA1700",
+                "meteor lake" => "LGA1700",
+                
+                _ => microarchitecture  // Return original if no mapping found
+            };
         }
 
         // ====================================================================================
@@ -350,5 +379,123 @@ namespace PCWeb_Backend.Controller
 
             return Ok(result);
         }
-    }
+
+        // ====================================================================================
+        // MOTHERBOARD - CASE COMPATIBILITY (Form Factor/External Volume)
+        // ====================================================================================
+        [HttpPost("motherboard-case")]
+        public IActionResult CheckMotherboardCaseCompatibility([FromBody] CompatibilityCheckRequest request)
+        {
+            if (request.ProductId1 <= 0 || request.ProductId2 <= 0)
+                return BadRequest("Invalid product IDs");
+
+            var mbFields = Product.ReadProductByID(request.ProductId1);
+            var caseFields = Product.ReadProductByID(request.ProductId2);
+
+            if (mbFields == null || caseFields == null)
+                return NotFound("One or both products not found");
+
+            var result = new CompatibilityResultDTO
+            {
+                CheckType = "Motherboard-Case",
+                Component1 = mbFields.FirstOrDefault()?.Name ?? "Motherboard",
+                Component2 = caseFields.FirstOrDefault()?.Name ?? "Case"
+            };
+
+            var mbFormFactor = mbFields.FirstOrDefault(f => f.FieldName == "form_factor")?.FieldValue;
+            var caseVolumeStr = caseFields.FirstOrDefault(f => f.FieldName == "external_volume")?.FieldValue;
+            
+
+            if (string.IsNullOrEmpty(mbFormFactor) || string.IsNullOrEmpty(caseVolumeStr))
+            {
+                result.Warnings.Add("Form factor or volume information missing from motherboard or case");
+                result.IsCompatible = false;
+                return Ok(result);
+            }
+
+            if (!double.TryParse(caseVolumeStr, out var caseVolume))
+            {
+                result.Warnings.Add("Invalid case volume information");
+                result.IsCompatible = false;
+                return Ok(result);
+            }
+            result.IsCompatible = IsMotherboardCaseCompatible(mbFormFactor, caseVolume);
+
+            result.Details["formFactor"] = mbFormFactor;
+            result.Details["caseVolume"] = caseVolume.ToString();
+
+            return Ok(result);
+        }
+        private bool IsMotherboardCaseCompatible(string formFactor, double caseVolume)
+        {
+            switch (formFactor.ToLower())
+            {
+                case "atx":
+                    return caseVolume >= 30;
+                case "micro atx":
+                    return caseVolume >= 20;
+                case "mini itx":
+                    return caseVolume >= 10;
+                default:
+                    return false;
+            }
+        }
+
+        // ====================================================================================
+        // CPU Cooler - Case Compatibility (Height)
+        // ====================================================================================
+        [HttpPost("cpu-cooler-case")]
+        public IActionResult CheckCpuCoolerCaseCompatibility([FromBody] CompatibilityCheckRequest request)
+        {
+            if (request.ProductId1 <= 0 || request.ProductId2 <= 0)
+                return BadRequest("Invalid product IDs");
+
+            var coolerFields = Product.ReadProductByID(request.ProductId1);
+            var caseFields = Product.ReadProductByID(request.ProductId2);
+
+            if (coolerFields == null || caseFields == null)
+                return NotFound("One or both products not found");
+
+            var result = new CompatibilityResultDTO
+            {
+                CheckType = "CPU Cooler-Case",
+                Component1 = coolerFields.FirstOrDefault()?.Name ?? "CPU Cooler",
+                Component2 = caseFields.FirstOrDefault()?.Name ?? "Case"
+            };
+
+            var coolerHeightStr = coolerFields.FirstOrDefault(f => f.FieldName == "size")?.FieldValue;
+            var caseHeightStr = caseFields.FirstOrDefault(f => f.FieldName == "external_volume")?.FieldValue;
+
+            if (string.IsNullOrEmpty(coolerHeightStr) || string.IsNullOrEmpty(caseHeightStr))
+            {
+                result.Warnings.Add("Height information missing from CPU cooler or case");
+                result.IsCompatible = false;
+                return Ok(result);
+            }
+
+            if (!double.TryParse(coolerHeightStr, out var coolerHeight) || !double.TryParse(caseHeightStr, out var caseHeight))
+            {
+                result.Warnings.Add("Invalid height information");
+                result.IsCompatible = false;
+                return Ok(result);
+            }
+
+            result.IsCompatible = IsCpuCoolerCaseCompatible(coolerHeight, caseHeight);
+
+            result.Details["coolerHeight"] = coolerHeight.ToString();
+            result.Details["caseHeight"] = caseHeight.ToString();
+
+            return Ok(result);
+        }
+
+        private bool IsCpuCoolerCaseCompatible(double coolerHeight, double caseHeight)
+        {
+            // Rough estimation: cases with larger volume typically support taller coolers
+            // A case with ~30L volume should support coolers up to ~160mm
+            double estimatedMaxCoolerHeight = (caseHeight / 100) * 160;
+            return coolerHeight <= estimatedMaxCoolerHeight;
+        }
+
+
+    } 
 }
