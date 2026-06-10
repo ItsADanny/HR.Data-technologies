@@ -11,7 +11,7 @@ namespace PCWeb_Backend.Controller
         // GET
         // ====================================================================================
 
-        [HttpGet("get-all")]
+        [HttpGet("all")]
         public IActionResult GetAddresses()
         {
             try
@@ -77,12 +77,50 @@ namespace PCWeb_Backend.Controller
                 if (address == null)
                     return BadRequest(new { message = "Address data is required" });
 
+                string? validationError = ValidateAddress(address);
+                if (validationError != null)
+                    return BadRequest(new { message = validationError });
+
                 var result = DBHandler.Create(address);
-                
+
                 if (result == null)
                     return StatusCode(500, new { message = "Error creating address in database" });
 
                 return Ok(new { message = "Address created successfully", address = result });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = e.Message });
+            }
+        }
+
+        // ====================================================================================
+        // PUT
+        // ====================================================================================
+
+        [HttpPut("{id:int}")]
+        public IActionResult UpdateAddress(int id, [FromBody] Address address)
+        {
+            try
+            {
+                if (address == null)
+                    return BadRequest(new { message = "Address data is required" });
+
+                string? validationError = ValidateAddress(address);
+                if (validationError != null)
+                    return BadRequest(new { message = validationError });
+
+                var existingAddress = Address.GetById(id);
+                if (existingAddress == null)
+                    return NotFound(new { message = "Address not found" });
+
+                address.AddressId = id;
+                var result = DBHandler.Update(address);
+
+                if (!result)
+                    return StatusCode(500, new { message = "Error updating address in database" });
+
+                return Ok(new { message = "Address updated successfully" });
             }
             catch (Exception e)
             {
@@ -101,7 +139,7 @@ namespace PCWeb_Backend.Controller
             {
                 var address = new Address { AddressId = id };
                 var result = DBHandler.Delete(address);
-                
+
                 if (!result)
                     return StatusCode(500, new { message = "Error deleting address from database" });
 
@@ -111,6 +149,33 @@ namespace PCWeb_Backend.Controller
             {
                 return StatusCode(500, new { message = "Internal server error", error = e.Message });
             }
+        }
+
+        // ====================================================================================
+        // VALIDATION
+        // ====================================================================================
+
+        private static string? ValidateAddress(Address address)
+        {
+            if (string.IsNullOrWhiteSpace(address.Street))
+                return "Street is required";
+
+            if (string.IsNullOrWhiteSpace(address.City))
+                return "City is required";
+
+            if (string.IsNullOrWhiteSpace(address.PostCode))
+                return "Postcode is required";
+
+            if (string.IsNullOrWhiteSpace(address.Country))
+                return "Country is required";
+
+            if (address.HouseNumber <= 0)
+                return "House number must be greater than 0";
+
+            if (address.UserId <= 0)
+                return "A valid user ID is required";
+
+            return null;
         }
     }
 }

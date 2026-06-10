@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:5221/api/address';
+const API_BASE_URL = '/api/address';
 
 export interface Address {
     street: string;
@@ -14,7 +14,7 @@ export const addressService = {
     // Get all addresses
     getAll: async (): Promise<Address[]> => {
         try {
-            const response = await fetch(`${API_BASE_URL}/get-all`);
+            const response = await fetch(`${API_BASE_URL}/all`);
             if (!response.ok) {
                 throw new Error(`Failed to fetch addresses: ${response.statusText}`);
             }
@@ -69,6 +69,26 @@ export const addressService = {
             return await response.json();
         } catch (error) {
             console.error('Error creating address:', error);
+            throw error;
+        }
+    },
+
+    // Update an existing address
+    update: async (id: number, address: Address): Promise<any> => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(address),
+            });
+            if (!response.ok) {
+                throw new Error(`Failed to update address: ${response.statusText}`);
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Error updating address:', error);
             throw error;
         }
     },
