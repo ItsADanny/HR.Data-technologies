@@ -106,7 +106,15 @@ public class Account : iData
 
     public string UpdateSQL()
     {
-        return $"UPDATE Users SET RoleID = {Role_ID}, PrimaryShippingAddressID = {Shipping_Address}, PrimaryBillingAddressID = {Billing_Address}, FirstName = '{First_Name}', LastName = '{Last_Name}', Email = '{Email}', Password = '', Phone = '{Phone}', Country = '{Country}', UpdateUserID = {UpdateUserID} WHERE ID = {ID}";
+		int shippingAddressValue = Shipping_Address.HasValue ? Shipping_Address.Value : 0;
+		int billingAddressValue = Billing_Address.HasValue ? Billing_Address.Value : 0;
+		string escapedFirstName = First_Name.Replace("'", "''");
+		string escapedLastName = Last_Name.Replace("'", "''");
+		string escapedEmail = Email.Replace("'", "''");
+		string escapedPassword = Password != null && Password != "" ? Password.Replace("'", "''") : "";
+		string escapedPhone = Phone.Replace("'", "''");
+		string escapedCountry = Country.Replace("'", "''");
+        return $"UPDATE Users SET RoleID = {Role_ID}, PrimaryShippingAddressID = {shippingAddressValue}, PrimaryBillingAddressID = {billingAddressValue}, FirstName = '{escapedFirstName}', LastName = '{escapedLastName}', Email = '{escapedEmail}', Password = '{escapedPassword}', Phone = '{escapedPhone}', Country = '{escapedCountry}', UpdateUserID = {UpdateUserID} WHERE ID = {ID}";
     }
 
 	public static List<Account> GetAll()
@@ -205,11 +213,18 @@ public class Account : iData
 			if (CreateDateTime_STR is not null && CreateDateTime_STR != "") CreateDateTime = GeneralMethods.ParseDBDateTime(CreateDateTime_STR);
 			if (UpdateDateTime_STR is not null && UpdateDateTime_STR != "") UpdateDateTime = GeneralMethods.ParseDBDateTime(UpdateDateTime_STR);
 
+			int parsedId = int.TryParse(reader["ID"].ToString(), out int tempId) ? tempId : 0;
+			int roleId = int.TryParse(reader["RoleID"].ToString(), out int parsedRoleId) ? parsedRoleId : 0;
+			int? shippingAddressId = int.TryParse(reader["PrimaryShippingAddressID"].ToString(), out int parsedShipping) ? parsedShipping : (int?)null;
+			int? billingAddressId = int.TryParse(reader["PrimaryBillingAddressID"].ToString(), out int parsedBilling) ? parsedBilling : (int?)null;
+			int createUserID = int.TryParse(reader["CreateUserID"].ToString(), out int parsedCreateUserId) ? parsedCreateUserId : 0;
+			int updateUserID = int.TryParse(reader["UpdateUserID"].ToString(), out int parsedUpdateUserId) ? parsedUpdateUserId : 0;
+
 			Account returnValue = new(
-				Convert.ToInt32(reader["ID"].ToString()), 
-				Convert.ToInt32(reader["RoleID"].ToString()), 
-				reader["PrimaryShippingAddressID"] as int?, 
-				reader["PrimaryBillingAddressID"] as int?, 
+				parsedId, 
+				roleId, 
+				shippingAddressId, 
+				billingAddressId, 
 				reader["FirstName"].ToString(), 
 				reader["LastName"].ToString(), 
 				reader["Email"].ToString(), 
@@ -218,8 +233,8 @@ public class Account : iData
 				reader["Country"].ToString(), 
 				CreateDateTime, 
 				UpdateDateTime, 
-				Convert.ToInt32(reader["CreateUserID"].ToString()), 
-				Convert.ToInt32(reader["UpdateUserID"].ToString()));
+				createUserID, 
+				updateUserID);
 			conn.Close();
 
 			return returnValue;
@@ -250,11 +265,18 @@ public class Account : iData
 			if (CreateDateTime_STR is not null && CreateDateTime_STR != "") CreateDateTime = GeneralMethods.ParseDBDateTime(CreateDateTime_STR);
 			if (UpdateDateTime_STR is not null && UpdateDateTime_STR != "") UpdateDateTime = GeneralMethods.ParseDBDateTime(UpdateDateTime_STR);
 
+			int parsedId = int.TryParse(reader["ID"].ToString(), out int tempId) ? tempId : 0;
+			int roleId = int.TryParse(reader["RoleID"].ToString(), out int parsedRoleId) ? parsedRoleId : 0;
+			int? shippingAddressId = int.TryParse(reader["PrimaryShippingAddressID"].ToString(), out int parsedShipping) ? parsedShipping : (int?)null;
+			int? billingAddressId = int.TryParse(reader["PrimaryBillingAddressID"].ToString(), out int parsedBilling) ? parsedBilling : (int?)null;
+			int createUserID = int.TryParse(reader["CreateUserID"].ToString(), out int parsedCreateUserId) ? parsedCreateUserId : 0;
+			int updateUserID = int.TryParse(reader["UpdateUserID"].ToString(), out int parsedUpdateUserId) ? parsedUpdateUserId : 0;
+
 			Account returnValue = new(
-				Convert.ToInt32(reader["ID"].ToString()), 
-				Convert.ToInt32(reader["RoleID"].ToString()), 
-				reader["PrimaryShippingAddressID"] as int?, 
-				reader["PrimaryBillingAddressID"] as int?, 
+				parsedId, 
+				roleId, 
+				shippingAddressId, 
+				billingAddressId, 
 				reader["FirstName"].ToString(), 
 				reader["LastName"].ToString(), 
 				reader["Email"].ToString(), 
@@ -263,8 +285,8 @@ public class Account : iData
 				reader["Country"].ToString(), 
 				CreateDateTime, 
 				UpdateDateTime, 
-				Convert.ToInt32(reader["CreateUserID"].ToString()), 
-				Convert.ToInt32(reader["UpdateUserID"].ToString()));
+				createUserID, 
+				updateUserID);
 			conn.Close();
 
 			return returnValue;
@@ -295,11 +317,18 @@ public class Account : iData
 			if (CreateDateTime_STR is not null && CreateDateTime_STR != "") CreateDateTime = GeneralMethods.ParseDBDateTime(CreateDateTime_STR);
 			if (UpdateDateTime_STR is not null && UpdateDateTime_STR != "") UpdateDateTime = GeneralMethods.ParseDBDateTime(UpdateDateTime_STR);
 
+			int parsedId = int.TryParse(reader["ID"].ToString(), out int tempId) ? tempId : 0;
+			int roleId = int.TryParse(reader["RoleID"].ToString(), out int parsedRoleId) ? parsedRoleId : 0;
+			int? shippingAddressId = int.TryParse(reader["PrimaryShippingAddressID"].ToString(), out int parsedShipping) ? parsedShipping : (int?)null;
+			int? billingAddressId = int.TryParse(reader["PrimaryBillingAddressID"].ToString(), out int parsedBilling) ? parsedBilling : (int?)null;
+			int createUserID = int.TryParse(reader["CreateUserID"].ToString(), out int parsedCreateUserId) ? parsedCreateUserId : 0;
+			int updateUserID = int.TryParse(reader["UpdateUserID"].ToString(), out int parsedUpdateUserId) ? parsedUpdateUserId : 0;
+
 			Account returnValue = new(
-				Convert.ToInt32(reader["ID"].ToString()), 
-				Convert.ToInt32(reader["RoleID"].ToString()), 
-				reader["PrimaryShippingAddressID"] as int?, 
-				reader["PrimaryBillingAddressID"] as int?, 
+				parsedId, 
+				roleId, 
+				shippingAddressId, 
+				billingAddressId, 
 				reader["FirstName"].ToString(), 
 				reader["LastName"].ToString(), 
 				reader["Email"].ToString(), 
@@ -308,8 +337,8 @@ public class Account : iData
 				reader["Country"].ToString(), 
 				CreateDateTime, 
 				UpdateDateTime, 
-				Convert.ToInt32(reader["CreateUserID"].ToString()), 
-				Convert.ToInt32(reader["UpdateUserID"].ToString()));
+				createUserID, 
+				updateUserID);
 			conn.Close();
 
 			return returnValue;
@@ -340,11 +369,18 @@ public class Account : iData
 			if (CreateDateTime_STR is not null && CreateDateTime_STR != "") CreateDateTime = GeneralMethods.ParseDBDateTime(CreateDateTime_STR);
 			if (UpdateDateTime_STR is not null && UpdateDateTime_STR != "") UpdateDateTime = GeneralMethods.ParseDBDateTime(UpdateDateTime_STR);
 
+			int parsedId = int.TryParse(reader["ID"].ToString(), out int tempId) ? tempId : 0;
+			int roleId = int.TryParse(reader["RoleID"].ToString(), out int parsedRoleId) ? parsedRoleId : 0;
+			int? shippingAddressId = int.TryParse(reader["PrimaryShippingAddressID"].ToString(), out int parsedShipping) ? parsedShipping : (int?)null;
+			int? billingAddressId = int.TryParse(reader["PrimaryBillingAddressID"].ToString(), out int parsedBilling) ? parsedBilling : (int?)null;
+			int createUserID = int.TryParse(reader["CreateUserID"].ToString(), out int parsedCreateUserId) ? parsedCreateUserId : 0;
+			int updateUserID = int.TryParse(reader["UpdateUserID"].ToString(), out int parsedUpdateUserId) ? parsedUpdateUserId : 0;
+
 			Account returnValue = new(
-				Convert.ToInt32(reader["ID"].ToString()), 
-				Convert.ToInt32(reader["RoleID"].ToString()), 
-				reader["PrimaryShippingAddressID"] as int?, 
-				reader["PrimaryBillingAddressID"] as int?, 
+				parsedId, 
+				roleId, 
+				shippingAddressId, 
+				billingAddressId, 
 				reader["FirstName"].ToString(), 
 				reader["LastName"].ToString(), 
 				reader["Email"].ToString(), 
@@ -353,8 +389,8 @@ public class Account : iData
 				reader["Country"].ToString(), 
 				CreateDateTime, 
 				UpdateDateTime, 
-				Convert.ToInt32(reader["CreateUserID"].ToString()), 
-				Convert.ToInt32(reader["UpdateUserID"].ToString()));
+				createUserID, 
+				updateUserID);
 			conn.Close();
 
 			return returnValue;

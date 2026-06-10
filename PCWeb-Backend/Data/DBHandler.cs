@@ -61,6 +61,8 @@ public static class DBHandler
         }
         catch (Exception e)
         {
+            Console.WriteLine("ERROR:");
+            Console.WriteLine(e.ToString());
             return false;
         }
     }
@@ -83,7 +85,13 @@ public static class DBHandler
         }
     }
 
-    public static bool Update(iData data) => BasicNonQueryExecution(data.UpdateSQL());
+    public static bool Update(iData data)
+    {
+        string sqlCommand = data.UpdateSQL();
+        Console.WriteLine("Executing SQL Command:");
+        Console.WriteLine(sqlCommand);
+        return BasicNonQueryExecution(sqlCommand);
+    }
 
     public static bool Delete(iData data) => BasicNonQueryExecution(data.DeleteSQL());
 
@@ -113,6 +121,8 @@ public static class DBHandler
             cmd.Connection = conn;
             cmd.CommandText = sqlCommand;
             cmd.ExecuteNonQuery();
+
+            conn.Close();
 
             return true;
         }
