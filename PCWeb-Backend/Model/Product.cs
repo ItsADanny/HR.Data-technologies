@@ -232,7 +232,7 @@ public class Product
         ORDER BY p.ID, cf.Name";
     }
 
-    public static string SearchSQL(string query)
+    public static string SearchSQL()
     {
         return $@"SELECT
             c.CategoryName,
@@ -251,7 +251,7 @@ public class Product
         INNER JOIN (
             SELECT ID, CategoryID, Name, Price
             FROM Products
-            WHERE Name LIKE %{query}%
+            WHERE Name LIKE @searchTerm
             ORDER BY ID
         ) p ON c.ID = p.CategoryID
         INNER JOIN ProductFields pf ON p.ID = pf.ProductID
@@ -259,7 +259,7 @@ public class Product
         ORDER BY p.ID, cf.Name";
     }
 
-    public static string SearchSQL(string query, int pageSize = 100, int offset = 0)
+    public static string SearchSQL(int pageSize = 100, int offset = 0)
     {
         return $@"SELECT
             c.CategoryName,
@@ -278,7 +278,7 @@ public class Product
         INNER JOIN (
             SELECT ID, CategoryID, Name, Price
             FROM Products
-            WHERE Name LIKE %{query}%
+            WHERE Name LIKE @searchTerm
             ORDER BY ID
             LIMIT {pageSize} OFFSET {offset}
         ) p ON c.ID = p.CategoryID
@@ -500,8 +500,9 @@ public class Product
         try
         {
             using (MySqlConnection conn = new MySqlConnection(DBHandler.DBConfig_MySQL.GetConnectionSTR()))
-            using (MySqlCommand cmd = new MySqlCommand(SearchSQL(query), conn))
+            using (MySqlCommand cmd = new MySqlCommand(SearchSQL(), conn))
             {
+                cmd.Parameters.AddWithValue("@searchTerm", $"%{query}%");
                 conn.Open();
 
                 using (MySqlDataReader reader = cmd.ExecuteReader())
@@ -537,8 +538,9 @@ public class Product
         try
         {
             using (MySqlConnection conn = new MySqlConnection(DBHandler.DBConfig_MySQL.GetConnectionSTR()))
-            using (MySqlCommand cmd = new MySqlCommand(SearchSQL(query, pageSize, offset), conn))
+            using (MySqlCommand cmd = new MySqlCommand(SearchSQL(pageSize, offset), conn))
             {
+                cmd.Parameters.AddWithValue("@searchTerm", $"%{query}%");
                 conn.Open();
 
                 using (MySqlDataReader reader = cmd.ExecuteReader())

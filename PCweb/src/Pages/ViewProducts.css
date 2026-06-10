@@ -1,3 +1,7 @@
+.view-products-loading {
+	padding: 20px;
+}
+
 .view-products-page {
 	max-width: 1400px;
 	margin: 0 auto;
@@ -74,6 +78,23 @@
 	width: 18px;
 	height: 18px;
 	accent-color: var(--accent);
+}
+
+.price-filter {
+	padding: 10px 0;
+}
+
+.price-filter-row {
+	margin-bottom: 8px;
+}
+
+.price-filter-row input[type='range'] {
+	width: 100%;
+}
+
+.price-filter-label {
+	font-size: 0.85rem;
+	margin-top: 4px;
 }
 
 .filter-more,
@@ -266,6 +287,17 @@
 .add-to-cart-btn {
     display: block;
     width: 94%;
+}
+
+.partpicker-select-btn {
+	display: block;
+	width: 94%;
+	margin-bottom: 5px;
+	padding: 8px 12px;
+	background-color: #4CAF50;
+	color: white;
+	border: none;
+	cursor: pointer;
 }
 
 @media (max-width: 1200px) {

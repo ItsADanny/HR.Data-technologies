@@ -105,7 +105,7 @@ namespace PCWeb_Backend.Controller
             return Ok(products);
         }
 
-        [HttpGet("search/{query:alpha}")]
+        [HttpGet("search/{query}")]
         public IActionResult SearchProducts(string query)
         {
             if (string.IsNullOrWhiteSpace(query))
@@ -119,7 +119,7 @@ namespace PCWeb_Backend.Controller
             return Ok(products);
         }
 
-        [HttpGet("search/{query:alpha}/{page:int}/{pageSize:int}")]
+        [HttpGet("search/{query}/{page:int}/{pageSize:int}")]
         public IActionResult SearchProducts(string query, int page = 1, int pageSize = 100)
         {
             if (string.IsNullOrWhiteSpace(query))

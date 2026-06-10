@@ -17,7 +17,7 @@ export interface ProductItem {
 	fields: Record<string, string>;
 }
 
-export const useProductsData = (categoryId?: string, brand?: string, page: number = 1) => {
+export const useProductsData = (categoryId?: string, brand?: string, page: number = 1, search?: string) => {
 	const [products, setProducts] = useState<ProductItem[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [categoryName, setCategoryName] = useState('Products');
@@ -27,12 +27,14 @@ export const useProductsData = (categoryId?: string, brand?: string, page: numbe
 		const fetchProducts = async () => {
 			try {
 				setLoading(true);
-				
-				// Use brand endpoint if brand is selected, otherwise use category endpoint
-				const url = brand 
-					? `/api/product/with-category/${categoryId}/with-brand/${brand}?page=${page}`
-					: `/api/product/with-category?categoryId=${categoryId}&page=${page}`;
-				
+
+				// Use search endpoint if a search query is set, otherwise fall back to category/brand endpoints
+				const url = search
+					? `/api/product/search/${encodeURIComponent(search)}/${page}/100`
+					: brand
+						? `/api/product/with-category/${categoryId}/with-brand/${brand}?page=${page}`
+						: `/api/product/with-category?categoryId=${categoryId}&page=${page}`;
+
 				const response = await fetch(url);
 				const data: ProductField[] = await response.json();
 
@@ -68,7 +70,7 @@ export const useProductsData = (categoryId?: string, brand?: string, page: numbe
 		};
 
 		fetchProducts();
-	}, [categoryId, brand, page]);
+	}, [categoryId, brand, page, search]);
 
 	return { products, loading, categoryName, error };
 };
