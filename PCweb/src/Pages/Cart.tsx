@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Header from '../Components/Header-Component/Header';
 import Navbar from '../Components/Header-Component/Navbar';
 import { useCartContext } from '../context/CartContext';
-import { addressService, Address } from '../services/addressService';
+import { addressService, Address } from '../hooks/addresshooks';
 import './Cart.css';
 import hero from '../assets/hero.png';
 

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router";
 
 type User = {
     id: number;
@@ -107,7 +108,11 @@ export default function AdminPage() {
                     <li key={role.id}>{role.id}: {role.name} - {role.description}</li>
                 ))}
             </ul>
-
+            
+            <br />
+            <h2>Product Management</h2>
+            <p>Manage products here.</p>
+            <Link to="/admin/products">Go to Product Management</Link>
         </div>
     );
 }
