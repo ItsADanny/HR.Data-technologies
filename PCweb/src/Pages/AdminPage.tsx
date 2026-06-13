@@ -50,6 +50,31 @@ export default function AdminPage() {
         fetchUsers();
     }, []);
 
+    const handleResetPassword = async (userId: number) => {
+        const newPassword = window.prompt("Voer een nieuw wachtwoord in voor deze gebruiker:");
+        if (!newPassword) return;
+
+        try {
+            const response = await fetch(`http://localhost:5221/api/User/userid/${userId}/password`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ newPassword }),
+            });
+
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.message || "Password reset failed");
+            }
+
+            alert("Wachtwoord is gereset.");
+        } catch (err) {
+            console.error("Error resetting password:", err);
+            alert("Wachtwoord resetten is mislukt.");
+        }
+    };
+
     useEffect(() => {
         const fetchUserRoles = async () => {
             try {
@@ -84,6 +109,7 @@ export default function AdminPage() {
                         <th>Role</th>
                         <th>Phone</th>
                         <th>Country</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -95,6 +121,9 @@ export default function AdminPage() {
                             <td>{user.role}</td>
                             <td>{user.phone}</td>
                             <td>{user.country}</td>
+                            <td>
+                                <button onClick={() => handleResetPassword(user.id)}>Reset password</button>
+                            </td>
                         </tr>
                     ))}
                 </tbody>

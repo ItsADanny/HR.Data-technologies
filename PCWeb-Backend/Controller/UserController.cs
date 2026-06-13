@@ -110,6 +110,34 @@ namespace PCWeb_Backend.Controller
             return Ok();
         }
 
+        [HttpPut("userid/{id:int}/password")]
+        public ActionResult ResetPassword(int id, ResetPasswordDTO request)
+        {
+            //Check if user exists
+            Account? user = Account.GetByID(id);
+            if (user == null) return NotFound(new { message = "User not found." });
+
+            //Hash the new password with a freshly generated salt
+            string[] hashedPassword = Auth.Hash(request.NewPassword);
+
+            user.Password = hashedPassword[0];
+            if (!DBHandler.Update(user)) return BadRequest(new { message = "Password reset failed." });
+
+            //Update the existing salt, or create one if the user didn't have one yet
+            UserSalt? existingSalt = UserSalt.GetSalt(id);
+            if (existingSalt != null)
+            {
+                existingSalt.Salt = hashedPassword[1];
+                DBHandler.Update(existingSalt);
+            }
+            else
+            {
+                DBHandler.Create(new UserSalt(id, hashedPassword[1]));
+            }
+
+            return Ok(new { message = "Password reset successful." });
+        }
+
         [HttpPut("logout")]
         public ActionResult LogoutUser(string sessionToken)
         {
