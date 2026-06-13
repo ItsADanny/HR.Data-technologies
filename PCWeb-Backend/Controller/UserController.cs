@@ -10,7 +10,7 @@ namespace PCWeb_Backend.Controller
         // ====================================================================================
         // GET
         // ====================================================================================
-        [HttpGet("/userid/{id:int}")]
+        [HttpGet("userid/{id:int}")]
         public ActionResult<Account> GetByUserID(int id)
         {
             Account? user = Account.GetByID(id);
@@ -18,7 +18,7 @@ namespace PCWeb_Backend.Controller
             return Ok(user);
         }
 
-        [HttpGet("/roleid/{id:int}")]
+        [HttpGet("roleid/{id:int}")]
         public ActionResult<Account> GetByRoleID(int id)
         {
             Account? user = Account.GetByRoleID(id);
@@ -26,7 +26,7 @@ namespace PCWeb_Backend.Controller
             return Ok(user);
         }
 
-        [HttpGet("/email/{email:alpha}")]
+        [HttpGet("email/{email:alpha}")]
         public ActionResult<Account> GetByEmail(string email)
         {
             Account? user = Account.GetByEmail(email);
@@ -34,7 +34,7 @@ namespace PCWeb_Backend.Controller
             return Ok(user);
         }
 
-        [HttpGet("/phone/{phone:alpha}")]
+        [HttpGet("phone/{phone:alpha}")]
         public ActionResult<Account> GetByPhone(string phone)
         {
             Account? user = Account.GetByPhone(phone);
@@ -78,7 +78,7 @@ namespace PCWeb_Backend.Controller
             return Ok(new { message = "User registered successfully." });
         }
 
-        [HttpPost("/login")]
+        [HttpPost("login")]
         public ActionResult<Account> LoginUser(UserLoginDTO user)
         {
             //Check if user exists
@@ -104,13 +104,13 @@ namespace PCWeb_Backend.Controller
         // ====================================================================================
         // PUT
         // ====================================================================================
-        [HttpPut("/userid/{id:int}")]
+        [HttpPut("userid/{id:int}")]
         public ActionResult<Account> UpdateUserByUserID(int id, Account user)
         {
             return Ok();
         }
 
-        [HttpPut("/logout")]
+        [HttpPut("logout")]
         public ActionResult LogoutUser(string sessionToken)
         {
             //Check if session exists
@@ -126,7 +126,7 @@ namespace PCWeb_Backend.Controller
         // ====================================================================================
         // DELETE
         // ====================================================================================
-        [HttpDelete("/userid/{id:int}")]
+        [HttpDelete("userid/{id:int}")]
         public ActionResult DeleteUserByUserID(int id)
         {
             return Ok();

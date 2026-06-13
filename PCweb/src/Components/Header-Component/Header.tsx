@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuthContext } from '../../context/AuthContext';
 import cartIcon from '../../assets/cart-icon-white.png';
 
 export default function Header() {
     const [search, setSearch] = useState('');
     const navigate = useNavigate();
+    const { isLoggedIn, logout } = useAuthContext();
 
     const handleSearchSubmit = (e: React.SyntheticEvent<HTMLFormElement, SubmitEvent>) => {
         e.preventDefault();
@@ -13,6 +15,11 @@ export default function Header() {
         if (!trimmedSearch) return;
 
         navigate(`/viewproducts?search=${encodeURIComponent(trimmedSearch)}`);
+    };
+
+    const handleLogout = async () => {
+        await logout();
+        navigate('/');
     };
 
     return (
@@ -28,7 +35,11 @@ export default function Header() {
                     />
                 </form>
                 <div className='user-container'>
-                    <Link className='login-link' to="/login">Login</Link>
+                    {isLoggedIn ? (
+                        <button className='login-link logout-button' onClick={handleLogout}>Logout</button>
+                    ) : (
+                        <Link className='login-link' to="/login">Login</Link>
+                    )}
                     <Link className='cart-link' to="/cart">
                         <img className='cart-icon' src={cartIcon} alt="Cart" />
                     </Link>

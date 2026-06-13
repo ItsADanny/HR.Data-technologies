@@ -1,26 +1,60 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import { useAuthContext } from '../context/AuthContext';
 import "./Login.css";
 
 export default function Login() {
     const [email, setEmail] = React.useState('');
     const [password, setPassword] = React.useState('');
+    const [error, setError] = useState('');
+    const navigate = useNavigate();
+    const { login } = useAuthContext();
 
     // Here If statement for if user is already logged in, redirect to home page or dashboard
     //
     //
     // -------------------------------------------------------------
 
-    const handleSubmit = (e: { preventDefault: () => void; }) => {
+    const handleSubmit = async (e: { preventDefault: () => void; }) => {
         e.preventDefault();
-        // Here handle logic for backend 
+        setError('');
+
+        try {
+            const response = await fetch("http://localhost:5221/api/User/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ email, password }),
+            });
+
+            let data;
+            try {
+                data = await response.json();
+            } catch {
+                const text = await response.text();
+                throw new Error(text || "Invalid server response");
+            }
+
+            if (!response.ok) {
+                throw new Error(data.message || "Login failed");
+            }
+
+            login(data.sessionToken);
+            navigate("/");
+
+        } catch (err) {
+            console.error("Error during login:", err);
+            setError(err instanceof Error ? err.message : "Login failed");
+        }
     };
 
     return (
     <div className="form-container">
         <h1>Login Page</h1>
         <p>Please enter your credentials to log in.</p>
+        {error && <p className="form-error">{error}</p>}
         {/* login form */}
         <form onSubmit={handleSubmit}>
             <label> Email </label>
