@@ -9,3 +9,8 @@
     transform: translateY(20px);
     opacity: 1;
   }
+
+.form-error {
+    color: #b91c1c;
+    font-weight: 600;
+}
