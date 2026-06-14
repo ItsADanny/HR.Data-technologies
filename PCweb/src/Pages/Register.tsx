@@ -8,6 +8,8 @@ export default function Register() {
     const [lastName, setLastName] = React.useState('');
     const [email, setEmail] = React.useState('');
     const [password, setPassword] = React.useState('');
+    const [phone, setPhone] = React.useState('');
+    const [country, setCountry] = React.useState('');
 
     // Here If statement for if user is already logged in, redirect to home page or dashboard
     //
@@ -18,12 +20,12 @@ export default function Register() {
         e.preventDefault();
         // Here handle logic for backend 
         try {
-            const response = await fetch("http://localhost:5221/api/User/register", {
+            const response = await fetch("http://localhost:5221/api/User", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ firstName, lastName, email, password }),
+                body: JSON.stringify({ firstName, lastName, email, password, phone, country }),
             });
 
             let data;
@@ -44,6 +46,8 @@ export default function Register() {
             setPassword("");
             setFirstName("");
             setLastName("");
+            setPhone("");
+            setCountry("");
 
         } catch (error) {
             console.error("Error during registration:", error);
@@ -98,6 +102,28 @@ export default function Register() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required 
+            />
+            <br />
+            <label> Phone </label>
+            <br />
+            <input
+                id="phone"
+                type="tel"
+                placeholder="0612345678"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                required
+            />
+            <br />
+            <label> Country </label>
+            <br />
+            <input
+                id="country"
+                type="text"
+                placeholder="Netherlands"
+                value={country}
+                onChange={(e) => setCountry(e.target.value)}
+                required
             />
             <br />
             <button type="submit">Register</button>
