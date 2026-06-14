@@ -105,9 +105,56 @@ namespace PCWeb_Backend.Controller
         // PUT
         // ====================================================================================
         [HttpPut("userid/{id:int}")]
-        public ActionResult<Account> UpdateUserByUserID(int id, Account user)
+        public ActionResult<Account> UpdateUserByUserID(int id, UpdateAccountDTO dto)
         {
-            return Ok();
+            // Implementation for updating user by ID
+            Account? user = Account.GetByID(id);
+            if (user == null) return NotFound(new { message = "User not found." });
+
+            // Update the user's properties with the provided data
+            user.Shipping_Address = dto.Shipping_Address;
+            user.Billing_Address = dto.Billing_Address;
+            user.First_Name = dto.First_Name;
+            user.Last_Name = dto.Last_Name;
+            user.Email = dto.Email;
+            user.Phone = dto.Phone;
+            user.Country = dto.Country;
+
+            user.UpdateDateTime = DateTime.Now;
+
+            if (!DBHandler.Update(user)) return BadRequest(new { message = "User update failed." });
+
+            if (user.Shipping_Address != null && dto.ShippingAddress != null)
+            {
+                Address? existingShippingAddress = Address.GetById(user.Shipping_Address.Value);
+                if (existingShippingAddress != null)
+                {
+                    existingShippingAddress.Country = dto.ShippingAddress.Country;
+                    existingShippingAddress.City = dto.ShippingAddress.City;
+                    existingShippingAddress.Street = dto.ShippingAddress.Street;
+                    existingShippingAddress.HouseNumber = dto.ShippingAddress.HouseNumber;
+                    existingShippingAddress.HouseNumberAddition = dto.ShippingAddress.HouseNumberAddition;
+                    existingShippingAddress.PostCode = dto.ShippingAddress.PostCode;
+                    DBHandler.Update(existingShippingAddress);
+                }
+            }
+
+            if (user.Billing_Address != null && dto.BillingAddress != null)
+            {
+                Address? existingBillingAddress = Address.GetById(user.Billing_Address.Value);
+                if (existingBillingAddress != null)
+                {
+                    existingBillingAddress.Country = dto.BillingAddress.Country;
+                    existingBillingAddress.City = dto.BillingAddress.City;
+                    existingBillingAddress.Street = dto.BillingAddress.Street;
+                    existingBillingAddress.HouseNumber = dto.BillingAddress.HouseNumber;
+                    existingBillingAddress.HouseNumberAddition = dto.BillingAddress.HouseNumberAddition;
+                    existingBillingAddress.PostCode = dto.BillingAddress.PostCode;
+                    DBHandler.Update(existingBillingAddress);
+                }
+            }
+
+            return Ok(new { message = "User updated successfully." });
         }
 
         [HttpPut("userid/{id:int}/password")]
