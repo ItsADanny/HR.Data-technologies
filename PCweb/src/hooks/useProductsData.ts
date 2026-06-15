@@ -22,6 +22,7 @@ export const useProductsData = (categoryId?: string, brand?: string, page: numbe
 	const [loading, setLoading] = useState(true);
 	const [categoryName, setCategoryName] = useState('Products');
 	const [error, setError] = useState<string | null>(null);
+	const [refreshIndex, setRefreshIndex] = useState(0);
 
 	useEffect(() => {
 		const fetchProducts = async () => {
@@ -70,9 +71,11 @@ export const useProductsData = (categoryId?: string, brand?: string, page: numbe
 		};
 
 		fetchProducts();
-	}, [categoryId, brand, page, search]);
+	}, [categoryId, brand, page, search, refreshIndex]);
 
-	return { products, loading, categoryName, error };
+	const refetch = () => setRefreshIndex(i => i + 1);
+
+	return { products, loading, categoryName, error, refetch };
 };
 
 export const GetBrandsInSameCategory = async (categoryId: string) => {

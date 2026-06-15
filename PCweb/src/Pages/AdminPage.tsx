@@ -1,4 +1,8 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuthContext } from "../context/AuthContext";
+import ProductManagement from "../Components/Admin-Components/ProductManagement";
+import "./AdminPage.css";
 
 type User = {
     id: number;
@@ -28,6 +32,16 @@ type UserRole = {
 };
 
 export default function AdminPage() {
+    const navigate = useNavigate();
+    const { isLoggedIn, isAdmin, roleLoading } = useAuthContext();
+
+    // Redirect non-admins away from this page
+    useEffect(() => {
+        if (roleLoading) return;
+        if (!isLoggedIn || !isAdmin) {
+            navigate("/");
+        }
+    }, [isLoggedIn, isAdmin, roleLoading, navigate]);
 
     // Get all users from controller
     const [users, setUsers] = useState<User[]>([]);
@@ -94,49 +108,59 @@ export default function AdminPage() {
 
 
 
+    if (roleLoading || !isLoggedIn || !isAdmin) {
+        return null;
+    }
+
     return (
-        <div>
+        <div className="admin-page">
             <h1>Admin Page</h1>
-            <p>Welcome to the admin page. Here you can manage users, view reports, and configure settings.</p>
+            <p className="admin-intro">Welcome to the admin page. Here you can manage users, view reports, and configure settings.</p>
 
-            <h2>User Management</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Role</th>
-                        <th>Phone</th>
-                        <th>Country</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {users.map((user) => (
-                        <tr key={user.id}>
-                            <td>{user.id}</td>
-                            <td>{user.first_Name} {user.last_Name}</td>
-                            <td>{user.email}</td>
-                            <td>{user.role}</td>
-                            <td>{user.phone}</td>
-                            <td>{user.country}</td>
-                            <td>
-                                <button onClick={() => handleResetPassword(user.id)}>Reset password</button>
-                            </td>
+            <section className="admin-section">
+                <h2>User Management</h2>
+                <table className="admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Phone</th>
+                            <th>Country</th>
+                            <th>Actions</th>
                         </tr>
+                    </thead>
+                    <tbody>
+                        {users.map((user) => (
+                            <tr key={user.id}>
+                                <td>{user.id}</td>
+                                <td>{user.first_Name} {user.last_Name}</td>
+                                <td>{user.email}</td>
+                                <td>{user.role}</td>
+                                <td>{user.phone}</td>
+                                <td>{user.country}</td>
+                                <td>
+                                    <button className="admin-btn" onClick={() => handleResetPassword(user.id)}>Reset password</button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </section>
+
+            <section className="admin-section">
+                <h2>User Roles</h2>
+                <ul className="admin-role-list">
+                    {userRoles.map((role) => (
+                        <li key={role.id}><strong>{role.name}</strong> (ID {role.id}) - {role.description}</li>
                     ))}
-                </tbody>
-            </table>
+                </ul>
+            </section>
 
-
-            <h2>User Roles</h2>
-            <ul>
-                {userRoles.map((role) => (
-                    <li key={role.id}>{role.id}: {role.name} - {role.description}</li>
-                ))}
-            </ul>
-
+            <section className="admin-section">
+                <ProductManagement />
+            </section>
         </div>
     );
 }

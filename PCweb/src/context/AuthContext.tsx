@@ -4,6 +4,10 @@ import { useAuth } from '../hooks/useAuth';
 interface AuthContextType {
     sessionToken: string | null;
     isLoggedIn: boolean;
+    roleID: number | null;
+    userID: number | null;
+    roleLoading: boolean;
+    isAdmin: boolean;
     login: (token: string) => void;
     logout: () => Promise<void>;
 }
