@@ -11,6 +11,7 @@ import Cart from './Pages/Cart';
 import ViewProducts from './Pages/ViewProducts';
 import PartPicker from './Pages/PartPicker';
 import AdminPage from './Pages/AdminPage';
+import UserAccountInfo from './Pages/UserAccountInfo';
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
             <Route path="/cart" element={<Cart />} />
             <Route path="/partpicker" element={<PartPicker />} />
             <Route path="/admin" element={<AdminPage />} />
+            <Route path="/account" element={<UserAccountInfo />} />
           </Routes>
         </BrowserRouter>
       </CartProvider>

@@ -128,6 +128,35 @@ namespace PCWeb_Backend.Controller
             }
         }
 
+        // [HttpPut("address/{addressId:int}")]
+        // public ActionResult UpdateAddress(int addressId, UpdateAddressDTO dto)
+        // {
+        //     // Retrieve the existing address from the database
+        //     Address? existingAddress = Address.GetById(addressId);
+        //     if (existingAddress == null)
+        //         return NotFound(new { message = "Address not found." });
+
+        //     // Update the address properties with the provided data
+        //     existingAddress.Country = dto.Country;
+        //     existingAddress.City = dto.City;
+        //     existingAddress.Street = dto.Street;
+        //     existingAddress.HouseNumber = dto.HouseNumber;
+        //     existingAddress.HouseNumberAddition = dto.HouseNumberAddition;
+        //     existingAddress.PostCode = dto.PostCode;
+
+        //     // Validate the updated address
+        //     string? validationError = ValidateAddress(existingAddress);
+        //     if (validationError != null)
+        //         return BadRequest(new { message = validationError });
+
+        //     // Save the updated address to the database
+        //     bool updateResult = DBHandler.Update(existingAddress);
+        //     if (!updateResult)
+        //         return StatusCode(500, new { message = "Error updating address in database." });
+
+        //     return Ok(new { message = "Address updated successfully." });
+        // }
+
         // ====================================================================================
         // DELETE
         // ====================================================================================
