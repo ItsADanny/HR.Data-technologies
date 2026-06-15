@@ -3,19 +3,57 @@ import { useState, useEffect, useCallback } from 'react';
 const SESSION_STORAGE_KEY = 'pcweb_session_token';
 
 export const useAuth = () => {
-    const [sessionToken, setSessionToken] = useState<string | null>(null);
+    // Initialize synchronously from localStorage so the first render already
+    // reflects a logged-in session (avoids a redirect race on direct page loads)
+    const [sessionToken, setSessionToken] = useState<string | null>(() => localStorage.getItem(SESSION_STORAGE_KEY));
+    const [roleID, setRoleID] = useState<number | null>(null);
+    const [userID, setUserID] = useState<number | null>(null);
+    const [roleLoading, setRoleLoading] = useState<boolean>(() => localStorage.getItem(SESSION_STORAGE_KEY) !== null);
 
-    // Load session token from localStorage on mount
+    // Whenever the session token changes, look up which role the user has
     useEffect(() => {
-        const savedToken = localStorage.getItem(SESSION_STORAGE_KEY);
-        if (savedToken) {
-            setSessionToken(savedToken);
+        if (!sessionToken) {
+            setRoleID(null);
+            setUserID(null);
+            return;
         }
-    }, []);
+
+        let cancelled = false;
+
+        const fetchRole = async () => {
+            setRoleLoading(true);
+            try {
+                const sessionRes = await fetch(`http://localhost:5221/api/UserSession/session/sessiontoken/${encodeURIComponent(sessionToken)}`);
+                if (!sessionRes.ok) throw new Error("Session not found");
+                const session = await sessionRes.json();
+
+                const userRes = await fetch(`http://localhost:5221/api/User/userid/${session.userID}`);
+                if (!userRes.ok) throw new Error("User not found");
+                const user = await userRes.json();
+
+                if (!cancelled) {
+                    setRoleID(user.role_ID ?? null);
+                    setUserID(session.userID ?? null);
+                }
+            } catch {
+                if (!cancelled) {
+                    setRoleID(null);
+                    setUserID(null);
+                }
+            } finally {
+                if (!cancelled) setRoleLoading(false);
+            }
+        };
+
+        fetchRole();
+
+        return () => { cancelled = true; };
+    }, [sessionToken]);
 
     const login = useCallback((token: string) => {
         localStorage.setItem(SESSION_STORAGE_KEY, token);
         setSessionToken(token);
+        setRoleLoading(true);
     }, []);
 
     const logout = useCallback(async () => {
@@ -33,11 +71,17 @@ export const useAuth = () => {
 
         localStorage.removeItem(SESSION_STORAGE_KEY);
         setSessionToken(null);
+        setRoleID(null);
+        setUserID(null);
     }, [sessionToken]);
 
     return {
         sessionToken,
         isLoggedIn: sessionToken !== null,
+        roleID,
+        userID,
+        roleLoading,
+        isAdmin: roleID === 1,
         login,
         logout,
     };

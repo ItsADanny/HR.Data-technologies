@@ -16,10 +16,13 @@ namespace PCWeb_Backend.Controller
             return Ok();
         }
 
-        [HttpGet("session/sessiontoken/{token:alpha}")]
-        public ActionResult<Account> GetByUserSession(string token)
+        [HttpGet("session/sessiontoken/{token}")]
+        public ActionResult<UserSession> GetByUserSession(string token)
         {
-            return Ok();
+            UserSession? session = DBHandler.GetSessionByToken(token);
+            if (session == null) return NotFound(new { message = "Session not found or expired." });
+
+            return Ok(session);
         }
 
         // ====================================================================================
