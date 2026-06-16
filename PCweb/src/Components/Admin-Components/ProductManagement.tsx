@@ -114,18 +114,29 @@ export default function ProductManagement() {
         setEditingProductId(null);
     };
 
-    const handleDelete = async (productId: number) => {
-        if (!window.confirm('Weet je zeker dat je dit product wilt verwijderen?')) return;
+    const [deleteTarget, setDeleteTarget] = useState<number | null>(null);
+    const [deleteMessage, setDeleteMessage] = useState("");
 
+    const startDelete = (productId: number) => {
+        setDeleteTarget(productId);
+        setDeleteMessage("");
+    };
+
+    const cancelDelete = () => {
+        setDeleteTarget(null);
+    };
+
+    const confirmDelete = async (productId: number) => {
         try {
             const response = await fetch(`/api/Product/${productId}`, { method: 'DELETE' });
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
+            setDeleteTarget(null);
             refetch();
         } catch (err) {
             console.error('Error deleting product:', err);
-            alert('Product verwijderen is mislukt.');
+            setDeleteMessage('Product verwijderen is mislukt.');
         }
     };
 
@@ -293,6 +304,7 @@ export default function ProductManagement() {
 
             {loading && <p>Loading products...</p>}
             {error && <p>Error: {error}</p>}
+            {deleteMessage && <p>{deleteMessage}</p>}
 
             {!loading && !error && (
                 <table className="admin-table">
@@ -311,8 +323,18 @@ export default function ProductManagement() {
                                 <td>{product.name}</td>
                                 <td>${product.price.toFixed(2)}</td>
                                 <td>
-                                    <button type="button" className="admin-btn" onClick={() => handleEdit(product.id)}>Edit</button>
-                                    <button type="button" className="admin-btn admin-btn-danger" onClick={() => handleDelete(product.id)}>Delete</button>
+                                    {deleteTarget === product.id ? (
+                                        <div className="admin-inline-form">
+                                            <span>Verwijderen?</span>
+                                            <button type="button" className="admin-btn admin-btn-danger" onClick={() => confirmDelete(product.id)}>Confirm</button>
+                                            <button type="button" className="admin-btn" onClick={cancelDelete}>Cancel</button>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <button type="button" className="admin-btn" onClick={() => handleEdit(product.id)}>Edit</button>
+                                            <button type="button" className="admin-btn admin-btn-danger" onClick={() => startDelete(product.id)}>Delete</button>
+                                        </>
+                                    )}
                                 </td>
                             </tr>
                         ))}

@@ -2,15 +2,14 @@ import React, { useState, useEffect } from 'react';
 import Header from '../Components/Header-Component/Header';
 import Navbar from '../Components/Header-Component/Navbar';
 import { useCartContext } from '../context/CartContext';
+import { useAuthContext } from '../context/AuthContext';
 import { addressService, Address } from '../hooks/addresshooks';
 import './Cart.css';
 import hero from '../assets/hero.png';
 
-// Login is nog niet geïmplementeerd, dus er staat geen userId in localStorage. Hardcoded fallback (bestaande user in BuildHub) totdat login werkt.
-const FALLBACK_USER_ID = 2;
-
 export default function Cart() {
     const { items, removeItem, updateQuantity, getTotalPrice } = useCartContext();
+    const { userID } = useAuthContext();
 
     const [savedAddresses, setSavedAddresses] = useState<Address[]>([]);
     const [selectedAddressId, setSelectedAddressId] = useState<string>('');
@@ -26,12 +25,17 @@ export default function Cart() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        if (!userID) {
+            setSavedAddresses([]);
+            setLoading(false);
+            return;
+        }
         loadUserAddresses();
-    }, []);
+    }, [userID]);
 
     const loadUserAddresses = async () => {
-        const userId = parseInt(localStorage.getItem('userId') ?? '') || FALLBACK_USER_ID;
-        const addresses = await addressService.getByUserId(userId);
+        if (!userID) return;
+        const addresses = await addressService.getByUserId(userID);
         setSavedAddresses(addresses);
         setLoading(false);
     };
@@ -42,13 +46,13 @@ export default function Cart() {
     };
 
     const handleSaveAddress = async () => {
+        if (!userID) return;
+
         const { street, city, country, postcode, houseNumber, houseNumberAddition } = newAddress;
         if (!street || !city || !country || !postcode) {
             alert('Vul alle verplichte velden in (straat, stad, postcode, land)');
             return;
         }
-
-        const userId = parseInt(localStorage.getItem('userId') ?? '') || FALLBACK_USER_ID;
 
         try {
             await addressService.create({
@@ -58,7 +62,7 @@ export default function Cart() {
                 postcode,
                 houseNumber: parseInt(houseNumber) || 0,
                 houseNumberAddition,
-                userId,
+                userId: userID,
             });
             alert('Adres opgeslagen!');
             setNewAddress({ street: '', houseNumber: '', houseNumberAddition: '', city: '', postcode: '', country: '' });
