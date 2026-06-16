@@ -2,15 +2,14 @@ import React, { useState, useEffect } from 'react';
 import Header from '../Components/Header-Component/Header';
 import Navbar from '../Components/Header-Component/Navbar';
 import { useCartContext } from '../context/CartContext';
+import { useAuthContext } from '../context/AuthContext';
 import { addressService, Address } from '../hooks/addresshooks';
 import './Cart.css';
 import hero from '../assets/hero.png';
 
-// Login is nog niet geïmplementeerd, dus er staat geen userId in localStorage. Hardcoded fallback (bestaande user in BuildHub) totdat login werkt.
-const FALLBACK_USER_ID = 4;
-
 export default function Cart() {
     const { items, removeItem, updateQuantity, getTotalPrice } = useCartContext();
+    const { userID } = useAuthContext();
 
     const [savedAddresses, setSavedAddresses] = useState<Address[]>([]);
     const [selectedAddressId, setSelectedAddressId] = useState<string>('');
@@ -35,26 +34,29 @@ export default function Cart() {
         country: ''
     });
     const [loading, setLoading] = useState(true);
-    const userID = parseInt(localStorage.getItem('userId') ?? '') || FALLBACK_USER_ID;
 
     useEffect(() => {
-        loadUserAddresses();
-    }, []);
+        if (userID) {
+            loadUserAddresses();
+        }
+    }, [userID]);
 
     useEffect(() => {
-        loadBillingAddresses();
-    }, []);
+        if (userID) {
+            loadBillingAddresses();
+        }
+    }, [userID]);
 
     const loadUserAddresses = async () => {
-        const userId = parseInt(localStorage.getItem('userId') ?? '') || FALLBACK_USER_ID;
-        const addresses = await addressService.getByUserId(userId);
+        if (!userID) return;
+        const addresses = await addressService.getByUserId(userID);
         setSavedAddresses(addresses);
         setLoading(false);
     };
 
     const loadBillingAddresses = async () => {
-        const userId = parseInt(localStorage.getItem('userId') ?? '') || FALLBACK_USER_ID;
-        const addresses = await addressService.getBillingAddressByUserId(userId);
+        if (!userID) return;
+        const addresses = await addressService.getBillingAddressByUserId(userID);
         setSavedBillingAddresses(addresses);
         setLoading(false);
     };
@@ -76,7 +78,10 @@ export default function Cart() {
             return;
         }
 
-        const userId = parseInt(localStorage.getItem('userId') ?? '') || FALLBACK_USER_ID;
+        if (!userID) {
+            alert('Gebruiker niet ingelogd. Probeer opnieuw.');
+            return;
+        }
 
         try {
             await addressService.create({
@@ -87,7 +92,7 @@ export default function Cart() {
                 postcode,
                 houseNumber: parseInt(houseNumber) || 0,
                 houseNumberAddition,
-                userId,
+                userId: userID,
             });
             alert('Adres opgeslagen!');
             setNewAddress({ street: '', houseNumber: '', houseNumberAddition: '', city: '', postcode: '', country: '' });
@@ -105,7 +110,10 @@ export default function Cart() {
             return;
         }
 
-        const userId = parseInt(localStorage.getItem('userId') ?? '') || FALLBACK_USER_ID;
+        if (!userID) {
+            alert('Gebruiker niet ingelogd. Probeer opnieuw.');
+            return;
+        }
 
         try {
             await addressService.create({
@@ -116,7 +124,7 @@ export default function Cart() {
                 postcode,
                 houseNumber: parseInt(houseNumber) || 0,
                 houseNumberAddition,
-                userId,
+                userId: userID,
             });
             alert('Adres opgeslagen!');
             setBillingAddress({ street: '', houseNumber: '', houseNumberAddition: '', city: '', postcode: '', country: '' });
