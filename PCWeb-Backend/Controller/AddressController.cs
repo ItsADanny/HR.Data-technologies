@@ -64,7 +64,24 @@ namespace PCWeb_Backend.Controller
                 return StatusCode(500, new { message = "Internal server error", error = e.Message });
             }
         }
-        
+
+        [HttpGet("user/billingaddress/{userId:int}")]
+        public IActionResult GetBillingAddressesByUserId(int userId)
+        {
+            try
+            {
+                var addresses = Address.GetBillingAddressByUserId(userId);
+
+                if (addresses == null)
+                    return StatusCode(500, new { message = "Error retrieving addresses from database" });
+
+                return Ok(addresses);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = e.Message });
+            }
+        }
         // ====================================================================================
         // POST
         // ====================================================================================

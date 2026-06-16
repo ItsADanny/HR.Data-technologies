@@ -1,6 +1,7 @@
 const API_BASE_URL = '/api/address';
 
 export interface Address {
+    addressId: number;
     street: string;
     houseNumber: number;        // int in DB
     houseNumberAddition: string;
@@ -25,10 +26,24 @@ export const addressService = {
         }
     },
 
-    // Get addresses by user ID
+    // Get shipping addresses by user ID
     getByUserId: async (userId: number): Promise<Address[]> => {
         try {
             const response = await fetch(`${API_BASE_URL}/user/${userId}`);
+            if (!response.ok) {
+                throw new Error(`Failed to fetch user addresses: ${response.statusText}`);
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching user addresses:', error);
+            return [];
+        }
+    },
+
+    // Get billing addresses by user ID
+    getBillingAddressByUserId: async (userId: number): Promise<Address[]> => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/user/billingaddress/${userId}`);
             if (!response.ok) {
                 throw new Error(`Failed to fetch user addresses: ${response.statusText}`);
             }

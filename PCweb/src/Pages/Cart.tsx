@@ -13,8 +13,19 @@ export default function Cart() {
 
     const [savedAddresses, setSavedAddresses] = useState<Address[]>([]);
     const [selectedAddressId, setSelectedAddressId] = useState<string>('');
+    const [savedBillingAddresses, setSavedBillingAddresses] = useState<Address[]>([]);
+    const [selectedBillingAddressId, setSelectedBillingAddressId] = useState<string>('');
     const [showCreateNew, setShowCreateNew] = useState(false);
+    const [showCreateNewBilling, setShowCreateNewBilling] = useState(false);
     const [newAddress, setNewAddress] = useState({
+        street: '',
+        houseNumber: '',
+        houseNumberAddition: '',
+        city: '',
+        postcode: '',
+        country: ''
+    });
+    const [billingAddress, setBillingAddress] = useState({
         street: '',
         houseNumber: '',
         houseNumberAddition: '',
@@ -25,12 +36,15 @@ export default function Cart() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (!userID) {
-            setSavedAddresses([]);
-            setLoading(false);
-            return;
+        if (userID) {
+            loadUserAddresses();
         }
-        loadUserAddresses();
+    }, [userID]);
+
+    useEffect(() => {
+        if (userID) {
+            loadBillingAddresses();
+        }
     }, [userID]);
 
     const loadUserAddresses = async () => {
@@ -40,9 +54,21 @@ export default function Cart() {
         setLoading(false);
     };
 
+    const loadBillingAddresses = async () => {
+        if (!userID) return;
+        const addresses = await addressService.getBillingAddressByUserId(userID);
+        setSavedBillingAddresses(addresses);
+        setLoading(false);
+    };
+
     const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setNewAddress(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleBillingAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setBillingAddress(prev => ({ ...prev, [name]: value }));
     };
 
     const handleSaveAddress = async () => {
@@ -54,8 +80,14 @@ export default function Cart() {
             return;
         }
 
+        if (!userID) {
+            alert('Gebruiker niet ingelogd. Probeer opnieuw.');
+            return;
+        }
+
         try {
             await addressService.create({
+                addressId: 0,
                 street,
                 city,
                 country,
@@ -73,17 +105,91 @@ export default function Cart() {
         }
     };
 
+    const handleSaveBillingAddress = async () => {
+        const { street, city, country, postcode, houseNumber, houseNumberAddition } = billingAddress;
+        if (!street || !city || !country || !postcode) {
+            alert('Vul alle verplichte velden in (straat, stad, postcode, land)');
+            return;
+        }
+
+        if (!userID) {
+            alert('Gebruiker niet ingelogd. Probeer opnieuw.');
+            return;
+        }
+
+        try {
+            await addressService.create({
+                addressId: 0,
+                street,
+                city,
+                country,
+                postcode,
+                houseNumber: parseInt(houseNumber) || 0,
+                houseNumberAddition,
+                userId: userID,
+            });
+            alert('Adres opgeslagen!');
+            setBillingAddress({ street: '', houseNumber: '', houseNumberAddition: '', city: '', postcode: '', country: '' });
+            setShowCreateNewBilling(false);
+            await loadBillingAddresses(); // refresh lijst
+        } catch (error) {
+            alert('Opslaan mislukt. Probeer opnieuw.');
+        }
+    };
+
     const handleCheckout = async () => {
+
+        const cartItems = JSON.parse(localStorage.getItem('pcweb_cart') || '[]');;
+
         if (showCreateNew || savedAddresses.length === 0) {
             alert('Sla eerst een adres op voor je afrekent.');
             return;
         }
-        if (selectedAddressId === '') {
-            alert('Selecteer een adres.');
+        if (!selectedAddressId) {
+            alert('Selecteer een bezorgadres.');
             return;
         }
-        alert('Checkout geslaagd!');
+        if (!selectedBillingAddressId) {
+            alert('Selecteer een factuuradres.');
+            return;
+        }
+        if (!cartItems.length) {
+            alert('Je winkelwagen is leeg.');
+            return;
+        }
+        try {
+            const response = await fetch("http://localhost:5221/api/order/create", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ 
+                    userId: userID, 
+                    shippingAddressId: parseInt(selectedAddressId), 
+                    billingAddressId: parseInt(selectedBillingAddressId), 
+                    cartItems 
+                }),
+            });
+
+            let data;
+            try {
+                data = await response.json();
+            } catch {
+                const text = await response.text();
+                throw new Error(text || "Invalid server response");
+            }
+
+            if (!response.ok) {
+                throw new Error(data.message || "Order failed");
+            }
+
+            alert('Checkout geslaagd!');
+        } catch (error) {
+            console.error("Error confirming order:", error);
+            alert('Er is iets misgegaan bij het plaatsen van de bestelling.');
+        }
     };
+
 
     return (
         <>
@@ -136,9 +242,11 @@ export default function Cart() {
                                                     <input
                                                         type="radio"
                                                         name="address"
-                                                        value={String(index)}
-                                                        checked={selectedAddressId === String(index)}
-                                                        onChange={(e) => setSelectedAddressId(e.target.value)}
+                                                        value={String(addr.addressId)}
+                                                        checked={selectedAddressId === String(addr.addressId)}
+                                                        onChange={(e) => {
+                                                            setSelectedAddressId(e.target.value);
+                                                        }}
                                                     />
                                                     {addr.street} {addr.houseNumber}{addr.houseNumberAddition}, {addr.postcode} {addr.city}, {addr.country}
                                                 </label>
@@ -167,7 +275,52 @@ export default function Cart() {
                                         </div>
                                     )}
                                 </div>
+                                <div className='billing-section'>
+                                    <h2>FactuurAdres</h2>
 
+                                    {loading ? (
+                                        <p>Adressen laden...</p>
+                                    ) : !showCreateNewBilling && savedBillingAddresses.length > 0 ? (
+                                        // Toon opgeslagen adressen
+                                        <>
+                                            {savedBillingAddresses.map((addr, index) => (
+                                                <label key={index} className='address-option'>
+                                                    <input
+                                                        type="radio"
+                                                        name="billingaddress"
+                                                        value={String(addr.addressId)}
+                                                        checked={selectedBillingAddressId === String(addr.addressId)}
+                                                        onChange={(e) => {
+                                                            setSelectedBillingAddressId(e.target.value);
+                                                        }}
+                                                    />
+                                                    {addr.street} {addr.houseNumber}{addr.houseNumberAddition}, {addr.postcode} {addr.city}, {addr.country}
+                                                </label>
+                                            ))}
+                                            <button className='back-btn' onClick={() => setShowCreateNewBilling(true)}>
+                                                + Nieuw adres toevoegen
+                                            </button>
+                                        </>
+                                    ) : (
+                                        // Nieuw adres formulier
+                                        <div className='address-form'>
+                                            {savedBillingAddresses.length > 0 && (
+                                                <button className='back-btn' onClick={() => setShowCreateNewBilling(false)}>
+                                                    ← Terug
+                                                </button>
+                                            )}
+                                            <input type="text" name="street" placeholder="Straat *" value={billingAddress.street} onChange={handleBillingAddressChange} />
+                                            <input type="text" name="houseNumber" placeholder="Huisnummer" value={billingAddress.houseNumber} onChange={handleBillingAddressChange} />
+                                            <input type="text" name="houseNumberAddition" placeholder="Toevoeging" value={billingAddress.houseNumberAddition} onChange={handleBillingAddressChange} />
+                                            <input type="text" name="city" placeholder="Stad *" value={billingAddress.city} onChange={handleBillingAddressChange} />
+                                            <input type="text" name="postcode" placeholder="Postcode *" value={billingAddress.postcode} onChange={handleBillingAddressChange} />
+                                            <input type="text" name="country" placeholder="Land *" value={billingAddress.country} onChange={handleBillingAddressChange} />
+                                            <button className='checkout-btn' onClick={handleSaveBillingAddress}>
+                                                Adres opslaan
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
                                 <div className='cart-total'>
                                     <h1>Totaalprijs</h1>
                                     <h3>Totaal: ${getTotalPrice().toFixed(2)}</h3>
