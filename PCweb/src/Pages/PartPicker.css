@@ -1,219 +1,271 @@
-.partpicker-container {
-    width: min(1200px, 92vw);
-    margin: 40px auto;
-    padding: 0 0 40px;
+/* ─── Page wrapper ─────────────────────────────────────────── */
+.pp-page {
+    max-width: min(1400px, 92vw);
+    margin: 0 auto;
+    padding: 32px 0 60px;
 }
 
-.partpicker-container h1 {
-    font-size: 28px;
-    font-weight: 700;
-    margin-bottom: 24px;
-    color: #222;
+/* ─── Page title ───────────────────────────────────────────── */
+.pp-title {
+    font-size: clamp(1.6rem, 2.4vw, 2.2rem);
+    font-weight: 800;
+    color: #1a1a2e;
+    margin: 0 0 24px;
 }
 
-/* Compatibility banner */
-.compatibility-banner {
-    border-radius: 10px;
+/* ─── Compatibility banner ─────────────────────────────────── */
+.pp-compat {
+    border-radius: 12px;
     padding: 16px 20px;
     margin-bottom: 24px;
     border: 2px solid;
+    transition: background 0.3s, border-color 0.3s;
 }
 
-.compatibility-banner.ok {
-    background-color: #d4edda;
+.pp-compat.ok {
+    background: linear-gradient(135deg, #f0fff4 0%, #e6ffed 100%);
     border-color: #28a745;
 }
 
-.compatibility-banner.warn {
-    background-color: #fff8e1;
-    border-color: #ffc107;
+.pp-compat.warn {
+    background: linear-gradient(135deg, #fffbf0 0%, #fff8e1 100%);
+    border-color: #f0ad00;
 }
 
-.compatibility-banner h2 {
-    font-size: 17px;
-    font-weight: 600;
-    margin: 0 0 10px;
+.pp-compat-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin: 0 0 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
-.compatibility-banner.ok h2 {
-    color: #155724;
-}
+.pp-compat.ok .pp-compat-title { color: #155724; }
+.pp-compat.warn .pp-compat-title { color: #7a5000; }
 
-.compatibility-banner.warn h2 {
-    color: #856404;
-}
-
-.compat-checking {
-    font-size: 14px;
-    color: #007bff;
+.pp-compat-checking {
+    font-size: 13px;
+    color: #2563eb;
     margin: 8px 0 0;
 }
 
-.compat-warning-card {
-    background-color: #fff;
-    border: 1px solid #ffc107;
+.pp-warn-card {
+    background: #fff;
+    border: 1px solid #f0ad00;
     border-radius: 8px;
     padding: 12px 16px;
-    margin-bottom: 10px;
+    margin-top: 12px;
 }
 
-.compat-warning-card h3 {
-    font-size: 15px;
-    color: #856404;
-    margin: 0 0 8px;
-}
-
-.compat-warning-card ul {
-    margin: 0;
-    padding-left: 20px;
-    color: #6b5200;
+.pp-warn-card h3 {
     font-size: 14px;
+    font-weight: 700;
+    color: #7a5000;
+    margin: 0 0 6px;
 }
 
-/* Parts table */
-.partpicker-table-wrapper {
-    overflow-x: auto;
-    border-radius: 10px;
-    border: 1px solid #ddd;
+.pp-warn-card ul {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 13px;
+    color: #6b5200;
+    line-height: 1.6;
+}
+
+/* ─── Table card ───────────────────────────────────────────── */
+.pp-table-card {
+    border-radius: 14px;
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
     background: #fff;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    box-shadow: 0 4px 20px rgba(37, 99, 235, 0.07);
 }
 
-.partpicker-table {
+.pp-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 15px;
+    font-size: 14.5px;
 }
 
-.partpicker-table thead {
-    background-color: #f5f5f5;
-    border-bottom: 2px solid #ddd;
+/* Header row */
+.pp-table thead {
+    background: linear-gradient(90deg, #6c38d5 0%, #2563eb 100%);
 }
 
-.partpicker-table th {
-    text-align: left;
-    padding: 14px 18px;
+.pp-table thead th {
+    color: #fff;
     font-weight: 600;
-    color: #444;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 14px 20px;
+    text-align: left;
     white-space: nowrap;
 }
 
-.partpicker-table td {
-    padding: 14px 18px;
-    color: #333;
-    border-bottom: 1px solid #f0f0f0;
-    vertical-align: middle;
+/* Body rows */
+.pp-table tbody tr {
+    border-bottom: 1px solid #f0f4f8;
+    transition: background 0.15s;
 }
 
-.partpicker-table tbody tr:last-child td {
+.pp-table tbody tr:last-child {
     border-bottom: none;
 }
 
-.partpicker-table tbody tr:hover {
-    background-color: #fafafa;
+.pp-table tbody tr:hover {
+    background: #f8faff;
 }
 
-.component-label {
-    font-weight: 600;
-    color: #222;
+.pp-table td {
+    padding: 15px 20px;
+    vertical-align: middle;
+    color: #2d2d2d;
+}
+
+/* Component name column */
+.pp-col-component {
+    font-weight: 700;
+    color: #1a1a2e;
     white-space: nowrap;
+    width: 140px;
 }
 
-.part-name {
-    color: #333;
+/* Selection name */
+.pp-col-selection {
+    color: #374151;
+    max-width: 320px;
 }
 
-.part-empty {
-    color: #aaa;
+.pp-no-selection {
+    color: #aab0bb;
     font-style: italic;
 }
 
-.part-price {
-    font-weight: 600;
-    color: #222;
+/* Price column */
+.pp-col-price {
+    font-weight: 700;
+    color: #1b9750;
+    font-size: 15px;
     white-space: nowrap;
 }
 
-.stock-badge {
+.pp-col-price.empty {
+    color: #aab0bb;
+    font-weight: 400;
+    font-style: italic;
+}
+
+/* Stock badge */
+.pp-badge {
     display: inline-block;
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 500;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 12.5px;
+    font-weight: 600;
     white-space: nowrap;
 }
 
-.stock-badge.in-stock {
-    background-color: #d4edda;
-    color: #155724;
+.pp-badge.in-stock {
+    background: #d1fae5;
+    color: #065f46;
 }
 
-.stock-badge.out-of-stock {
-    background-color: #f8d7da;
-    color: #721c24;
+.pp-badge.out-stock {
+    background: #fee2e2;
+    color: #991b1b;
 }
 
-.action-cell {
+/* Action cell */
+.pp-actions {
     display: flex;
     gap: 8px;
     align-items: center;
-}
-
-.btn-choose {
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
     white-space: nowrap;
 }
 
-.btn-choose:hover {
-    background-color: #43a047;
+.pp-btn-choose {
+    padding: 8px 18px;
+    border-radius: 8px;
+    border: none;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    background: linear-gradient(135deg, #00a3e2 0%, #2563eb 100%);
+    color: #fff;
 }
 
-.btn-remove {
-    background-color: #ff4d4d;
-    color: white;
-    border: none;
+.pp-btn-choose:hover {
+    background: linear-gradient(135deg, #0093cc 0%, #1d4ed8 100%);
+    transform: translateY(-1px);
+}
+
+.pp-btn-choose:active {
+    transform: translateY(0);
+}
+
+.pp-btn-remove {
     padding: 8px 14px;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 500;
+    border-radius: 8px;
+    border: 1px solid #fca5a5;
+    font-size: 13.5px;
+    font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.2s ease;
-    white-space: nowrap;
+    transition: background 0.2s, border-color 0.2s, transform 0.1s;
+    background: #fff;
+    color: #dc2626;
 }
 
-.btn-remove:hover {
-    background-color: #e03c3c;
+.pp-btn-remove:hover {
+    background: #dc2626;
+    color: #fff;
+    border-color: #dc2626;
+    transform: translateY(-1px);
 }
 
-/* Total price bar */
-.partpicker-total {
+/* ─── Total bar ────────────────────────────────────────────── */
+.pp-total-bar {
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    gap: 12px;
-    margin-top: 20px;
-    padding: 16px 20px;
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    gap: 16px;
+    margin-top: 16px;
+    padding: 18px 24px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #f0f9ff 0%, #eff6ff 100%);
+    border: 1px solid #bfdbfe;
+    box-shadow: 0 2px 10px rgba(37, 99, 235, 0.07);
 }
 
-.partpicker-total span {
-    font-size: 16px;
-    color: #555;
+.pp-total-label {
+    font-size: 15px;
+    font-weight: 600;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
 }
 
-.partpicker-total strong {
-    font-size: 22px;
-    font-weight: 700;
-    color: #222;
+.pp-total-price {
+    font-size: 26px;
+    font-weight: 800;
+    color: #1b9750;
+    letter-spacing: -0.02em;
+}
+
+/* ─── Responsive ───────────────────────────────────────────── */
+@media (max-width: 768px) {
+    .pp-table thead th:nth-child(4) ,
+    .pp-table td:nth-child(4) {
+        display: none;
+    }
+
+    .pp-table td {
+        padding: 12px 14px;
+    }
+
+    .pp-total-bar {
+        justify-content: space-between;
+    }
 }

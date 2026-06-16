@@ -234,15 +234,17 @@ export default function PartPicker() {
     return (
         <div>
             <Header />
-            <div className="partpicker-container">
-                <h1>Choose Your Parts</h1>
+            <div className="pp-page">
+                <h1 className="pp-title">Build Your PC</h1>
 
-                <div className={`compatibility-banner ${compatibilityWarnings.length === 0 ? 'ok' : 'warn'}`}>
-                    <h2>
-                        {compatibilityWarnings.length === 0 ? '✓ No compatibility issues' : `⚠ ${compatibilityWarnings.length} compatibility warning${compatibilityWarnings.length !== 1 ? 's' : ''}`}
-                    </h2>
+                <div className={`pp-compat ${compatibilityWarnings.length === 0 ? 'ok' : 'warn'}`}>
+                    <p className="pp-compat-title">
+                        {compatibilityWarnings.length === 0
+                            ? '✓ No compatibility issues'
+                            : `⚠ ${compatibilityWarnings.length} compatibility warning${compatibilityWarnings.length !== 1 ? 's' : ''}`}
+                    </p>
                     {compatibilityWarnings.map((warning, index) => (
-                        <div key={index} className="compat-warning-card">
+                        <div key={index} className="pp-warn-card">
                             <h3>{warning.component1} ↔ {warning.component2}</h3>
                             <ul>
                                 {warning.warnings.map((msg, i) => (
@@ -252,12 +254,12 @@ export default function PartPicker() {
                         </div>
                     ))}
                     {isCheckingCompatibility && (
-                        <p className="compat-checking">Checking compatibility...</p>
+                        <p className="pp-compat-checking">Checking compatibility…</p>
                     )}
                 </div>
 
-                <div className="partpicker-table-wrapper">
-                    <table className="partpicker-table">
+                <div className="pp-table-card">
+                    <table className="pp-table">
                         <thead>
                             <tr>
                                 <th>Component</th>
@@ -272,27 +274,29 @@ export default function PartPicker() {
                                 const selected = selectedParts[component.name];
                                 return (
                                     <tr key={component.name}>
-                                        <td className="component-label">{component.name}</td>
-                                        <td className={selected ? 'part-name' : 'part-empty'}>
-                                            {selected ? selected.name : 'No part selected'}
+                                        <td className="pp-col-component">{component.name}</td>
+                                        <td className="pp-col-selection">
+                                            {selected
+                                                ? selected.name
+                                                : <span className="pp-no-selection">No part selected</span>}
                                         </td>
-                                        <td className="part-price">
+                                        <td className={`pp-col-price${selected ? '' : ' empty'}`}>
                                             {selected ? `$${selected.price.toFixed(2)}` : '—'}
                                         </td>
                                         <td>
                                             {selected ? (
-                                                <span className={`stock-badge ${selected.stock > 0 ? 'in-stock' : 'out-of-stock'}`}>
+                                                <span className={`pp-badge ${selected.stock > 0 ? 'in-stock' : 'out-stock'}`}>
                                                     {selected.stock > 0 ? 'In Stock' : 'Out of Stock'}
                                                 </span>
                                             ) : '—'}
                                         </td>
                                         <td>
-                                            <div className="action-cell">
-                                                <button className="btn-choose" onClick={() => handleChoose(component.categoryId, component.name)}>
+                                            <div className="pp-actions">
+                                                <button className="pp-btn-choose" onClick={() => handleChoose(component.categoryId, component.name)}>
                                                     {selected ? 'Change' : 'Choose'}
                                                 </button>
                                                 {selected && (
-                                                    <button className="btn-remove" onClick={() => handleRemove(component.name)}>
+                                                    <button className="pp-btn-remove" onClick={() => handleRemove(component.name)}>
                                                         Remove
                                                     </button>
                                                 )}
@@ -305,9 +309,9 @@ export default function PartPicker() {
                     </table>
                 </div>
 
-                <div className="partpicker-total">
-                    <span>Estimated Total</span>
-                    <strong>${totalPrice}</strong>
+                <div className="pp-total-bar">
+                    <span className="pp-total-label">Estimated Total</span>
+                    <span className="pp-total-price">${totalPrice}</span>
                 </div>
             </div>
             <Footer />
