@@ -43,7 +43,9 @@ export default function Header() {
                     <Link className='cart-link' to="/cart">
                         <img className='cart-icon' src={cartIcon} alt="Cart" />
                     </Link>
-                    <Link className='account-link' to="/account">Account</Link>
+                    {isLoggedIn ? (
+                        <Link className='account-link' to="/account">Account</Link>
+                    ) : null}
                 </div>
             </div>
         </header>
