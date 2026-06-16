@@ -1,0 +1,219 @@
+.partpicker-container {
+    width: min(1200px, 92vw);
+    margin: 40px auto;
+    padding: 0 0 40px;
+}
+
+.partpicker-container h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 24px;
+    color: #222;
+}
+
+/* Compatibility banner */
+.compatibility-banner {
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    border: 2px solid;
+}
+
+.compatibility-banner.ok {
+    background-color: #d4edda;
+    border-color: #28a745;
+}
+
+.compatibility-banner.warn {
+    background-color: #fff8e1;
+    border-color: #ffc107;
+}
+
+.compatibility-banner h2 {
+    font-size: 17px;
+    font-weight: 600;
+    margin: 0 0 10px;
+}
+
+.compatibility-banner.ok h2 {
+    color: #155724;
+}
+
+.compatibility-banner.warn h2 {
+    color: #856404;
+}
+
+.compat-checking {
+    font-size: 14px;
+    color: #007bff;
+    margin: 8px 0 0;
+}
+
+.compat-warning-card {
+    background-color: #fff;
+    border: 1px solid #ffc107;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 10px;
+}
+
+.compat-warning-card h3 {
+    font-size: 15px;
+    color: #856404;
+    margin: 0 0 8px;
+}
+
+.compat-warning-card ul {
+    margin: 0;
+    padding-left: 20px;
+    color: #6b5200;
+    font-size: 14px;
+}
+
+/* Parts table */
+.partpicker-table-wrapper {
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.partpicker-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+}
+
+.partpicker-table thead {
+    background-color: #f5f5f5;
+    border-bottom: 2px solid #ddd;
+}
+
+.partpicker-table th {
+    text-align: left;
+    padding: 14px 18px;
+    font-weight: 600;
+    color: #444;
+    white-space: nowrap;
+}
+
+.partpicker-table td {
+    padding: 14px 18px;
+    color: #333;
+    border-bottom: 1px solid #f0f0f0;
+    vertical-align: middle;
+}
+
+.partpicker-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.partpicker-table tbody tr:hover {
+    background-color: #fafafa;
+}
+
+.component-label {
+    font-weight: 600;
+    color: #222;
+    white-space: nowrap;
+}
+
+.part-name {
+    color: #333;
+}
+
+.part-empty {
+    color: #aaa;
+    font-style: italic;
+}
+
+.part-price {
+    font-weight: 600;
+    color: #222;
+    white-space: nowrap;
+}
+
+.stock-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.stock-badge.in-stock {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.stock-badge.out-of-stock {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.action-cell {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.btn-choose {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    white-space: nowrap;
+}
+
+.btn-choose:hover {
+    background-color: #43a047;
+}
+
+.btn-remove {
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    white-space: nowrap;
+}
+
+.btn-remove:hover {
+    background-color: #e03c3c;
+}
+
+/* Total price bar */
+.partpicker-total {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+    margin-top: 20px;
+    padding: 16px 20px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.partpicker-total span {
+    font-size: 16px;
+    color: #555;
+}
+
+.partpicker-total strong {
+    font-size: 22px;
+    font-weight: 700;
+    color: #222;
+}
