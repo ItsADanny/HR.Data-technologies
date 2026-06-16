@@ -67,10 +67,10 @@ public class Order : iData
 
         Console.WriteLine(sql);
 
-        using var conn = new MySqlConnection(DBHandler.DBConfig_MySQL.GetConnectionSTR());
-        conn.Open();
-        using var cmd = new MySqlCommand(sql, conn);
-        cmd.ExecuteNonQuery();
+        // using var conn = new MySqlConnection(DBHandler.DBConfig_MySQL.GetConnectionSTR());
+        // conn.Open();
+        // using var cmd = new MySqlCommand(sql, conn);
+        // cmd.ExecuteNonQuery();
 
         return sql;
     }
@@ -85,13 +85,57 @@ public class Order : iData
         }
         sql += $@"END WHERE ID IN ({string.Join(", ", productIds)})";
 
+        // sql +=  $@" IF(SELECT * FROM Products WHERE Stock < 0 AND ID IN ({string.Join(", ", productIds)})) THEN  ROLLBACK; PRINT('Error: Not enough stock for one or more products'); ELSE  COMMIT; END IF;";
+
         Console.WriteLine(sql);
 
-        using var conn = new MySqlConnection(DBHandler.DBConfig_MySQL.GetConnectionSTR());
-        conn.Open();
-        using var cmd = new MySqlCommand(sql, conn);
-        cmd.ExecuteNonQuery();
+        var checkSql = $@"SELECT ProductID, Stock FROM Products WHERE Stock < 0 AND ProductID IN ({string.Join(", ", productIds)})";
+
+        // using var conn = new MySqlConnection(DBHandler.DBConfig_MySQL.GetConnectionSTR());
+        // conn.Open();
+        // using var cmd = new MySqlCommand(sql, conn);
+        // cmd.ExecuteNonQuery();
 
         return sql;
+    }
+
+    public string OrderTransactionSQL(string orderLineSql, string productStockSql, string checkSql)
+    {
+        using var conn = new MySqlConnection(DBHandler.DBConfig_MySQL.GetConnectionSTR());
+        conn.Open();
+        using var transaction = conn.BeginTransaction();
+
+        try 
+        {
+            using (var cmd = new MySqlCommand(orderLineSql, conn, transaction))
+            {
+                cmd.ExecuteNonQuery();
+            }
+            
+            using (var cmd = new MySqlCommand(productStockSql, conn, transaction))
+            {
+                cmd.ExecuteNonQuery();
+            }
+            using (var cmd = new MySqlCommand(checkSql, conn, transaction))
+            {
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.HasRows)
+                    {
+                        transaction.Rollback();
+                        throw new Exception("Insufficient stock: operation would result in negative inventory");
+                    }
+                }
+            }
+            transaction.Commit();
+            Console.WriteLine("Order lines inserted and stock updated successfully");
+            return "Success";
+        }
+        catch (Exception e)
+        {
+        transaction.Rollback();
+        Console.WriteLine("Transaction rolled back: " + e.Message);
+        throw;
+        }
     }
 }

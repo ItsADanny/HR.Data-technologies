@@ -32,7 +32,6 @@ namespace PCWeb_Backend.Controller
                 if (result == null)
                     return StatusCode(500, new { message = "Error creating order in database" });
 
-                // Convert CartItemDTO to CartItems
                 var cartItems = dto.cartItems.Select(item => new CartItems(
                     0,
                     item.id,
@@ -44,6 +43,11 @@ namespace PCWeb_Backend.Controller
 
                 string orderLineSQL = order.InsertOrderLineSQL(cartItems);
                 string productStockSQL = order.UpdateProductStockSQL(cartItems);
+
+                var productIds = cartItems.Select(item => item.ProductID);
+                var checkSql = $@"SELECT ID, Stock FROM Products WHERE Stock < 0 AND ID IN ({string.Join(", ", productIds)})";
+
+                string orderTransactionSQL = order.OrderTransactionSQL(orderLineSQL, productStockSQL, checkSql );
 
                 return Ok(new { message = "Order created successfully", address = result });
             }
