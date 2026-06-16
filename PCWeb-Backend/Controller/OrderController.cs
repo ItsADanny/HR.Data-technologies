@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using PCWeb_Backend.DTO;
 
 namespace PCWeb_Backend.Controller
 {
@@ -7,30 +8,50 @@ namespace PCWeb_Backend.Controller
     [ApiController]
     public class OrderController : ControllerBase
     {
-        //[HttpPost("create")]
-        //public IActionResult CreateOrder([FromBody] Order order)
-        //{
-        //    try
-        //    {
-        //        if (order == null)
-        //            return BadRequest(new { message = "Order data is required" });
+        [HttpPost("create")]
+        public IActionResult CreateOrder([FromBody] CreateOrderDTO dto)
+        {
+            try
+            {
+                var order = new Order
+                {
+                    UserID = dto.userId,
+                    ShippingAddressID = dto.shippingAddressId,
+                    BillingAddressID = dto.billingAddressId,
+                    OrderStatus = "Pending"
+                };
+                if (order == null)
+                    return BadRequest(new { message = "Order data is required" });
 
-        //        string? validationError = ValidateOrder(order);
-        //        if (validationError != null)
-        //            return BadRequest(new { message = validationError });
+                string? validationError = ValidateOrder(order);
+                if (validationError != null)
+                    return BadRequest(new { message = validationError });
 
-        //        var result = DBHandler.Create(order);
+                var result = DBHandler.Create(order);
 
-        //        if (result == null)
-        //            return StatusCode(500, new { message = "Error creating order in database" });
+                if (result == null)
+                    return StatusCode(500, new { message = "Error creating order in database" });
 
-        //        return Ok(new { message = "Order created successfully", address = result });
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        return StatusCode(500, new { message = "Internal server error", error = e.Message });
-        //    }
-        //}
+                // Convert CartItemDTO to CartItems
+                var cartItems = dto.cartItems.Select(item => new CartItems(
+                    0,
+                    item.id,
+                    item.name,
+                    0,
+                    item.price,
+                    item.quantity
+                )).ToList();
+
+                string orderLineSQL = order.InsertOrderLineSQL(cartItems);
+                string productStockSQL = order.UpdateProductStockSQL(cartItems);
+
+                return Ok(new { message = "Order created successfully", address = result });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = e.Message });
+            }
+        }
 
         private static string? ValidateOrder(Order order)
         {
@@ -50,3 +71,4 @@ namespace PCWeb_Backend.Controller
         }
     }
 }
+

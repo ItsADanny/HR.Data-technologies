@@ -1,6 +1,7 @@
 const API_BASE_URL = '/api/address';
 
 export interface Address {
+    addressId: number;
     street: string;
     houseNumber: number;        // int in DB
     houseNumberAddition: string;
