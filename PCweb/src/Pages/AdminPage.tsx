@@ -64,9 +64,23 @@ export default function AdminPage() {
         fetchUsers();
     }, []);
 
-    const handleResetPassword = async (userId: number) => {
-        const newPassword = window.prompt("Voer een nieuw wachtwoord in voor deze gebruiker:");
-        if (!newPassword) return;
+    const [resetPasswordTarget, setResetPasswordTarget] = useState<number | null>(null);
+    const [resetPasswordValue, setResetPasswordValue] = useState("");
+    const [resetPasswordMessage, setResetPasswordMessage] = useState("");
+
+    const startResetPassword = (userId: number) => {
+        setResetPasswordTarget(userId);
+        setResetPasswordValue("");
+        setResetPasswordMessage("");
+    };
+
+    const cancelResetPassword = () => {
+        setResetPasswordTarget(null);
+        setResetPasswordValue("");
+    };
+
+    const confirmResetPassword = async (userId: number) => {
+        if (!resetPasswordValue) return;
 
         try {
             const response = await fetch(`http://localhost:5221/api/User/userid/${userId}/password`, {
@@ -74,7 +88,7 @@ export default function AdminPage() {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ newPassword }),
+                body: JSON.stringify({ newPassword: resetPasswordValue }),
             });
 
             const data = await response.json();
@@ -82,10 +96,12 @@ export default function AdminPage() {
                 throw new Error(data.message || "Password reset failed");
             }
 
-            alert("Wachtwoord is gereset.");
+            setResetPasswordMessage("Wachtwoord is gereset.");
+            setResetPasswordTarget(null);
+            setResetPasswordValue("");
         } catch (err) {
             console.error("Error resetting password:", err);
-            alert("Wachtwoord resetten is mislukt.");
+            setResetPasswordMessage("Wachtwoord resetten is mislukt.");
         }
     };
 
@@ -119,6 +135,7 @@ export default function AdminPage() {
 
             <section className="admin-section">
                 <h2>User Management</h2>
+                {resetPasswordMessage && <p>{resetPasswordMessage}</p>}
                 <table className="admin-table">
                     <thead>
                         <tr>
@@ -141,7 +158,20 @@ export default function AdminPage() {
                                 <td>{user.phone}</td>
                                 <td>{user.country}</td>
                                 <td>
-                                    <button className="admin-btn" onClick={() => handleResetPassword(user.id)}>Reset password</button>
+                                    {resetPasswordTarget === user.id ? (
+                                        <div className="admin-inline-form">
+                                            <input
+                                                type="password"
+                                                placeholder="New password"
+                                                value={resetPasswordValue}
+                                                onChange={(e) => setResetPasswordValue(e.target.value)}
+                                            />
+                                            <button className="admin-btn admin-btn-primary" onClick={() => confirmResetPassword(user.id)}>Confirm</button>
+                                            <button className="admin-btn" onClick={cancelResetPassword}>Cancel</button>
+                                        </div>
+                                    ) : (
+                                        <button className="admin-btn" onClick={() => startResetPassword(user.id)}>Reset password</button>
+                                    )}
                                 </td>
                             </tr>
                         ))}

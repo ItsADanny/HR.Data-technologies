@@ -72,6 +72,8 @@ export default function Cart() {
     };
 
     const handleSaveAddress = async () => {
+        if (!userID) return;
+
         const { street, city, country, postcode, houseNumber, houseNumberAddition } = newAddress;
         if (!street || !city || !country || !postcode) {
             alert('Vul alle verplichte velden in (straat, stad, postcode, land)');

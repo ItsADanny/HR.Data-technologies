@@ -1,7 +1,8 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import Header from '../Components/Header-Component/Header';
 import Footer from '../Components/Footer-Component/Footer';
+import './PartPicker.css';
 
 interface SelectedPart {
     id: number;
@@ -226,89 +227,93 @@ export default function PartPicker() {
         localStorage.setItem('selectedParts', JSON.stringify(updated));
     };
 
+    const totalPrice = Object.values(selectedParts)
+        .reduce((sum, part) => sum + (part ? part.price : 0), 0)
+        .toFixed(2);
+
     return (
         <div>
             <Header />
-            <h1>Choose your parts!</h1>
+            <div className="pp-page">
+                <h1 className="pp-title">Build Your PC</h1>
 
-            {/* Compatibility Status Section - quick claude front check */}
-            <div style={{
-                backgroundColor: compatibilityWarnings.length === 0 ? '#d4edda' : '#fff3cd',
-                border: `2px solid ${compatibilityWarnings.length === 0 ? '#28a745' : '#ffc107'}`,
-                borderRadius: '8px',
-                padding: '16px',
-                marginBottom: '20px'
-            }}>
-                <h2 style={{ color: compatibilityWarnings.length === 0 ? '#155724' : '#856404', marginTop: 0 }}>
-                {compatibilityWarnings.length === 0 ? '✓ ' : '⚠️ '}
-                {compatibilityWarnings.length} warning{compatibilityWarnings.length !== 1 ? 's' : ''}
-                </h2>
-                
-                {compatibilityWarnings.length > 0 && (
-                <>
+                <div className={`pp-compat ${compatibilityWarnings.length === 0 ? 'ok' : 'warn'}`}>
+                    <p className="pp-compat-title">
+                        {compatibilityWarnings.length === 0
+                            ? '✓ No compatibility issues'
+                            : `⚠ ${compatibilityWarnings.length} compatibility warning${compatibilityWarnings.length !== 1 ? 's' : ''}`}
+                    </p>
                     {compatibilityWarnings.map((warning, index) => (
-                    <div key={index} style={{
-                        backgroundColor: '#fff8e1',
-                        border: '1px solid #ffc107',
-                        borderRadius: '6px',
-                        padding: '12px',
-                        marginBottom: '10px'
-                    }}>
-                        <h3 style={{ color: '#856404', marginTop: 0 }}>
-                        {warning.component1} ↔ {warning.component2}
-                        </h3>
-                        <ul style={{ color: '#856404', marginBottom: '8px' }}>
-                        {warning.warnings.map((msg, i) => (
-                            <li key={i}>{msg}</li>
-                        ))}
-                        </ul>
-                    </div>
+                        <div key={index} className="pp-warn-card">
+                            <h3>{warning.component1} ↔ {warning.component2}</h3>
+                            <ul>
+                                {warning.warnings.map((msg, i) => (
+                                    <li key={i}>{msg}</li>
+                                ))}
+                            </ul>
+                        </div>
                     ))}
-                </>
-                )}
-                
-                {isCheckingCompatibility && (
-                <p style={{ color: '#007bff', marginBottom: 0 }}>Checking compatibility...</p>
-                )}
-            </div>
+                    {isCheckingCompatibility && (
+                        <p className="pp-compat-checking">Checking compatibility…</p>
+                    )}
+                </div>
 
-            <table border={1}>
-                <thead>
-                    <tr>
-                        <th>Component</th>
-                        <th>Selection</th>
-                        <th>Price</th>
-                        <th>Availability</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {components.map((component) => {
-                        const selected = selectedParts[component.name];
-                        return (
-                            <tr key={component.name}>
-                                <td>{component.name}</td>
-                                <td>{selected ? selected.name : '-'}</td>
-                                <td>{selected ? `$${selected.price.toFixed(2)}` : '-'}</td>
-                                <td>{selected ? (selected.stock > 0 ? 'In Stock' : 'Out of Stock') : '-'}</td>
-                                <td>
-                                    <button onClick={() => handleChoose(component.categoryId, component.name)}>
-                                        Choose
-                                    </button>
-                                    {selected && (
-                                        <button onClick={() => handleRemove(component.name)} style={{ marginLeft: '5px' }}>
-                                            Remove
-                                        </button>
-                                    )}
-                                </td>
+                <div className="pp-table-card">
+                    <table className="pp-table">
+                        <thead>
+                            <tr>
+                                <th>Component</th>
+                                <th>Selection</th>
+                                <th>Price</th>
+                                <th>Availability</th>
+                                <th>Action</th>
                             </tr>
-                        );
-                    })}
-                </tbody>
-            </table>
+                        </thead>
+                        <tbody>
+                            {components.map((component) => {
+                                const selected = selectedParts[component.name];
+                                return (
+                                    <tr key={component.name}>
+                                        <td className="pp-col-component">{component.name}</td>
+                                        <td className="pp-col-selection">
+                                            {selected
+                                                ? selected.name
+                                                : <span className="pp-no-selection">No part selected</span>}
+                                        </td>
+                                        <td className={`pp-col-price${selected ? '' : ' empty'}`}>
+                                            {selected ? `$${selected.price.toFixed(2)}` : '—'}
+                                        </td>
+                                        <td>
+                                            {selected ? (
+                                                <span className={`pp-badge ${selected.stock > 0 ? 'in-stock' : 'out-stock'}`}>
+                                                    {selected.stock > 0 ? 'In Stock' : 'Out of Stock'}
+                                                </span>
+                                            ) : '—'}
+                                        </td>
+                                        <td>
+                                            <div className="pp-actions">
+                                                <button className="pp-btn-choose" onClick={() => handleChoose(component.categoryId, component.name)}>
+                                                    {selected ? 'Change' : 'Choose'}
+                                                </button>
+                                                {selected && (
+                                                    <button className="pp-btn-remove" onClick={() => handleRemove(component.name)}>
+                                                        Remove
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                </div>
 
-            total price: ${Object.values(selectedParts).reduce((sum, part) => sum + (part ? part.price : 0), 0).toFixed(2)}
-
+                <div className="pp-total-bar">
+                    <span className="pp-total-label">Estimated Total</span>
+                    <span className="pp-total-price">${totalPrice}</span>
+                </div>
+            </div>
             <Footer />
         </div>
     );
