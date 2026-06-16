@@ -129,12 +129,7 @@ export default function Cart() {
 
     const handleCheckout = async () => {
 
-        console.log("Getting cart details for checkout...");
-        const cartItems = JSON.parse(localStorage.getItem('pcweb_cart') || '[]');
-        console.log(cartItems);
-        console.log("User ID:", userID);
-        console.log("Selected Address ID:", selectedAddressId);
-        console.log("Selected Billing Address ID:", selectedBillingAddressId);
+        const cartItems = JSON.parse(localStorage.getItem('pcweb_cart') || '[]');;
 
         if (showCreateNew || savedAddresses.length === 0) {
             alert('Sla eerst een adres op voor je afrekent.');
@@ -153,7 +148,6 @@ export default function Cart() {
             return;
         }
         try {
-            console.log("Attempting to create order...");
             const response = await fetch("http://localhost:5221/api/order/create", {
                 method: "POST",
                 headers: {
@@ -167,7 +161,6 @@ export default function Cart() {
                 }),
             });
 
-            console.log("Response received:", response);
             let data;
             try {
                 data = await response.json();
@@ -176,7 +169,6 @@ export default function Cart() {
                 throw new Error(text || "Invalid server response");
             }
 
-            console.log("Response data:", data);
             if (!response.ok) {
                 throw new Error(data.message || "Order failed");
             }

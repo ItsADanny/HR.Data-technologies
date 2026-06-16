@@ -65,13 +65,6 @@ public class Order : iData
         var values = cartItems.Select(item => $@"({ID}, {item.ProductID}, {item.Quantity}, {item.Price}, NOW())");
         sql += string.Join(", ", values);
 
-        Console.WriteLine(sql);
-
-        // using var conn = new MySqlConnection(DBHandler.DBConfig_MySQL.GetConnectionSTR());
-        // conn.Open();
-        // using var cmd = new MySqlCommand(sql, conn);
-        // cmd.ExecuteNonQuery();
-
         return sql;
     }
 
@@ -85,16 +78,7 @@ public class Order : iData
         }
         sql += $@"END WHERE ID IN ({string.Join(", ", productIds)})";
 
-        // sql +=  $@" IF(SELECT * FROM Products WHERE Stock < 0 AND ID IN ({string.Join(", ", productIds)})) THEN  ROLLBACK; PRINT('Error: Not enough stock for one or more products'); ELSE  COMMIT; END IF;";
-
-        Console.WriteLine(sql);
-
         var checkSql = $@"SELECT ProductID, Stock FROM Products WHERE Stock < 0 AND ProductID IN ({string.Join(", ", productIds)})";
-
-        // using var conn = new MySqlConnection(DBHandler.DBConfig_MySQL.GetConnectionSTR());
-        // conn.Open();
-        // using var cmd = new MySqlCommand(sql, conn);
-        // cmd.ExecuteNonQuery();
 
         return sql;
     }
