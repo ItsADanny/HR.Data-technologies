@@ -1,5 +1,6 @@
 import { ChangeEvent, useEffect, useState } from "react";
 import { useAuthContext } from "../context/AuthContext";
+import { Link } from "react-router-dom";
 
 type Address = {
     addressId: number;
@@ -154,6 +155,7 @@ export default function UserAccountInfo() {
 
     return (
         <div>
+            <Link to="/">Back to Home</Link>
             <h1>User Account Info</h1>
 
             {message && <p><b>{message}</b></p>}
