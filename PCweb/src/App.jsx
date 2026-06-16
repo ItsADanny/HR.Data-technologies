@@ -12,6 +12,7 @@ import ViewProducts from './Pages/ViewProducts';
 import PartPicker from './Pages/PartPicker';
 import AdminPage from './Pages/AdminPage';
 import UserAccountInfo from './Pages/UserAccountInfo';
+import Orders from './Pages/Orders';
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
             <Route path="/partpicker" element={<PartPicker />} />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/account" element={<UserAccountInfo />} />
+            <Route path="/orders" element={<Orders />} />
           </Routes>
         </BrowserRouter>
       </CartProvider>

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using MySql.Data.MySqlClient;
 using PCWeb_Backend.DTO;
 
 namespace PCWeb_Backend.Controller
@@ -73,6 +74,42 @@ namespace PCWeb_Backend.Controller
 
             return null;
         }
+
+        [HttpGet("admin/orders")]
+        public IActionResult GetAllOrders()
+        {
+            try
+            {
+                var orders = new List<AdminOrderDTO>();
+                
+                using var conn = new MySqlConnection(DBHandler.DBConfig_MySQL.GetConnectionSTR());
+                conn.Open();
+
+                string sql = "SELECT * FROM view_AdminOrders ORDER BY CreateDateTime DESC";
+
+                using var cmd = new MySqlCommand(sql, conn);
+                using var reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    orders.Add(new AdminOrderDTO
+                    {
+                        OrderID = reader.GetInt32("OrderID"),
+                        UserID = reader.GetInt32("UserID"),
+                        UserName = reader.GetString("UserName"),
+                        OrderStatus = reader.GetString("OrderStatus"),
+                        CreateDateTime = reader.GetDateTime("CreateDateTime"),
+                        TotalAmount = reader.GetDecimal("TotalAmount"),
+                        ShippingAddress = reader.GetString("ShippingAddress"),
+                        BillingAddress = reader.GetString("BillingAddress")
+                    });
+                }
+                return Ok(orders);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new { message = e.Message });
+            }
+        }
     }
 }
-

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuthContext } from "../context/AuthContext";
 import ProductManagement from "../Components/Admin-Components/ProductManagement";
 import "./AdminPage.css";
@@ -132,7 +132,8 @@ export default function AdminPage() {
         <div className="admin-page">
             <h1>Admin Page</h1>
             <p className="admin-intro">Welcome to the admin page. Here you can manage users, view reports, and configure settings.</p>
-
+            <Link className="admin-link" to="/orders">View Orders</Link> <br />
+            <Link to="/">Back to Home</Link>
             <section className="admin-section">
                 <h2>User Management</h2>
                 {resetPasswordMessage && <p>{resetPasswordMessage}</p>}
