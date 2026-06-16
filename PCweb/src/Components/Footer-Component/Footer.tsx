@@ -11,15 +11,15 @@ function Footer() {
                 <div>
                     <h3 className="footer-heading">Shop</h3>
                     <ul className="footer-links">
-                        <Link to="/partpicker">Part Picker</Link><br />
-                        <Link to="/products">Products</Link><br />
-                        <Link to="/categories">CPU</Link><br />
-                        <Link to="/categories">GPU</Link><br />
-                        <Link to="/categories">RAM</Link><br />
-                        <Link to="/categories">Storage</Link><br />
-                        <Link to="/categories">Motherboard</Link><br />
-                        <Link to="/categories">Power Supply</Link><br />
-                        <Link to="/categories">Cases</Link><br />
+                        <li><Link to="/partpicker">Part Picker</Link></li>
+                        <li><Link to="/products">Products</Link></li>
+                        <li><Link to="/categories">CPU</Link></li>
+                        <li><Link to="/categories">GPU</Link></li>
+                        <li><Link to="/categories">RAM</Link></li>
+                        <li><Link to="/categories">Storage</Link></li>
+                        <li><Link to="/categories">Motherboard</Link></li>
+                        <li><Link to="/categories">Power Supply</Link></li>
+                        <li><Link to="/categories">Cases</Link></li>
                     </ul>
                 </div>
 
@@ -27,13 +27,13 @@ function Footer() {
                 <div>
                     <h3 className="footer-heading">Support</h3>
                     <ul className="footer-links">
-                        <Link to="/contact">Contact Us</Link><br />
-                        <Link to="/about">About Us</Link><br />
-                        <Link to="/faq">FAQ</Link><br />
-                        <Link to="/my-account">My Account</Link><br />
-                        <Link to="/order-history">Order History</Link><br />
-                        <Link to="/terms">Terms of Service</Link><br />
-                        <Link to="/privacy">Privacy Policy</Link><br />
+                        <li><Link to="/contact">Contact Us</Link></li>
+                        <li><Link to="/about">About Us</Link></li>
+                        <li><Link to="/faq">FAQ</Link></li>
+                        <li><Link to="/my-account">My Account</Link></li>
+                        <li><Link to="/order-history">Order History</Link></li>
+                        <li><Link to="/terms">Terms of Service</Link></li>
+                        <li><Link to="/privacy">Privacy Policy</Link></li>
                     </ul>
                 </div>
             </div>
