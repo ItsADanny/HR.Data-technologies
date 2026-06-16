@@ -36,4 +36,23 @@ public static class GeneralTestingMethods
         Random random = new Random();
         return names[random.Next(names.Length)];
     }
-}
+    public static UserRole random_userRole()
+    {
+        Random random = new Random();
+        return new UserRole(
+            null,
+            "Role_" + random_string(6),
+            "Description for " + random_string(8),
+            random.Next(0, 2),    // GlobalReadWriteUser
+            random.Next(0, 2),    // GlobalReadWriteAddress
+            random.Next(0, 2),    // GlobalReadWriteProduct
+            random.Next(0, 2),    // GlobalReadWriteCategory
+            random.Next(0, 2),    // GlobalReadWriteRole
+            random.Next(0, 2),    // ReadWriteUser
+            random.Next(0, 2),    // ReadWriteAddress
+            DateTime.Now,
+            null,
+            1,                    // CreateUserID
+            null                  // UpdateUserID
+        );
+    }}
