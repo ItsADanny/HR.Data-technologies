@@ -2,6 +2,9 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useAuthContext } from '../context/AuthContext';
+import Header from '../Components/Header-Component/Header';
+import Footer from '../Components/Footer-Component/Footer';
+import '../Components/Header-Component/Header.css';
 import "./Login.css";
 
 export default function Login() {
@@ -51,6 +54,8 @@ export default function Login() {
     };
 
     return (
+    <>
+    <Header />
     <div className="form-container">
         <h1>Login Page</h1>
         <p>Please enter your credentials to log in.</p>
@@ -59,24 +64,24 @@ export default function Login() {
         <form onSubmit={handleSubmit}>
             <label> Email </label>
             <br />
-            <input 
+            <input
                 id="email"
-                type="email" 
+                type="email"
                 placeholder="john@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                required 
+                required
             />
             <br />
             <label> Password </label>
             <br />
-            <input 
+            <input
                 id="password"
-                type="password" 
+                type="password"
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                required 
+                required
             />
             <br />
             <button type="submit">Login</button>
@@ -86,5 +91,7 @@ export default function Login() {
         <br />
         <Link to="/register">Don't have an account? Register here</Link>
     </div>
+    <Footer />
+    </>
     );
 }

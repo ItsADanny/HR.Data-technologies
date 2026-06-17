@@ -1,6 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
+import Header from "../Components/Header-Component/Header";
+import Footer from "../Components/Footer-Component/Footer";
+import "../Components/Header-Component/Header.css";
 import "./Register.css";
 
 export default function Register() {
@@ -51,6 +54,8 @@ export default function Register() {
 
     if (success) {
         return (
+            <>
+            <Header />
             <div className="form-container">
                 <div className="register-success">
                     <span className="register-success-icon">✓</span>
@@ -59,10 +64,14 @@ export default function Register() {
                     <Link className="register-success-btn" to="/login">Go to Login</Link>
                 </div>
             </div>
+            <Footer />
+            </>
         );
     }
 
     return (
+    <>
+    <Header />
     <div className="form-container">
         <h1>Register Page</h1>
         <p>Please fill in the form to create an account.</p>
@@ -142,5 +151,7 @@ export default function Register() {
         <br />
         <Link to="/login">Have an account? Login here!</Link>
     </div>
+    <Footer />
+    </>
     );
 }
