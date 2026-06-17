@@ -63,11 +63,7 @@ public class Address : iData
         // tabel heet "Addresses" niet "Address"
         using var conn = new MySqlConnection(DBHandler.DBConfig_MySQL.GetConnectionSTR());
         conn.Open();
-        using var cmd = new MySqlCommand($"" +
-            $"SELECT Addresses.ID, Addresses.Country, Addresses.City, Addresses.Street, Addresses.HouseNumber, Addresses.HouseNumberAdditive, Addresses.PostCode, Addresses.UserID " +
-            $"FROM Users " +
-            $"INNER JOIN Addresses ON Users.PrimaryShippingAddressID = Addresses.ID " +
-            $"WHERE Users.ID = {userId}", conn);
+        using var cmd = new MySqlCommand($"SELECT * FROM Addresses WHERE UserID = {userId}", conn);
         using var reader = cmd.ExecuteReader();
         var list = new List<Address>();
         while (reader.Read())
@@ -81,11 +77,7 @@ public class Address : iData
     {
         using var conn = new MySqlConnection(DBHandler.DBConfig_MySQL.GetConnectionSTR());
         conn.Open();
-        using var cmd = new MySqlCommand($"" +
-            $"SELECT Addresses.ID, Addresses.Country, Addresses.City, Addresses.Street, Addresses.HouseNumber, Addresses.HouseNumberAdditive, Addresses.PostCode, Addresses.UserID " +
-            $"FROM Users " +
-            $"INNER JOIN Addresses ON Users.PrimaryBillingAddressID = Addresses.ID " +
-            $"WHERE Users.ID = {userId}", conn); 
+        using var cmd = new MySqlCommand($"SELECT * FROM Addresses WHERE UserID = {userId}", conn);
         using var reader = cmd.ExecuteReader();
         var list = new List<Address>();
         while (reader.Read())
