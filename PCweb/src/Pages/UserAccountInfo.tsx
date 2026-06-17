@@ -1,6 +1,10 @@
 import { ChangeEvent, useEffect, useState } from "react";
 import { useAuthContext } from "../context/AuthContext";
 import { Link } from "react-router-dom";
+import Header from "../Components/Header-Component/Header";
+import Footer from "../Components/Footer-Component/Footer";
+import "../Components/Header-Component/Header.css";
+import "./UserAccountInfo.css";
 
 type Address = {
     addressId: number;
@@ -153,42 +157,69 @@ export default function UserAccountInfo() {
         setSaving(false);
     }
 
+    const isError = message.toLowerCase().includes("fail");
+
     return (
-        <div>
-            <Link to="/">Back to Home</Link>
-            <h1>User Account Info</h1>
+        <>
+            <Header />
+            <div className="account-page">
+                <Link className="account-back-link" to="/">← Back to Home</Link>
+                <h1>My Account</h1>
 
-            {message && <p><b>{message}</b></p>}
+                {message && (
+                    <p className={`account-message${isError ? " error" : ""}`}>{message}</p>
+                )}
 
-            <h2>Account Details</h2>
-
-            {userFields.map(field => (
-                <div key={field.name}>
-                    <input
-                        name={field.name}
-                        value={user[field.name]}
-                        onChange={handleChange}
-                        placeholder={field.placeholder}
-                    />
-                    <br />
+                <div className="account-section">
+                    <h2>Account Details</h2>
+                    <div className="account-fields">
+                        {userFields.map(field => (
+                            <div
+                                key={field.name}
+                                className={`account-field${field.name === "email" ? " full-width" : ""}`}
+                            >
+                                <label htmlFor={field.name}>{field.placeholder}</label>
+                                <input
+                                    id={field.name}
+                                    name={field.name}
+                                    value={user[field.name]}
+                                    onChange={handleChange}
+                                    placeholder={field.placeholder}
+                                />
+                            </div>
+                        ))}
+                    </div>
+                    <button className="account-save-btn" onClick={handleSave} disabled={saving}>
+                        {saving ? "Saving..." : "Update Profile"}
+                    </button>
                 </div>
-            ))}
 
-            <button onClick={handleSave} disabled={saving}>
-                {saving ? "Saving..." : "Update Profile"}
-            </button>
-
-            <h2>My Addresses</h2>
-            {addresses.length === 0 && <p>No addresses saved.</p>}
-            <ul>
-                {addresses.map(address => (
-                    <li key={address.addressId}>
-                        {address.street} {address.houseNumber}{address.houseNumberAddition}, {address.postCode} {address.city}, {address.country}
-                        {" "}
-                        <button onClick={() => handleDeleteAddress(address.addressId)}>Delete</button>
-                    </li>
-                ))}
-            </ul>
-        </div>
+                <div className="account-section">
+                    <h2>My Addresses</h2>
+                    {addresses.length === 0
+                        ? <p className="account-no-addresses">No addresses saved.</p>
+                        : (
+                            <ul className="account-address-list">
+                                {addresses.map(address => (
+                                    <li key={address.addressId} className="account-address-item">
+                                        <span>
+                                            {address.street} {address.houseNumber}{address.houseNumberAddition},{" "}
+                                            {address.postCode} {address.city}, {address.country}
+                                        </span>
+                                        <button
+                                            className="account-address-delete"
+                                            onClick={() => handleDeleteAddress(address.addressId)}
+                                        >
+                                            Delete
+                                        </button>
+                                    </li>
+                                ))}
+                            </ul>
+                        )
+                    }
+                </div>
+            </div>
+            <Footer />
+        </>
     );
 }
