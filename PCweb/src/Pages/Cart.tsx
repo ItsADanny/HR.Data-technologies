@@ -72,6 +72,7 @@ export default function Cart() {
     };
 
     const handleSaveAddress = async () => {
+        console.log("UserID:", userID);
         if (!userID) return;
 
         const { street, city, country, postcode, houseNumber, houseNumberAddition } = newAddress;
@@ -99,7 +100,8 @@ export default function Cart() {
             alert('Adres opgeslagen!');
             setNewAddress({ street: '', houseNumber: '', houseNumberAddition: '', city: '', postcode: '', country: '' });
             setShowCreateNew(false);
-            await loadUserAddresses(); // refresh lijst
+            await loadUserAddresses();
+            await loadBillingAddresses(); // refresh lijst
         } catch (error) {
             alert('Opslaan mislukt. Probeer opnieuw.');
         }
@@ -131,6 +133,7 @@ export default function Cart() {
             alert('Adres opgeslagen!');
             setBillingAddress({ street: '', houseNumber: '', houseNumberAddition: '', city: '', postcode: '', country: '' });
             setShowCreateNewBilling(false);
+            await loadUserAddresses();
             await loadBillingAddresses(); // refresh lijst
         } catch (error) {
             alert('Opslaan mislukt. Probeer opnieuw.');
