@@ -1,21 +1,23 @@
 .home-hero-section {
     padding: 4rem 2rem;
     text-align: center;
-    background: #f8fafc;
+    background: linear-gradient(135deg, #f0f4ff 0%, #e8f0ff 100%);
     border-radius: 16px;
     margin: 2rem auto;
     max-width: min(1200px, 90vw);
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    box-shadow: 0 4px 16px rgba(37, 99, 235, 0.08);
+    border: 1px solid #dbeafe;
 }
 
 .home-hero-section h1 {
-    font-size: 3rem;
-    color: #0f172a;
-    margin-bottom: 1rem;
+    font-size: 2.4rem;
+    color: #1e1b4b;
+    margin-bottom: 0.75rem;
+    font-weight: 800;
 }
 
 .home-hero-section p {
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     color: #475569;
     margin-bottom: 2rem;
 }
@@ -23,19 +25,32 @@
 .home-actions {
     display: flex;
     justify-content: center;
+    gap: 14px;
+    flex-wrap: wrap;
 }
 
 .cta-button {
-    background-color: #2563eb;
+    background: linear-gradient(90deg, #6c38d5, #2563eb);
     color: white;
-    padding: 12px 32px;
+    padding: 11px 30px;
     border-radius: 8px;
     text-decoration: none;
-    font-weight: 600;
-    font-size: 1.1rem;
-    transition: background-color 0.2s;
+    font-weight: 700;
+    font-size: 1rem;
+    transition: opacity 0.2s ease, transform 0.1s ease;
 }
 
 .cta-button:hover {
-    background-color: #1d4ed8;
+    opacity: 0.88;
+    transform: translateY(-1px);
+}
+
+.cta-secondary {
+    background: #f59e0b;
+    color: #111827;
+}
+
+.cta-secondary:hover {
+    background: #d97706;
+    opacity: 1;
 }

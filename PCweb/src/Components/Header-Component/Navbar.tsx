@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 export default function Navbar() {
     const [open, setOpen] = useState(false);
@@ -39,6 +40,7 @@ export default function Navbar() {
                 </div>
                 <a href="/">Sales</a>
                 <a href="/">Contact</a>
+                <Link className='navbar-partpicker-btn' to='/partpicker'>⚙ Build Your PC</Link>
             </div>
         </header>
     );

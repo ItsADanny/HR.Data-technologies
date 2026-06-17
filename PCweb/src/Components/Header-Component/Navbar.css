@@ -5,7 +5,7 @@ body {
 }
 
 .navbar-container {
-    background: lightblue;
+    background: linear-gradient(90deg, #4f23b8, #1d4ed8);
     display: flex;
     align-items: center;
     gap: 24px;
@@ -13,7 +13,7 @@ body {
     padding: 0 max(20px, calc((100% - min(1600px, 92vw)) / 2));
 }
 
-.navbar-container > a {
+.navbar-container > a:not(.navbar-partpicker-btn) {
     color: #ffffff;
     text-decoration: none;
     font-weight: 600;
@@ -86,4 +86,26 @@ body {
 
 .has-submenu:hover > .subcategory-menu {
     display: block;
+}
+
+.navbar-partpicker-btn {
+    display: inline-block;
+    margin-left: auto;
+    align-self: center;
+    padding: 7px 18px;
+    background: #f59e0b;
+    color: #111827 !important;
+    font-weight: 700;
+    font-size: 13px;
+    text-decoration: none;
+    border-radius: 6px;
+    letter-spacing: 0.2px;
+    line-height: normal;
+    transition: background 0.15s ease, transform 0.1s ease;
+    white-space: nowrap;
+}
+
+.navbar-partpicker-btn:hover {
+    background: #d97706;
+    transform: translateY(-1px);
 }
