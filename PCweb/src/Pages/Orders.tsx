@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import Header from "../Components/Header-Component/Header";
+import Footer from "../Components/Footer-Component/Footer";
+import "../Components/Header-Component/Header.css";
+import "./Orders.css";
 
 type Order = {
     orderID: number;
@@ -42,42 +46,52 @@ export default function Orders() {
     }, []);
 
     return (
-        <div>
-            <h1>Admin Orders</h1>
-            <Link to="/admin">Back to Admin</Link>
+        <>
+            <Header />
+            <div className="orders-page">
+                <Link className="orders-back-link" to="/admin">← Back to Admin</Link>
+                <h1>Admin Orders</h1>
 
-            {loading && <p>Loading...</p>}
-            {error && <p style={{ color: "red" }}>{error}</p>}
+                {loading && <p className="orders-status">Loading orders...</p>}
+                {error && <p className="orders-error">{error}</p>}
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>Order ID</th>
-                        <th>User</th>
-                        <th>Status</th>
-                        <th>Total</th>
-                        <th>Shipping</th>
-                        <th>Billing</th>
-                        <th>Date</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    {orders.map((order) => (
-                        <tr key={order.orderID}>
-                            <td>{order.orderID}</td>
-                            <td>{order.userName}</td>
-                            <td>{order.orderStatus}</td>
-                            <td>{order.totalAmount}</td>
-                            <td>{order.shippingAddress}</td>
-                            <td>{order.billingAddress}</td>
-                            <td>
-                                {new Date(order.createDateTime).toLocaleString()}
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
+                <div className="orders-section">
+                    {orders.length === 0 && !loading
+                        ? <p className="orders-empty">No orders found.</p>
+                        : (
+                            <table className="orders-table">
+                                <thead>
+                                    <tr>
+                                        <th>Order ID</th>
+                                        <th>User</th>
+                                        <th>Status</th>
+                                        <th>Total</th>
+                                        <th>Shipping</th>
+                                        <th>Billing</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {orders.map((order) => (
+                                        <tr key={order.orderID}>
+                                            <td>#{order.orderID}</td>
+                                            <td>{order.userName}</td>
+                                            <td>
+                                                <span className="orders-badge">{order.orderStatus}</span>
+                                            </td>
+                                            <td className="orders-total">€{order.totalAmount}</td>
+                                            <td>{order.shippingAddress}</td>
+                                            <td>{order.billingAddress}</td>
+                                            <td>{new Date(order.createDateTime).toLocaleString()}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        )
+                    }
+                </div>
+            </div>
+            <Footer />
+        </>
     );
 }
