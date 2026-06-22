@@ -8,3 +8,60 @@
     animation: fadeInUp 0.8s ease forwards;
     transform: translateY(20px);
 }
+
+.form-error {
+    background: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fca5a5;
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 12px;
+    font-size: 14px;
+}
+
+.register-success {
+    text-align: center;
+    padding: 16px 0;
+}
+
+.register-success-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: #22c55e;
+    color: #fff;
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+.register-success h2 {
+    margin: 0 0 8px;
+    font-size: 22px;
+    color: #166534;
+}
+
+.register-success p {
+    color: #4b5563;
+    margin: 0 0 20px;
+    font-size: 15px;
+}
+
+.register-success-btn {
+    display: inline-block;
+    padding: 10px 28px;
+    background: linear-gradient(90deg, #6c38d5, #2563eb);
+    color: #fff;
+    font-weight: 700;
+    font-size: 15px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: opacity 0.15s ease;
+}
+
+.register-success-btn:hover {
+    opacity: 0.88;
+}

@@ -57,4 +57,9 @@ public class Orders : iData
     {
         throw new NotImplementedException();
     }
+
+    public static void Create(int userID, int shippingAddressID, int billingAddressID)
+    {
+
+    }
 }

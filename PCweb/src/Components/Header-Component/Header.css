@@ -52,8 +52,23 @@ body {
     transition: color 0.2s ease;
 }
 
+.logout-button {
+    background: none;
+    border: none;
+    font-family: inherit;
+    padding: 0;
+    cursor: pointer;
+}
+
 .cart-icon {
     width: 34px;
     height: 34px;
     object-fit: contain;
+}
+
+.account-link {
+    color: #f9fafb;
+    text-decoration: none;
+    font-size: 16px;
+    transition: color 0.2s ease;
 }

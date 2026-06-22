@@ -10,16 +10,19 @@ namespace PCWeb_Backend.Controller
         // ====================================================================================
         // GET
         // ====================================================================================
-        [HttpGet("/userid/{id:int}")]
+        [HttpGet("session/userid/{id:int}")]
         public ActionResult<Account> GetByUserID(int id)
         {
             return Ok();
         }
 
-        [HttpGet("/sessiontoken/{token:alpha}")]
-        public ActionResult<Account> GetByUserSession(string token)
+        [HttpGet("session/sessiontoken/{token}")]
+        public ActionResult<UserSession> GetByUserSession(string token)
         {
-            return Ok();
+            UserSession? session = DBHandler.GetSessionByToken(token);
+            if (session == null) return NotFound(new { message = "Session not found or expired." });
+
+            return Ok(session);
         }
 
         // ====================================================================================

@@ -1,0 +1,256 @@
+.admin-page {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 32px 20px 60px;
+}
+
+.admin-back-link {
+    display: inline-block;
+    margin-bottom: 20px;
+    color: #2563eb;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.admin-back-link:hover {
+    text-decoration: underline;
+}
+
+.admin-nav-btn {
+    display: inline-block;
+    margin-bottom: 24px;
+    padding: 8px 20px;
+    background: linear-gradient(90deg, #6c38d5, #2563eb);
+    color: #fff;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: opacity 0.15s ease;
+}
+
+.admin-nav-btn:hover {
+    opacity: 0.9;
+}
+
+.admin-page h1 {
+    margin-bottom: 4px;
+}
+
+.admin-intro {
+    color: #6b7280;
+    margin-bottom: 32px;
+}
+
+.admin-section {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 28px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.admin-section h2 {
+    margin-top: 0;
+    margin-bottom: 16px;
+    font-size: 1.25rem;
+}
+
+.admin-section h3 {
+    margin-top: 0;
+    margin-bottom: 12px;
+}
+
+/* Tables */
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+}
+
+.admin-table th,
+.admin-table td {
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 1px solid #eef0f2;
+}
+
+.admin-table th {
+    background: #f8fafc;
+    font-weight: 600;
+    color: #475569;
+    white-space: nowrap;
+}
+
+.admin-table tbody tr:hover {
+    background: #fafbfc;
+}
+
+/* Role list */
+.admin-role-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.admin-role-list li {
+    padding: 10px 12px;
+    border: 1px solid #eef0f2;
+    border-radius: 8px;
+    font-size: 0.92rem;
+}
+
+.admin-role-list strong {
+    color: #1e3a8a;
+}
+
+/* Buttons */
+.admin-btn {
+    border: 1px solid #cbd5e1;
+    background: #fff;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.admin-btn:hover {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+}
+
+.admin-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.admin-btn-primary {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: #fff;
+}
+
+.admin-btn-primary:hover {
+    background: #1d4ed8;
+    border-color: #1d4ed8;
+}
+
+.admin-btn-danger {
+    border-color: #fca5a5;
+    color: #b91c1c;
+}
+
+.admin-btn-danger:hover {
+    background: #fef2f2;
+    border-color: #ef4444;
+}
+
+.admin-btn + .admin-btn {
+    margin-left: 8px;
+}
+
+/* Inline forms (e.g. reset password) */
+.admin-inline-form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.admin-inline-form input {
+    padding: 6px 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 0.85rem;
+}
+
+/* Product management toolbar */
+.admin-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.admin-toolbar label {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.admin-toolbar select {
+    padding: 6px 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
+
+/* Product form */
+.admin-form {
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 20px;
+}
+
+.admin-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(220px, 1fr));
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+.admin-form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.admin-form-field.full-width {
+    grid-column: 1 / -1;
+}
+
+.admin-form-field label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #475569;
+}
+
+.admin-form-field input,
+.admin-form-field select,
+.admin-form-field textarea {
+    padding: 8px 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-family: inherit;
+}
+
+.admin-form-field textarea {
+    min-height: 70px;
+    resize: vertical;
+}
+
+.admin-form-checkbox {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+}
+
+.admin-form-checkbox input {
+    width: auto;
+}
+
+/* Pagination */
+.admin-pagination {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+    font-size: 0.9rem;
+}

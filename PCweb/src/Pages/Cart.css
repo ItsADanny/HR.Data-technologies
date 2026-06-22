@@ -85,6 +85,89 @@ option {
     border: 1px solid #ccc;
     border-radius: 8px;
 }
+
+.billing-section {
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    grid-column: 1 / -1;
+}
+
+.billing-section h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 18px;
+    color: #333;
+}
+
+.address-select-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.address-select-group select {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: white;
+    cursor: pointer;
+}
+
+.create-new-btn {
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.create-new-btn:hover {
+    background-color: #0b7dda;
+}
+
+.address-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.address-form input {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+.address-form input:focus {
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+}
+
+.back-btn {
+    background-color: #666;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-bottom: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.back-btn:hover {
+    background-color: #555;
+}
+
 .checkout-btn {
     background-color: #4CAF50;
     color: white;

@@ -15,6 +15,8 @@ public class ProductFields : iData
     public int? CreateUserID { get; set; }
     public int? UpdateUserID { get; set; }
 
+    public ProductFields() { }
+
     // deze geen idee
     public ProductFields(int id, int productID, string fieldID, string fieldValue)
     {

@@ -22,6 +22,8 @@ public class Product
     // deze zit nog niet in database
     public eColor[]? Colors {get; set;}
 
+    public Product() { }
+
     public Product(int id, int category_id, string name, string? manufacturer, string? description, double? price, int stock, int minimal_stock, bool discontinued, eColor[]? colors)
     {
         ID = id;
@@ -84,7 +86,31 @@ public class Product
 
     public virtual string UpdateSQL()
     {
-        throw new NotImplementedException();
+        // SECURITY: Escape single quotes in user input to prevent SQL Injection attacks
+        string escapedName = GeneralMethods.SQLInjectionSanitizer(Name);
+        string escapedManufacturer = GeneralMethods.SQLInjectionSanitizer(Manufacturer ?? string.Empty);
+        string escapedDescription = GeneralMethods.SQLInjectionSanitizer(Description ?? string.Empty);
+
+        string formattedUpdateDateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
+        string manufacturerValue = string.IsNullOrEmpty(Manufacturer) ? "NULL" : $"'{escapedManufacturer}'";
+        string descriptionValue = string.IsNullOrEmpty(Description) ? "NULL" : $"'{escapedDescription}'";
+        string priceValue = Price.HasValue ? Price.Value.ToString(System.Globalization.CultureInfo.InvariantCulture) : "NULL";
+        string categoryIDValue = CategoryID.HasValue ? CategoryID.ToString() : "NULL";
+        string updateUserIDValue = UpdateUserID.HasValue ? UpdateUserID.ToString() : "NULL";
+
+        return $@"UPDATE Products SET
+            CategoryID = {categoryIDValue},
+            Name = '{escapedName}',
+            Manufacturer = {manufacturerValue},
+            Description = {descriptionValue},
+            Price = {priceValue},
+            Stock = {Stock},
+            MinimalStock = {MinimalStock},
+            Discontinued = {(Discontinued ? 1 : 0)},
+            UpdateDateTime = '{formattedUpdateDateTime}',
+            UpdateUserID = {updateUserIDValue}
+            WHERE ID = {ID};";
     }
 
     public virtual string DeleteSQL()
@@ -165,8 +191,8 @@ public class Product
             FROM Products
             WHERE ID = {id}
         ) p ON c.ID = p.CategoryID
-        INNER JOIN ProductFields pf ON p.ID = pf.ProductID
-        INNER JOIN CategoryFields cf ON pf.FieldID = cf.ID
+        LEFT JOIN ProductFields pf ON p.ID = pf.ProductID
+        LEFT JOIN CategoryFields cf ON pf.FieldID = cf.ID
         ORDER BY p.ID, cf.Name";
     }
 
@@ -232,7 +258,7 @@ public class Product
         ORDER BY p.ID, cf.Name";
     }
 
-    public static string SearchSQL(string query)
+    public static string SearchSQL()
     {
         return $@"SELECT
             c.CategoryName,
@@ -251,7 +277,7 @@ public class Product
         INNER JOIN (
             SELECT ID, CategoryID, Name, Price
             FROM Products
-            WHERE Name LIKE %{query}%
+            WHERE Name LIKE @searchTerm
             ORDER BY ID
         ) p ON c.ID = p.CategoryID
         INNER JOIN ProductFields pf ON p.ID = pf.ProductID
@@ -259,7 +285,7 @@ public class Product
         ORDER BY p.ID, cf.Name";
     }
 
-    public static string SearchSQL(string query, int pageSize = 100, int offset = 0)
+    public static string SearchSQL(int pageSize = 100, int offset = 0)
     {
         return $@"SELECT
             c.CategoryName,
@@ -278,7 +304,7 @@ public class Product
         INNER JOIN (
             SELECT ID, CategoryID, Name, Price
             FROM Products
-            WHERE Name LIKE %{query}%
+            WHERE Name LIKE @searchTerm
             ORDER BY ID
             LIMIT {pageSize} OFFSET {offset}
         ) p ON c.ID = p.CategoryID
@@ -302,9 +328,9 @@ public class Product
         // Using string.Empty for escaped fields that are empty strings, NULL for actual null values
         string manufacturerValue = string.IsNullOrEmpty(Manufacturer) ? "NULL" : $"'{escapedManufacturer}'";
         string descriptionValue = string.IsNullOrEmpty(Description) ? "NULL" : $"'{escapedDescription}'";
-        string priceValue = Price.HasValue ? Price.ToString() : "NULL";
+        string priceValue = Price.HasValue ? Price.Value.ToString(System.Globalization.CultureInfo.InvariantCulture) : "NULL";
 
-        return $@"INSERT INTO Products 
+        return $@"INSERT INTO Products
             (CategoryID, Name, Manufacturer, Description, Price, Stock, MinimalStock, Discontinued, CreateDateTime, CreateUserID) 
             VALUES 
             ({CategoryID}, '{escapedName}', {manufacturerValue}, {descriptionValue}, {priceValue}, {Stock}, {MinimalStock}, {(Discontinued ? 1 : 0)}, '{formattedCreateDateTime}', {CreateUserID});";
@@ -421,6 +447,48 @@ public class Product
         }
     }
 
+    // Returns the raw Products row (including Manufacturer, Description, Stock, etc.)
+    // Used by the admin product form, which needs more than the ProductWithFieldsDTO exposes
+    public static Product? ReadFullProductByID(int id)
+    {
+        try
+        {
+            using (MySqlConnection conn = new MySqlConnection(DBHandler.DBConfig_MySQL.GetConnectionSTR()))
+            using (MySqlCommand cmd = new MySqlCommand($"SELECT * FROM Products WHERE ID = {id}", conn))
+            {
+                conn.Open();
+
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    if (!reader.Read()) return null;
+
+                    return new Product
+                    {
+                        ID = Convert.ToInt32(reader["ID"]),
+                        CategoryID = reader["CategoryID"] is not DBNull ? Convert.ToInt32(reader["CategoryID"]) : null,
+                        Name = reader["Name"]?.ToString() ?? string.Empty,
+                        Manufacturer = reader["Manufacturer"] is not DBNull ? reader["Manufacturer"].ToString() : null,
+                        Description = reader["Description"] is not DBNull ? reader["Description"].ToString() : null,
+                        Price = reader["Price"] is not DBNull ? Convert.ToDouble(reader["Price"]) : null,
+                        Stock = reader["Stock"] is not DBNull ? Convert.ToInt32(reader["Stock"]) : 0,
+                        MinimalStock = reader["MinimalStock"] is not DBNull ? Convert.ToInt32(reader["MinimalStock"]) : 0,
+                        Discontinued = reader["Discontinued"] is not DBNull && Convert.ToBoolean(reader["Discontinued"]),
+                        CreateDateTime = Convert.ToDateTime(reader["CreateDateTime"]),
+                        UpdateDateTime = reader["UpdateDateTime"] is not DBNull ? Convert.ToDateTime(reader["UpdateDateTime"]) : null,
+                        CreateUserID = reader["CreateUserID"] is not DBNull ? Convert.ToInt32(reader["CreateUserID"]) : null,
+                        UpdateUserID = reader["UpdateUserID"] is not DBNull ? Convert.ToInt32(reader["UpdateUserID"]) : null
+                    };
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("ERROR in ReadFullProductByID:");
+            Console.WriteLine(e.ToString());
+            return null;
+        }
+    }
+
     public static List<ProductWithFieldsDTO>? ReadProducts()
     {
         try
@@ -500,8 +568,9 @@ public class Product
         try
         {
             using (MySqlConnection conn = new MySqlConnection(DBHandler.DBConfig_MySQL.GetConnectionSTR()))
-            using (MySqlCommand cmd = new MySqlCommand(SearchSQL(query), conn))
+            using (MySqlCommand cmd = new MySqlCommand(SearchSQL(), conn))
             {
+                cmd.Parameters.AddWithValue("@searchTerm", $"%{query}%");
                 conn.Open();
 
                 using (MySqlDataReader reader = cmd.ExecuteReader())
@@ -537,8 +606,9 @@ public class Product
         try
         {
             using (MySqlConnection conn = new MySqlConnection(DBHandler.DBConfig_MySQL.GetConnectionSTR()))
-            using (MySqlCommand cmd = new MySqlCommand(SearchSQL(query, pageSize, offset), conn))
+            using (MySqlCommand cmd = new MySqlCommand(SearchSQL(pageSize, offset), conn))
             {
+                cmd.Parameters.AddWithValue("@searchTerm", $"%{query}%");
                 conn.Open();
 
                 using (MySqlDataReader reader = cmd.ExecuteReader())
@@ -568,35 +638,17 @@ public class Product
             return null;
         }
     }
-<<<<<<< Updated upstream
-            public static List<string>? ReadAllBrandsInSameCategory(int categoryID)
-=======
 
     public static List<ProductWithFieldsDTO>? CreateProduct(int categoryId, Product product)
->>>>>>> Stashed changes
     {
         try
         {
             using (MySqlConnection conn = new MySqlConnection(DBHandler.DBConfig_MySQL.GetConnectionSTR()))
-<<<<<<< Updated upstream
-            using (MySqlCommand cmd = new MySqlCommand($@"SELECT DISTINCT Manufacturer FROM Products WHERE CategoryID = {categoryID} AND Manufacturer IS NOT NULL", conn))
             {
                 conn.Open();
 
-                using (MySqlDataReader reader = cmd.ExecuteReader())
-                {
-                    List<string> brands = new List<string>();
-
-                    while (reader.Read())
-                    {
-                        brands.Add(reader["Manufacturer"]?.ToString() ?? string.Empty);
-                    }
-
-                    return brands;
-                }
-=======
-            {
-                conn.Open();
+                product.CategoryID = categoryId;
+                product.CreateDateTime = DateTime.Now;
 
                 // ========== STEP 1: INSERT THE PRODUCT ==========
                 using (MySqlCommand cmd = new MySqlCommand(product.InsertSQL(), conn))
@@ -641,7 +693,7 @@ public class Product
                         string fieldInsertSQL = $@"INSERT INTO ProductFields 
                             (ProductID, FieldID, LinkedProductField, StringValue, IntValue, DoubleValue, DateTimeValue, BooleanValue, IsArray, CreateDateTime, CreateUserID) 
                             VALUES 
-                            ({productID}, '{escapedFieldID}', {field.LinkedProductField}, {(field.StringValue != null ? $"'{GeneralMethods.SQLInjectionSanitizer(field.StringValue)}'" : "NULL")}, {field.IntValue?.ToString() ?? "NULL"}, {field.DoubleValue?.ToString() ?? "NULL"}, {(field.DateTimeValue.HasValue ? $"'{dateTimeValue}'" : "NULL")}, {(field.BooleanValue.HasValue ? (field.BooleanValue.Value ? "1" : "0") : "NULL")}, {(field.IsArray.HasValue ? (field.IsArray.Value ? "1" : "0") : "NULL")}, '{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}', {field.CreateUserID});";
+                            ({productID}, '{escapedFieldID}', {field.LinkedProductField}, {(field.StringValue != null ? $"'{GeneralMethods.SQLInjectionSanitizer(field.StringValue)}'" : "NULL")}, {field.IntValue?.ToString() ?? "NULL"}, {field.DoubleValue?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "NULL"}, {(field.DateTimeValue.HasValue ? $"'{dateTimeValue}'" : "NULL")}, {(field.BooleanValue.HasValue ? (field.BooleanValue.Value ? "1" : "0") : "NULL")}, {(field.IsArray.HasValue ? (field.IsArray.Value ? "1" : "0") : "NULL")}, '{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}', {field.CreateUserID});";
 
                         using (MySqlCommand cmd = new MySqlCommand(fieldInsertSQL, conn))
                         {
@@ -657,28 +709,21 @@ public class Product
                 // ========== STEP 4: RETRIEVE AND RETURN THE CREATED PRODUCT WITH ALL ITS FIELDS ==========
                 // Use the existing ReadProductByID method to get the full product data with all fields
                 return ReadProductByID(productID);
->>>>>>> Stashed changes
             }
         }
         catch (Exception e)
         {
-<<<<<<< Updated upstream
-            Console.WriteLine("ERROR in ReadAllBrandsInSameCategory:");
-=======
             Console.WriteLine("ERROR in CreateProduct:");
->>>>>>> Stashed changes
             Console.WriteLine(e.ToString());
             return null;
         }
     }
-<<<<<<< Updated upstream
-}
-=======
 
     public static bool UpdateProduct(int id, Product updatedProduct)
     {
         try
         {
+            updatedProduct.ID = id;
             using (MySqlConnection conn = new MySqlConnection(DBHandler.DBConfig_MySQL.GetConnectionSTR()))
             using (MySqlCommand cmd = new MySqlCommand(updatedProduct.UpdateSQL(), conn))
             {
@@ -723,7 +768,7 @@ public class Product
                         LinkedProductField = {field.LinkedProductField},
                         StringValue = {(field.StringValue != null ? $"'{GeneralMethods.SQLInjectionSanitizer(field.StringValue)}'" : "NULL")},
                         IntValue = {field.IntValue?.ToString() ?? "NULL"},
-                        DoubleValue = {field.DoubleValue?.ToString() ?? "NULL"},
+                        DoubleValue = {field.DoubleValue?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "NULL"},
                         DateTimeValue = {(field.DateTimeValue.HasValue ? $"'{dateTimeValue}'" : "NULL")},
                         BooleanValue = {(field.BooleanValue.HasValue ? (field.BooleanValue.Value ? "1" : "0") : "NULL")},
                         IsArray = {(field.IsArray.HasValue ? (field.IsArray.Value ? "1" : "0") : "NULL")},
@@ -771,5 +816,34 @@ public class Product
             return false;
         }
     }
+
+    public static List<string>? ReadAllBrandsInSameCategory(int categoryID)
+    {
+        try
+        {
+            using (MySqlConnection conn = new MySqlConnection(DBHandler.DBConfig_MySQL.GetConnectionSTR()))
+            using (MySqlCommand cmd = new MySqlCommand($@"SELECT DISTINCT Manufacturer FROM Products WHERE CategoryID = {categoryID} AND Manufacturer IS NOT NULL", conn))
+            {
+                conn.Open();
+
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    List<string> brands = new List<string>();
+
+                    while (reader.Read())
+                    {
+                        brands.Add(reader["Manufacturer"]?.ToString() ?? string.Empty);
+                    }
+
+                    return brands;
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("ERROR in ReadAllBrandsInSameCategory:");
+            Console.WriteLine(e.ToString());
+            return null;
+        }
+    }
 }
->>>>>>> Stashed changes

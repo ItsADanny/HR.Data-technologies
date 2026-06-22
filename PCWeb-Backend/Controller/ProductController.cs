@@ -76,6 +76,20 @@ namespace PCWeb_Backend.Controller
             return Ok(product);
         }
 
+        [HttpGet("{id:int}/details")]
+        public IActionResult GetProductDetails(int id)
+        {
+            if (id <= 0)
+                return BadRequest("Invalid product ID");
+
+            var product = Product.ReadFullProductByID(id);
+
+            if (product == null)
+                return NotFound("Product not found");
+
+            return Ok(product);
+        }
+
         [HttpGet("")]
         public IActionResult GetProducts(int page = 1, int pageSize = 100)
         {
@@ -105,7 +119,7 @@ namespace PCWeb_Backend.Controller
             return Ok(products);
         }
 
-        [HttpGet("search/{query:alpha}")]
+        [HttpGet("search/{query}")]
         public IActionResult SearchProducts(string query)
         {
             if (string.IsNullOrWhiteSpace(query))
@@ -119,7 +133,7 @@ namespace PCWeb_Backend.Controller
             return Ok(products);
         }
 
-        [HttpGet("search/{query:alpha}/{page:int}/{pageSize:int}")]
+        [HttpGet("search/{query}/{page:int}/{pageSize:int}")]
         public IActionResult SearchProducts(string query, int page = 1, int pageSize = 100)
         {
             if (string.IsNullOrWhiteSpace(query))
@@ -169,7 +183,7 @@ namespace PCWeb_Backend.Controller
             bool updatedProduct = Product.UpdateProduct(id, product);
             if (!updatedProduct) return StatusCode(500, "Error updating product");
 
-            bool updatedFields = Product.UpdateProductFields(id, product.Fields);
+            bool updatedFields = Product.UpdateProductFields(id, product.Fields ?? new List<ProductFields>());
             if (!updatedFields)
                 return StatusCode(500, "Error updating product fields");
 

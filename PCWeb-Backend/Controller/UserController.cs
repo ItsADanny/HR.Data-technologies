@@ -10,7 +10,7 @@ namespace PCWeb_Backend.Controller
         // ====================================================================================
         // GET
         // ====================================================================================
-        [HttpGet("/userid/{id:int}")]
+        [HttpGet("userid/{id:int}")]
         public ActionResult<Account> GetByUserID(int id)
         {
             Account? user = Account.GetByID(id);
@@ -18,7 +18,7 @@ namespace PCWeb_Backend.Controller
             return Ok(user);
         }
 
-        [HttpGet("/roleid/{id:int}")]
+        [HttpGet("roleid/{id:int}")]
         public ActionResult<Account> GetByRoleID(int id)
         {
             Account? user = Account.GetByRoleID(id);
@@ -26,7 +26,7 @@ namespace PCWeb_Backend.Controller
             return Ok(user);
         }
 
-        [HttpGet("/email/{email:alpha}")]
+        [HttpGet("email/{email:alpha}")]
         public ActionResult<Account> GetByEmail(string email)
         {
             Account? user = Account.GetByEmail(email);
@@ -34,7 +34,7 @@ namespace PCWeb_Backend.Controller
             return Ok(user);
         }
 
-        [HttpGet("/phone/{phone:alpha}")]
+        [HttpGet("phone/{phone:alpha}")]
         public ActionResult<Account> GetByPhone(string phone)
         {
             Account? user = Account.GetByPhone(phone);
@@ -42,7 +42,7 @@ namespace PCWeb_Backend.Controller
             return Ok(user);
         }
 
-        [HttpGet("/all")]
+        [HttpGet("all")]
         public ActionResult<List<Account>> GetAllUsers()
         {
             return Ok(Account.GetAll());
@@ -66,15 +66,19 @@ namespace PCWeb_Backend.Controller
             //Set the password now that the user is created and we have the ID for the salt
             string[] hashedPassword = Auth.Hash(user.Password);
 
-            newUser = (Account) result;
-            newUser.Password = hashedPassword[0];
-            DBHandler.Update(newUser);
-            DBHandler.Create(new UserSalt(result.ID, hashedPassword[1]));
+            Account? foundUser = Account.GetByEmail(user.Email);
+
+            if (foundUser == null) return BadRequest(new { message = "User registration failed." });
+
+            foundUser.Password = hashedPassword[0];
+            foundUser.UpdateUserID = foundUser.ID; // Set UpdateUserID to the user's own ID for this initial update
+            DBHandler.Update(foundUser);
+            DBHandler.Create(new UserSalt(foundUser.ID, hashedPassword[1]));
             
             return Ok(new { message = "User registered successfully." });
         }
 
-        [HttpPost("/login")]
+        [HttpPost("login")]
         public ActionResult<Account> LoginUser(UserLoginDTO user)
         {
             //Check if user exists
@@ -92,20 +96,96 @@ namespace PCWeb_Backend.Controller
 
             //If valid, create a session and return success
             UserSession newSession = new UserSession(existingUser.ID);
-            DBHandler.Create(newSession);
+            if (!DBHandler.Create(newSession))
+                return BadRequest(new { message = "Login failed." });
             return Ok(new { message = "Login successful.", sessionToken = newSession.SessionToken });
         }
 
         // ====================================================================================
         // PUT
         // ====================================================================================
-        [HttpPut("/userid/{id:int}")]
-        public ActionResult<Account> UpdateUserByUserID(int id, Account user)
+        [HttpPut("userid/{id:int}")]
+        public ActionResult<Account> UpdateUserByUserID(int id, UpdateAccountDTO dto)
         {
-            return Ok();
+            // Implementation for updating user by ID
+            Account? user = Account.GetByID(id);
+            if (user == null) return NotFound(new { message = "User not found." });
+
+            // Update the user's properties with the provided data
+            user.Shipping_Address = dto.Shipping_Address;
+            user.Billing_Address = dto.Billing_Address;
+            user.First_Name = dto.First_Name;
+            user.Last_Name = dto.Last_Name;
+            user.Email = dto.Email;
+            user.Phone = dto.Phone;
+            user.Country = dto.Country;
+
+            user.UpdateDateTime = DateTime.Now;
+
+            if (!DBHandler.Update(user)) return BadRequest(new { message = "User update failed." });
+
+            if (user.Shipping_Address != null && dto.ShippingAddress != null)
+            {
+                Address? existingShippingAddress = Address.GetById(user.Shipping_Address.Value);
+                if (existingShippingAddress != null)
+                {
+                    existingShippingAddress.Country = dto.ShippingAddress.Country;
+                    existingShippingAddress.City = dto.ShippingAddress.City;
+                    existingShippingAddress.Street = dto.ShippingAddress.Street;
+                    existingShippingAddress.HouseNumber = dto.ShippingAddress.HouseNumber;
+                    existingShippingAddress.HouseNumberAddition = dto.ShippingAddress.HouseNumberAddition;
+                    existingShippingAddress.PostCode = dto.ShippingAddress.PostCode;
+                    DBHandler.Update(existingShippingAddress);
+                }
+            }
+
+            if (user.Billing_Address != null && dto.BillingAddress != null)
+            {
+                Address? existingBillingAddress = Address.GetById(user.Billing_Address.Value);
+                if (existingBillingAddress != null)
+                {
+                    existingBillingAddress.Country = dto.BillingAddress.Country;
+                    existingBillingAddress.City = dto.BillingAddress.City;
+                    existingBillingAddress.Street = dto.BillingAddress.Street;
+                    existingBillingAddress.HouseNumber = dto.BillingAddress.HouseNumber;
+                    existingBillingAddress.HouseNumberAddition = dto.BillingAddress.HouseNumberAddition;
+                    existingBillingAddress.PostCode = dto.BillingAddress.PostCode;
+                    DBHandler.Update(existingBillingAddress);
+                }
+            }
+
+            return Ok(new { message = "User updated successfully." });
         }
 
-        [HttpPut("/logout")]
+        [HttpPut("userid/{id:int}/password")]
+        public ActionResult ResetPassword(int id, ResetPasswordDTO request)
+        {
+            //Check if user exists
+            Account? user = Account.GetByID(id);
+            if (user == null) return NotFound(new { message = "User not found." });
+
+            //Hash the new password with a freshly generated salt
+            string[] hashedPassword = Auth.Hash(request.NewPassword);
+
+            user.Password = hashedPassword[0];
+            if (!DBHandler.Update(user)) return BadRequest(new { message = "Password reset failed." });
+
+            //Update the existing salt, or create one if the user didn't have one yet
+            UserSalt? existingSalt = UserSalt.GetSalt(id);
+            if (existingSalt != null)
+            {
+                existingSalt.Salt = hashedPassword[1];
+                DBHandler.Update(existingSalt);
+            }
+            else
+            {
+                DBHandler.Create(new UserSalt(id, hashedPassword[1]));
+            }
+
+            return Ok(new { message = "Password reset successful." });
+        }
+
+        [HttpPut("logout")]
         public ActionResult LogoutUser(string sessionToken)
         {
             //Check if session exists
@@ -121,7 +201,7 @@ namespace PCWeb_Backend.Controller
         // ====================================================================================
         // DELETE
         // ====================================================================================
-        [HttpDelete("/userid/{id:int}")]
+        [HttpDelete("userid/{id:int}")]
         public ActionResult DeleteUserByUserID(int id)
         {
             return Ok();

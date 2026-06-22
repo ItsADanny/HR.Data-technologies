@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import "./Slideshow.css";
 
 type ImageSlide = {
@@ -17,20 +18,23 @@ const slides = [
         title: "Unleash Your Gaming Potential",
         description: "Build smoother gameplay with elite CPUs, GPUs, and memory.",
         cta: "Shop Components",
+        link: "/viewproducts",
         theme: "slide-theme-1",
     },
     {
         id: 2,
-        title: "Precision-Crafted Workstations",
-        description: "Power through rendering, coding, and editing with pro-grade parts.",
-        cta: "View Workstations",
+        title: "Build Your Perfect PC",
+        description: "Pick every part yourself — CPU, GPU, RAM, storage and more in one builder.",
+        cta: "Open PC Builder",
+        link: "/partpicker",
         theme: "slide-theme-2",
     },
     {
         id: 3,
         title: "Upgrade Week Deals",
         description: "Discover limited-time savings on trusted hardware brands.",
-        cta: "See Promotions",
+        cta: "See All Products",
+        link: "/viewproducts",
         theme: "slide-theme-3",
     },
 ];
@@ -72,9 +76,9 @@ export default function Slideshow({ compact = false, imageSlides = [] }: Slidesh
                             <div className="slide-content">
                                 <h2>{slide.title}</h2>
                                 <p>{slide.description}</p>
-                                <a className="slideshow-link" href="/">
+                                <Link className="slideshow-link" to={slide.link}>
                                     {slide.cta}
-                                </a>
+                                </Link>
                             </div>
                         </article>
                     ))}
